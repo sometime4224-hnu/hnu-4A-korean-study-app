@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자기소개서 문장 완성하기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --light-gray: #f0f4f7;
+            --dark-text: #333;
+            --light-text: #fff;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none; /* Initially hidden */
+        }
+        
+        #start-screen {
+            padding: 40px;
+            text-align: center;
+        }
+
+        #start-screen h1 {
+            color: var(--dark-text);
+            margin-bottom: 20px;
+        }
+
+        #start-screen p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        #start-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--light-text);
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #start-button:hover {
+            background-color: #357abd;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            background-color: #dbe9f6;
+            height: 10px;
+        }
+        
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--correct-color);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .question-box {
+            background-color: #f9f9f9;
+            border-left: 5px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .question-box h2 {
+            font-size: 1.2em;
+            margin: 0 0 10px 0;
+            color: var(--dark-text);
+        }
+
+        .question-box p {
+            margin: 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .grammar-tip {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-radius: 8px;
+        }
+
+        .grammar-tip span {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .options-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            border-color: var(--correct-color);
+            background-color: #f0fff4;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.2);
+        }
+
+        .navigation {
+            padding: 20px 30px;
+            text-align: right;
+        }
+
+        #next-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--light-text);
+            background-color: #6c757d;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #next-btn.active {
+            background-color: var(--correct-color);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        #result-screen {
+            padding: 40px;
+            text-align: center;
+        }
+
+        #result-screen h2 {
+            color: var(--correct-color);
+            margin-bottom: 20px;
+        }
+        
+        #final-text {
+            text-align: left;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        #restart-btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--light-text);
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1>자기소개서 문장 완성하기</h1>
+        <p>
+            각 항목의 기본 문장을 더 풍부한 문단으로 만드는 연습을 해봅시다.<br>
+            제시된 문법을 활용하여 가장 자연스러운 문장을 선택하고, 나만의 자기소개서를 완성해보세요!
+        </p>
+        <button id="start-button">게임 시작</button>
+    </div>
+
+    <div class="game-container" id="game-container">
+        <div class="header">
+            <h1 id="header-title">자기소개서 문장 완성하기</h1>
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="question-box">
+                <h2 id="question-title"></h2>
+                <p id="base-sentence"></p>
+            </div>
+            <div class="grammar-tip">
+                💡 <strong>문법 제안:</strong> <span id="grammar-point"></span>
+            </div>
+            <div class="options-container" id="options-container">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+        </div>
+        <div class="navigation">
+            <button id="next-btn">다음</button>
+        </div>
+    </div>
+    
+    <div id="result-screen" style="display: none; width: 100%; max-width: 800px;">
+        <h2>🎉 자기소개서 완성!</h2>
+        <div id="final-text"></div>
+        <button id="restart-btn">다시하기</button>
+    </div>
+
+    <script>
+        const gameData = [
+            {
+                question: "1. 우리 학교와 해당 전공에 지원한 동기가 무엇입니까?",
+                baseSentence: "기본 문장: '한국 문화에 관심이 많아서 한국어와 한국 사회를 더 깊게 공부하고 싶습니다.'",
+                grammar: "-(으)면서",
+                options: [
+                    "K-팝을 즐겨 들으면서 한국 문화에 대한 관심이 자연스럽게 커졌고, 이를 계기로 한국의 사회와 역사까지 더 깊이 있게 배우고 싶다는 생각을 하게 되었습니다.",
+                    "저는 보통 주말에 친구들과 영화를 보면서 시간을 보냅니다.",
+                    "저는 한국 음식을 좋아해서 한국 식당에 자주 가면서 한국어를 조금 배웠습니다."
+                ],
+                correctAnswer: "K-팝을 즐겨 들으면서 한국 문화에 대한 관심이 자연스럽게 커졌고, 이를 계기로 한국의 사회와 역사까지 더 깊이 있게 배우고 싶다는 생각을 하게 되었습니다."
+            },
+            {
+                question: "2. 우리 학교에 적합한 인재가 되기 위해 어떤 노력과 준비를 했습니까?",
+                baseSentence: "기본 문장: '한국어능력시험(TOPIK) 4급을 땄고, 학교에서 열리는 한국 문화 행사에 참여했습니다.'",
+                grammar: "-기 위해 / -(으)ㄴ 경험을 바탕으로",
+                options: [
+                    "저는 한국에서 유학 생활을 하기 위해 매일 밥을 먹었습니다.",
+                    "귀교에 입학하기 위해 꾸준히 한국어 공부를 하여 TOPIK 4급을 취득했습니다. 또한, 한국 문화 교류 동아리에서 활동한 경험을 바탕으로 한국 사회에 대한 이해를 높였습니다.",
+                    "친구와 함께 여행하기 위해 아르바이트를 해서 돈을 모았습니다."
+                ],
+                correctAnswer: "귀교에 입학하기 위해 꾸준히 한국어 공부를 하여 TOPIK 4급을 취득했습니다. 또한, 한국 문화 교류 동아리에서 활동한 경험을 바탕으로 한국 사회에 대한 이해를 높였습니다."
+            },
+            {
+                question: "3. 우리 학교에 다니는 동안의 학업 목표는 무엇이고, 그 목표를 이루기 위해 어떻게 할 것입니까?",
+                baseSentence: "기본 문장: '학교에 다니는 동안 전공 공부를 열심히 하고, 한국 친구들을 많이 사귀고 싶습니다.'",
+                grammar: "-뿐만 아니라 / -에 기여하다",
+                options: [
+                    "재학 중에는 전공 지식을 깊이 있게 탐구할 뿐만 아니라, 다양한 문화권의 친구들과 교류하며 글로벌 역량을 키우고 싶습니다. 이러한 경험을 통해 졸업 후 양국의 교류에 기여하는 인재가 되고 싶습니다.",
+                    "저는 공부뿐만 아니라 운동도 잘하고 싶습니다.",
+                    "저는 한국 친구들과 함께 축구 경기를 보는 것에 기여하고 싶습니다."
+                ],
+                correctAnswer: "재학 중에는 전공 지식을 깊이 있게 탐구할 뿐만 아니라, 다양한 문화권의 친구들과 교류하며 글로벌 역량을 키우고 싶습니다. 이러한 경험을 통해 졸업 후 양국의 교류에 기여하는 인재가 되고 싶습니다."
+            },
+            {
+                question: "4. 우리 학교를 졸업한 이후의 계획은 무엇입니까?",
+                baseSentence: "기본 문장: '졸업한 후에 한국과 제 나라를 연결하는 일을 하고 싶습니다.'",
+                grammar: "-(으)ㄴ 지식/경험을 활용하여",
+                options: [
+                    "저는 저의 뛰어난 게임 실력을 활용하여 프로 게이머가 되고 싶습니다.",
+                    "대학교에서 배운 전공 지식과 한국 문화에 대한 깊은 이해를 활용하여, 양국 간의 무역 또는 문화 교류 분야에서 전문가로 성장하고 싶습니다. 이를 통해 두 나라가 함께 발전하는 데 힘이 되고 싶습니다.",
+                    "저는 요리 경험을 활용하여 우리 가족에게 맛있는 저녁을 만들어 줄 것입니다."
+                ],
+                correctAnswer: "대학교에서 배운 전공 지식과 한국 문화에 대한 깊은 이해를 활용하여, 양국 간의 무역 또는 문화 교류 분야에서 전문가로 성장하고 싶습니다. 이를 통해 두 나라가 함께 발전하는 데 힘이 되고 싶습니다."
+            }
+        ];
+
+        let currentStep = 0;
+        let userAnswers = [];
+
+        const startScreen = document.getElementById('start-screen');
+        const gameContainer = document.getElementById('game-container');
+        const startButton = document.getElementById('start-button');
+        
+        const questionTitle = document.getElementById('question-title');
+        const baseSentence = document.getElementById('base-sentence');
+        const grammarPoint = document.getElementById('grammar-point');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const resultScreen = document.getElementById('result-screen');
+        const finalText = document.getElementById('final-text');
+        const restartBtn = document.getElementById('restart-btn');
+
+        startButton.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', handleNext);
+        restartBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            currentStep = 0;
+            userAnswers = [];
+            resultScreen.style.display = 'none';
+            startScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            nextBtn.textContent = '다음';
+            loadStep();
+        }
+
+        function loadStep() {
+            // Deselect all options
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            const currentData = gameData[currentStep];
+            questionTitle.textContent = currentData.question;
+            baseSentence.textContent = currentData.baseSentence;
+            grammarPoint.textContent = currentData.grammar;
+            
+            optionsContainer.innerHTML = '';
+            currentData.options.forEach(optionText => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = optionText;
+                optionElement.addEventListener('click', () => selectOption(optionElement, optionText));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            updateProgressBar();
+            deactivateNextButton();
+        }
+
+        function selectOption(selectedElement, answer) {
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            selectedElement.classList.add('selected');
+            
+            userAnswers[currentStep] = answer;
+            activateNextButton();
+            
+            if (currentStep === gameData.length - 1) {
+                nextBtn.textContent = '자기소개서 완성하기';
+            }
+        }
+        
+        function handleNext() {
+            if (currentStep < gameData.length - 1) {
+                currentStep++;
+                loadStep();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            gameContainer.style.display = 'none';
+            resultScreen.style.display = 'block';
+
+            let fullText = "";
+            gameData.forEach((item, index) => {
+                const answer = userAnswers[index];
+                if (answer) {
+                    fullText += `<h3>${item.question}</h3>\n<p>${answer}</p>\n\n`;
+                }
+            });
+            
+            finalText.innerHTML = fullText;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentStep) / gameData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function activateNextButton() {
+            nextBtn.classList.add('active');
+        }
+
+        function deactivateNextButton() {
+            nextBtn.classList.remove('active');
+        }
+
+    </script>
+</body>
+</html>
