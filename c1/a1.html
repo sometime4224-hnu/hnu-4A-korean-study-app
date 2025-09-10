@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자기소개서 구성하기 게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: manipulation;
+        }
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed #cbd5e1;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .drop-zone.drag-over {
+            background-color: #ecfccb; /* light green */
+            border-color: #84cc16; /* green */
+        }
+        .draggable {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .draggable.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .draggable.correct {
+            cursor: not-allowed;
+            background-color: #dcfce7; /* lighter green */
+            border-color: #22c55e; /* green */
+        }
+        .drop-zone.correct-flash {
+            animation: flash-green 0.5s ease;
+        }
+        .drop-zone.incorrect-flash {
+            animation: flash-red 0.5s ease;
+        }
+        @keyframes flash-green {
+            0% { background-color: #ecfccb; }
+            100% { background-color: #ffffff; }
+        }
+        @keyframes flash-red {
+            0% { background-color: #fee2e2; }
+            100% { background-color: #ffffff; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-5xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">자기소개서 구성하기 게임</h1>
+            <p class="text-slate-600 mt-2">아래 문장들을 알맞은 자기소개서 항목으로 옮겨보세요.</p>
+        </header>
+
+        <main class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- 자기소개서 항목 (Drop Zones) -->
+                <div id="cover-letter-sections" class="w-full lg:w-1/2 space-y-4">
+                    <!-- JS로 생성 -->
+                </div>
+
+                <!-- 문장 목록 (Draggable Items) -->
+                <div class="w-full lg:w-1/2 p-4 bg-slate-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-slate-700 mb-3 text-center">여기에 있는 문장들을 옮겨보세요!</h3>
+                    <div id="sentence-pool" class="space-y-3">
+                        <!-- JS로 생성 -->
+                    </div>
+                </div>
+            </div>
+             <div class="text-center mt-6">
+                <button id="reset-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    다시 시작
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 승리 메시지 모달 -->
+    <div id="win-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 text-center shadow-2xl transform scale-95 transition-transform duration-300">
+            <h2 class="text-3xl font-bold text-yellow-500 mb-2">🎉 완벽해요! 🎉</h2>
+            <p class="text-slate-700 text-lg mb-6">자기소개서의 구조를 완벽하게 이해하셨네요!</p>
+            <button id="play-again-button" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-lg">
+                새 게임하기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const sectionsContainer = document.getElementById('cover-letter-sections');
+        const sentencesContainer = document.getElementById('sentence-pool');
+        const resetButton = document.getElementById('reset-button');
+        const winModal = document.getElementById('win-modal');
+        const playAgainButton = document.getElementById('play-again-button');
+
+        const gameData = [
+            {
+                id: 1,
+                question: "1. 우리 학교와 해당 전공에 지원한 동기가 무엇입니까?",
+                title: "지원 동기",
+                sentence: "저는 한국 문화에 관심이 많습니다. 그래서 한국어를 더 배우고 싶어서 이 학교에 지원했습니다."
+            },
+            {
+                id: 2,
+                question: "2. 우리 학교에 적합한 인재가 되기 위해 어떠한 노력과 준비를 했습니까?",
+                title: "노력과 준비",
+                sentence: "매일 한국 드라마를 보고 한국 친구와 이야기하면서 한국어 실력을 키웠습니다."
+            },
+            {
+                id: 3,
+                question: "3. 우리 학교에 다니는 동안의 학업 목표는 무엇이고, 그 목표를 이루기 위해 어떻게 할 것입니까?",
+                title: "학업 계획",
+                sentence: "학교에 입학해서는 읽기와 쓰기 수업을 열심히 듣고, 학교 동아리 활동에도 참여하고 싶습니다."
+            },
+            {
+                id: 4,
+                question: "4. 우리 학교를 졸업한 이후의 계획은 무엇입니까?",
+                title: "졸업 후 계획",
+                sentence: "학교를 졸업한 후에 한국 회사에 취직해서 한국에서 계속 살고 싶습니다."
+            }
+        ];
+        
+        let correctPlacements = 0;
+
+        function initializeGame() {
+            correctPlacements = 0;
+            sectionsContainer.innerHTML = '';
+            sentencesContainer.innerHTML = '';
+            winModal.classList.add('hidden');
+            winModal.firstElementChild.classList.remove('scale-100');
+            winModal.firstElementChild.classList.add('scale-95');
+
+            // 섹션(드롭 존) 생성
+            gameData.forEach(item => {
+                const sectionEl = document.createElement('div');
+                sectionEl.classList.add('p-4', 'rounded-lg', 'bg-white', 'border', 'border-slate-200');
+                sectionEl.innerHTML = `
+                    <h3 class="font-bold text-slate-800">${item.question}</h3>
+                    <p class="text-sm text-blue-600 font-semibold mb-2">[${item.title}]</p>
+                    <div class="drop-zone p-2 rounded-md" data-id="${item.id}"></div>
+                `;
+                sectionsContainer.appendChild(sectionEl);
+            });
+            
+            // 문장(드래그 아이템) 생성 및 섞기
+            const shuffledSentences = [...gameData].sort(() => Math.random() - 0.5);
+            shuffledSentences.forEach(item => {
+                const sentenceEl = document.createElement('div');
+                sentenceEl.classList.add('draggable', 'p-3', 'bg-white', 'rounded-lg', 'border', 'border-slate-300', 'shadow-sm');
+                sentenceEl.setAttribute('draggable', true);
+                sentenceEl.dataset.id = item.id;
+                sentenceEl.textContent = item.sentence;
+                sentencesContainer.appendChild(sentenceEl);
+            });
+
+            addEventListeners();
+        }
+
+        function addEventListeners() {
+            const draggables = document.querySelectorAll('.draggable');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    if (!draggable.classList.contains('correct')) {
+                        draggable.classList.add('dragging');
+                    }
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    if (!zone.hasChildNodes()){
+                       zone.classList.add('drag-over');
+                    }
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    if (zone.hasChildNodes()) return; // 이미 채워져 있으면 드롭 방지
+
+                    const draggedId = document.querySelector('.dragging')?.dataset.id;
+                    if (!draggedId) return;
+                    
+                    const draggedEl = document.querySelector('.dragging');
+                    const targetId = zone.dataset.id;
+                    
+                    if (draggedId === targetId) {
+                        // 정답
+                        zone.appendChild(draggedEl);
+                        draggedEl.classList.remove('dragging');
+                        draggedEl.classList.add('correct');
+                        draggedEl.setAttribute('draggable', false);
+                        zone.classList.add('correct-flash');
+                        setTimeout(() => zone.classList.remove('correct-flash'), 500);
+                        correctPlacements++;
+                        checkForWin();
+                    } else {
+                        // 오답
+                        zone.classList.add('incorrect-flash');
+                        setTimeout(() => zone.classList.remove('incorrect-flash'), 500);
+                    }
+                });
+            });
+        }
+        
+        function checkForWin() {
+            if (correctPlacements === gameData.length) {
+                setTimeout(() => {
+                    winModal.classList.remove('hidden');
+                     setTimeout(() => {
+                        winModal.firstElementChild.classList.add('scale-100');
+                    }, 10);
+                }, 500);
+            }
+        }
+
+        resetButton.addEventListener('click', initializeGame);
+        playAgainButton.addEventListener('click', initializeGame);
+
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>
+
