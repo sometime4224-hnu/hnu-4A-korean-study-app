@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자기소개서 핵심 문법</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50c878;
+            --light-gray: #f0f4f7;
+            --dark-text: #333;
+            --light-text: #fff;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--light-gray);
+            line-height: 1.7;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--dark-text);
+            margin-bottom: 15px;
+        }
+
+        .intro-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 35px;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+        .accordion-header {
+            width: 100%;
+            background-color: #fff;
+            border: none;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .accordion-header::after {
+            content: '+';
+            font-size: 1.5em;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-header.active::after {
+            content: '−';
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: #fdfdfd;
+        }
+        
+        .content-inner {
+             padding: 0 20px 20px 20px;
+        }
+
+        .content-inner h4 {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .content-inner p, .content-inner ul {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .content-inner ul {
+            list-style: none;
+        }
+        
+        .content-inner li {
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+         .content-inner .explanation {
+            font-style: italic;
+            color: #555;
+            padding: 15px;
+            background-color: #e9f5ff;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>자기소개서 핵심 문법</h1>
+        <p class="intro-text">
+            자기소개서를 더 논리적이고 풍부하게 만들어 주는 중·고급 문법입니다.<br>
+            각 문법을 클릭하여 자세한 설명과 예문을 확인해 보세요.
+        </p>
+
+        <div class="accordion">
+            <div class="accordion-item">
+                <button class="accordion-header">-는/(으)ㄴ 덕분에</button>
+                <div class="accordion-content">
+                    <div class="content-inner">
+                        <h4>설명</h4>
+                        <p>긍정적인 결과의 원인이 앞에 나온 내용 덕분임을 나타낼 때 사용합니다.</p>
+                        <h4>예문</h4>
+                        <ul>
+                            <li>다양한 팀 프로젝트에 참여한 덕분에 협업 능력을 기를 수 있었습니다.</li>
+                            <li>한국인 친구들과 꾸준히 교류한 덕분에 의사소통 능력이 크게 향상되었습니다.</li>
+                        </ul>
+                        <h4>해설 및 팁</h4>
+                        <p class="explanation">자신의 강점이나 성과가 어떤 긍정적인 경험에서 비롯되었는지 연결하여 설명할 때 유용합니다. 겸손하면서도 자신의 노력을 효과적으로 보여줄 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">-을/를 바탕으로</button>
+                <div class="accordion-content">
+                     <div class="content-inner">
+                        <h4>설명</h4>
+                        <p>어떤 경험, 지식, 사실 등을 기초로 하여 다음 행동을 함을 나타냅니다.</p>
+                        <h4>예문</h4>
+                        <ul>
+                            <li>대학교에서 배운 마케팅 지식을 바탕으로 귀사의 성장에 기여하고 싶습니다.</li>
+                            <li>인턴으로 근무하며 쌓은 실무 경험을 바탕으로 빠르게 업무에 적응할 수 있습니다.</li>
+                        </ul>
+                        <h4>해설 및 팁</h4>
+                        <p class="explanation">자신이 가진 과거의 역량을 미래의 기여로 연결시키는 논리적인 다리 역할을 합니다. 지원하는 직무에 대한 이해도와 자신의 준비성을 보여주기에 매우 효과적인 표현입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">-고자</button>
+                <div class="accordion-content">
+                     <div class="content-inner">
+                        <h4>설명</h4>
+                        <p>어떤 행동을 하려는 의도나 목적을 나타내는 격식적인 표현입니다. '-기 위해'와 의미가 비슷합니다.</p>
+                        <h4>예문</h4>
+                        <ul>
+                            <li>양국의 문화 교류에 기여하고자 문화 콘텐츠 전공에 지원하게 되었습니다.</li>
+                            <li>최고의 제품을 만들고자 밤낮으로 연구에 매진한 경험이 있습니다.</li>
+                        </ul>
+                        <h4>해설 및 팁</h4>
+                        <p class="explanation">자기소개서와 같이 격식이 필요한 글에서 자신의 포부나 지원 동기를 진중하게 표현할 때 사용하면 좋습니다. 목표 지향적인 인재라는 인상을 줄 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header">-뿐만 아니라 -도</button>
+                <div class="accordion-content">
+                     <div class="content-inner">
+                        <h4>설명</h4>
+                        <p>앞의 내용에 뒤의 내용까지 더해짐을 나타냅니다. 두 가지 이상의 장점이나 역량을 나열할 때 사용합니다.</p>
+                        <h4>예문</h4>
+                        <ul>
+                            <li>저는 한국어 능력뿐만 아니라 영어와 중국어로도 소통이 가능합니다.</li>
+                            <li>꼼꼼한 성격을 가졌을 뿐만 아니라, 긍정적인 태도로 팀의 분위기를 좋게 만듭니다.</li>
+                        </ul>
+                        <h4>해설 및 팁</h4>
+                        <p class="explanation">자신이 다재다능한 인재임을 어필하고 싶을 때 효과적입니다. 서로 관련이 있거나, 혹은 다른 매력을 보여주는 역량을 함께 제시하여 자신의 가치를 높일 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <button class="accordion-header">-(으)ㅁ으로써</button>
+                <div class="accordion-content">
+                     <div class="content-inner">
+                        <h4>설명</h4>
+                        <p>어떤 행위가 뒤따르는 일의 수단이나 방법, 원인이 됨을 나타냅니다.</p>
+                        <h4>예문</h4>
+                        <ul>
+                            <li>다양한 대외 활동에 참여함으로써 소통과 협업의 중요성을 깨달았습니다.</li>
+                            <li>매일 꾸준히 한국 뉴스를 시청함으로써 시사 상식과 어휘 실력을 키웠습니다.</li>
+                        </ul>
+                        <h4>해설 및 팁</h4>
+                        <p class="explanation">자신의 성과나 깨달음이 구체적으로 어떤 노력을 통해 이루어졌는지 과정을 설명할 때 유용합니다. '그냥'이 아닌, 구체적인 행동을 통해 역량을 키워온 인재라는 인상을 줍니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const currentlyActive = document.querySelector('.accordion-header.active');
+                if (currentlyActive && currentlyActive !== header) {
+                    currentlyActive.classList.remove('active');
+                    currentlyActive.nextElementSibling.style.maxHeight = 0;
+                }
+
+                header.classList.toggle('active');
+                const content = header.nextElementSibling;
+                if (header.classList.contains('active')) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                } else {
+                    content.style.maxHeight = 0;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
