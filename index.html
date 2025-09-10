@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자기소개서 어휘 카드 게임</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+        }
+        .card-container { perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .card-container.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back {
+            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            display: flex; justify-content: center; align-items: center; text-align: center;
+            padding: 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .card-back { transform: rotateY(180deg); }
+        .lang-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500">
+
+    <div class="text-center mb-6">
+        <h1 class="text-4xl font-bold text-blue-600 mb-2">자기소개서 완전 정복</h1>
+        <p class="text-lg text-gray-600">핵심 어휘 카드 게임</p>
+    </div>
+
+    <div id="language-selector" class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 bg-white p-2 rounded-xl shadow-md">
+        <button data-lang="korean" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300">한국어 설명</button>
+        <button data-lang="english" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-teal-500 rounded-lg shadow-md hover:bg-teal-600 transition-all duration-300">영어</button>
+        <button data-lang="vietnamese" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 transition-all duration-300">베트남어</button>
+        <button data-lang="japanese" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-purple-500 rounded-lg shadow-md hover:bg-purple-600 transition-all duration-300">일본어</button>
+        <button data-lang="chinese" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-red-500 rounded-lg shadow-md hover:bg-red-600 transition-all duration-300">중국어</button>
+    </div>
+
+    <div id="game-board" class="w-full max-w-7xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
+
+    <script>
+        const allVocabulary = {
+            korean: {
+                themeColor: 'blue',
+                data: [
+                    { korean: "자기소개서", foreign: "자신에 대해 다른 사람에게 알리는 글." },
+                    { korean: "지원", foreign: "어떤 조직에 들어가기를 원하는 것." },
+                    { korean: "서류", foreign: "글이나 정보가 적힌 종이." },
+                    { korean: "동기", foreign: "어떤 일이나 행동을 하게 된 이유." },
+                    { korean: "전공", foreign: "대학교에서 깊이 있게 공부하는 분야." },
+                    { korean: "성격", foreign: "그 사람이 본래 가지고 있는 마음의 특징." },
+                    { korean: "장점", foreign: "좋은 점." },
+                    { korean: "단점", foreign: "나쁜 점. 부족한 점." },
+                    { korean: "형성", foreign: "어떤 모습이나 모양이 만들어지는 것." },
+                    { korean: "인재", foreign: "어떤 분야에 능력이 뛰어난 사람." },
+                    { korean: "노력", foreign: "목표를 이루기 위해 힘을 쓰는 것." },
+                    { korean: "준비", foreign: "필요한 것을 미리 갖추는 것." },
+                    { korean: "학업", foreign: "학교에서 하는 공부." },
+                    { korean: "분야", foreign: "어떤 활동의 범위나 부분." },
+                    { korean: "목표", foreign: "이루고 싶은 것." },
+                    { korean: "경험", foreign: "직접 해 보거나 겪어 본 일." },
+                    { korean: "유학 생활", foreign: "외국에 가서 공부하며 지내는 것." },
+                    { korean: "능력", foreign: "어떤 일을 할 수 있는 힘." },
+                    { korean: "계획", foreign: "앞으로 할 일에 대한 생각." },
+                    { korean: "진로", foreign: "앞으로 나아갈 길. (주로 직업)" },
+                    { korean: "학과", foreign: "대학교의 전공에 따른 작은 단위." },
+                    { korean: "지원하다", foreign: "어떤 조직에 들어가기를 바라다." },
+                    { korean: "영향을 미치다", foreign: "어떤 것에 변화를 주다." },
+                    { korean: "적합하다", foreign: "조건이나 상황에 꼭 맞다." },
+                    { korean: "목표를 세우다", foreign: "무엇을 이룰지 정하다." },
+                    { korean: "노력을 기울이다", foreign: "어떤 일에 많은 힘을 쓰다." },
+                    { korean: "능력을 갖추다", foreign: "어떤 일을 할 수 있는 힘을 가지다." },
+                    { korean: "목표를 이루다", foreign: "원하는 것을 성공적으로 해내다." }
+                ]
+            },
+            english: {
+                themeColor: 'teal',
+                data: [
+                    { korean: "자기소개서", foreign: "Personal Statement" },
+                    { korean: "지원", foreign: "Application" },
+                    { korean: "서류", foreign: "Document" },
+                    { korean: "동기", foreign: "Motivation" },
+                    { korean: "전공", foreign: "Major" },
+                    { korean: "성격", foreign: "Personality" },
+                    { korean: "장점", foreign: "Strength" },
+                    { korean: "단점", foreign: "Weakness" },
+                    { korean: "형성", foreign: "Formation" },
+                    { korean: "인재", foreign: "Talented Person" },
+                    { korean: "노력", foreign: "Effort" },
+                    { korean: "준비", foreign: "Preparation" },
+                    { korean: "학업", foreign: "Academics" },
+                    { korean: "분야", foreign: "Field" },
+                    { korean: "목표", foreign: "Goal" },
+                    { korean: "경험", foreign: "Experience" },
+                    { korean: "유학 생활", foreign: "Studying Abroad" },
+                    { korean: "능력", foreign: "Ability" },
+                    { korean: "계획", foreign: "Plan" },
+                    { korean: "진로", foreign: "Career Path" },
+                    { korean: "학과", foreign: "Department" },
+                    { korean: "지원하다", foreign: "To apply for" },
+                    { korean: "영향을 미치다", foreign: "To influence" },
+                    { korean: "적합하다", foreign: "To be suitable" },
+                    { korean: "목표를 세우다", foreign: "To set a goal" },
+                    { korean: "노력을 기울이다", foreign: "To make an effort" },
+                    { korean: "능력을 갖추다", foreign: "To have an ability" },
+                    { korean: "목표를 이루다", foreign: "To achieve a goal" }
+                ]
+            },
+            vietnamese: {
+                themeColor: 'green',
+                data: [
+                    { korean: "자기소개서", foreign: "Bản giới thiệu bản thân" },
+                    { korean: "지원", foreign: "Việc ứng tuyển" },
+                    { korean: "서류", foreign: "Hồ sơ, tài liệu" },
+                    { korean: "동기", foreign: "Động lực" },
+                    { korean: "전공", foreign: "Chuyên ngành" },
+                    { korean: "성격", foreign: "Tính cách" },
+                    { korean: "장점", foreign: "Ưu điểm" },
+                    { korean: "단점", foreign: "Nhược điểm" },
+                    { korean: "형성", foreign: "Sự hình thành" },
+                    { korean: "인재", foreign: "Nhân tài" },
+                    { korean: "노력", foreign: "Sự nỗ lực" },
+                    { korean: "준비", foreign: "Sự chuẩn bị" },
+                    { korean: "학업", foreign: "Việc học" },
+                    { korean: "분야", foreign: "Lĩnh vực" },
+                    { korean: "목표", foreign: "Mục tiêu" },
+                    { korean: "경험", foreign: "Kinh nghiệm" },
+                    { korean: "유학 생활", foreign: "Cuộc sống du học" },
+                    { korean: "능력", foreign: "Năng lực" },
+                    { korean: "계획", foreign: "Kế hoạch" },
+                    { korean: "진로", foreign: "Con đường sự nghiệp" },
+                    { korean: "학과", foreign: "Khoa" },
+                    { korean: "지원하다", foreign: "Ứng tuyển vào" },
+                    { korean: "영향을 미치다", foreign: "Gây ảnh hưởng" },
+                    { korean: "적합하다", foreign: "Phù hợp" },
+                    { korean: "목표를 세우다", foreign: "Đặt ra mục tiêu" },
+                    { korean: "노력을 기울이다", foreign: "Nỗ lực" },
+                    { korean: "능력을 갖추다", foreign: "Có năng lực" },
+                    { korean: "목표를 이루다", foreign: "Đạt được mục tiêu" }
+                ]
+            },
+            japanese: {
+                themeColor: 'purple',
+                data: [
+                    { korean: "자기소개서", foreign: "自己紹介書" },
+                    { korean: "지원", foreign: "志願" },
+                    { korean: "서류", foreign: "書類" },
+                    { korean: "동기", foreign: "動機" },
+                    { korean: "전공", foreign: "専攻" },
+                    { korean: "성격", foreign: "性格" },
+                    { korean: "장점", foreign: "長所" },
+                    { korean: "단점", foreign: "短所" },
+                    { korean: "형성", foreign: "形成" },
+                    { korean: "인재", foreign: "人材" },
+                    { korean: "노력", foreign: "努力" },
+                    { korean: "준비", foreign: "準備" },
+                    { korean: "학업", foreign: "学業" },
+                    { korean: "분야", foreign: "分野" },
+                    { korean: "목표", foreign: "目標" },
+                    { korean: "경험", foreign: "経験" },
+                    { korean: "유학 생활", foreign: "留学生活" },
+                    { korean: "능력", foreign: "能力" },
+                    { korean: "계획", foreign: "計画" },
+                    { korean: "진로", foreign: "進路" },
+                    { korean: "학과", foreign: "学科" },
+                    { korean: "지원하다", foreign: "志願する" },
+                    { korean: "영향을 미치다", foreign: "影響を及ぼす" },
+                    { korean: "적합하다", foreign: "適合する" },
+                    { korean: "목표를 세우다", foreign: "目標を立てる" },
+                    { korean: "노력을 기울이다", foreign: "努力を傾ける" },
+                    { korean: "능력을 갖추다", foreign: "能力を備える" },
+                    { korean: "목표를 이루다", foreign: "目標を達成する" }
+                ]
+            },
+            chinese: {
+                themeColor: 'red',
+                data: [
+                    { korean: "자기소개서", foreign: "自我介绍书" },
+                    { korean: "지원", foreign: "申请" },
+                    { korean: "서류", foreign: "文件" },
+                    { korean: "동기", foreign: "动机" },
+                    { korean: "전공", foreign: "专业" },
+                    { korean: "성격", foreign: "性格" },
+                    { korean: "장점", foreign: "优点" },
+                    { korean: "단점", foreign: "缺点" },
+                    { korean: "형성", foreign: "形成" },
+                    { korean: "인재", foreign: "人才" },
+                    { korean: "노력", foreign: "努力" },
+                    { korean: "준비", foreign: "准备" },
+                    { korean: "학업", foreign: "学业" },
+                    { korean: "분야", foreign: "领域" },
+                    { korean: "목표", foreign: "目标" },
+                    { korean: "경험", foreign: "经验" },
+                    { korean: "유학 생활", foreign: "留学生活" },
+                    { korean: "능력", foreign: "能力" },
+                    { korean: "계획", foreign: "计划" },
+                    { korean: "진로", foreign: "前途" },
+                    { korean: "학과", foreign: "学系" },
+                    { korean: "지원하다", foreign: "申请" },
+                    { korean: "영향을 미치다", foreign: "产生影响" },
+                    { korean: "적합하다", foreign: "适合" },
+                    { korean: "목표를 세우다", foreign: "树立目标" },
+                    { korean: "노력을 기울이다", foreign: "付出努力" },
+                    { korean: "능력을 갖추다", foreign: "具备能力" },
+                    { korean: "목표를 이루다", foreign: "实现目标" }
+                ]
+            }
+        };
+
+        const gameBoard = document.getElementById('game-board');
+        const langButtons = document.querySelectorAll('.lang-btn');
+        const body = document.body;
+
+        const colorMap = {
+            blue: { bg: 'bg-blue-50', text: 'text-blue-800', cardBack: 'bg-blue-500' },
+            teal: { bg: 'bg-teal-50', text: 'text-teal-800', cardBack: 'bg-teal-500' },
+            green: { bg: 'bg-green-50', text: 'text-green-800', cardBack: 'bg-green-500' },
+            purple: { bg: 'bg-purple-50', text: 'text-purple-800', cardBack: 'bg-purple-500' },
+            red: { bg: 'bg-red-50', text: 'text-red-800', cardBack: 'bg-red-500' }
+        };
+
+        function createBoard(language) {
+            gameBoard.innerHTML = '';
+            const langData = allVocabulary[language];
+            const vocabulary = langData.data;
+            const colors = colorMap[langData.themeColor];
+            
+            // Remove all color classes before adding the new one
+            Object.values(colorMap).forEach(color => body.classList.remove(color.bg));
+            body.classList.add(colors.bg);
+            
+            const sortedVocabulary = [...vocabulary].sort((a, b) => a.korean.localeCompare(b.korean, 'ko'));
+
+            sortedVocabulary.forEach(item => {
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container h-48 cursor-pointer';
+                const cardInner = document.createElement('div');
+                cardInner.className = 'card-inner';
+
+                const cardFront = document.createElement('div');
+                cardFront.className = `card-front bg-white ${colors.text}`;
+                const koreanText = document.createElement('h2');
+                koreanText.className = 'text-2xl font-bold';
+                koreanText.textContent = item.korean;
+                cardFront.appendChild(koreanText);
+
+                const cardBack = document.createElement('div');
+                cardBack.className = `card-back text-white ${colors.cardBack}`;
+                const foreignText = document.createElement('p');
+                foreignText.className = 'text-lg font-semibold';
+                foreignText.textContent = item.foreign;
+                cardBack.appendChild(foreignText);
+                
+                cardInner.appendChild(cardFront);
+                cardInner.appendChild(cardBack);
+                cardContainer.appendChild(cardInner);
+                gameBoard.appendChild(cardContainer);
+
+                cardContainer.addEventListener('click', () => cardContainer.classList.toggle('flipped'));
+            });
+        }
+
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                langButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const selectedLang = button.dataset.lang;
+                createBoard(selectedLang);
+            });
+        });
+
+        // Initialize with Korean
+        document.querySelector('[data-lang="korean"]').classList.add('active');
+        createBoard('korean');
+    </script>
+</body>
+</html>
+
+
