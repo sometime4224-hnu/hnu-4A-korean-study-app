@@ -1,37 +1,99 @@
 <!DOCTYPE html>
-<!-- saved from url=(0059)https://sometime4224-hnu.github.io/hnu-4A-korean-study-app/ -->
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="ko">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.getElementsByTagName(s)[0],dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NB76SV96');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>자기소개서 어휘 카드 게임</title>
-    <script src="./자기소개서 어휘 카드 게임_files/saved_resource"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-    <link href="./자기소개서 어휘 카드 게임_files/css2" rel="stylesheet">
+    <title>자기소개서 어휘 카드 & 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .card-container { perspective: 1000px; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        .card-container.flipped .card-inner { transform: rotateY(180deg); }
+        .card-container {
+            perspective: 1000px;
+            -webkit-perspective: 1000px;
+            cursor: pointer;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+        }
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+        }
         .card-front, .card-back {
-            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
-            display: flex; justify-content: center; align-items: center; text-align: center;
-            padding: 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .card-back { transform: rotateY(180deg); }
+        .card-back {
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+        }
         .lang-btn.active {
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
+        .correct-answer {
+            background-color: #dcfce7; /* green-100 */
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* red-100 */
+        }
+        .answer-feedback {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1rem;
+            height: 30px;
+        }
+        .correct {
+            color: #15803d; /* green-700 */
+        }
+        .wrong {
+            color: #b91c1c; /* red-700 */
+        }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-2{margin-bottom:0.5rem}.mb-6{margin-bottom:1.5rem}.flex{display:flex}.grid{display:grid}.h-48{height:12rem}.min-h-screen{min-height:100vh}.w-full{width:100%}.max-w-7xl{max-width:80rem}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-green-500{--tw-bg-opacity:1;background-color:rgb(34 197 94 / var(--tw-bg-opacity, 1))}.bg-purple-500{--tw-bg-opacity:1;background-color:rgb(168 85 247 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-teal-500{--tw-bg-opacity:1;background-color:rgb(20 184 166 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.p-4{padding:1rem}.px-4{padding-left:1rem;padding-right:1rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.text-center{text-align:center}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-2xl{font-size:1.5rem;line-height:2rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.duration-500{transition-duration:500ms}.hover\:bg-blue-600:hover{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.hover\:bg-green-600:hover{--tw-bg-opacity:1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-600:hover{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.hover\:bg-red-600:hover{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-600:hover{--tw-bg-opacity:1;background-color:rgb(13 148 136 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:gap-4{gap:1rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}}@media (min-width: 768px){.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}@media (min-width: 1024px){.lg\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}}@media (min-width: 1280px){.xl\:grid-cols-6{grid-template-columns:repeat(6, minmax(0, 1fr))}}</style></head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 bg-blue-50">
-
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NB76SV96"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
     <div class="text-center mb-6">
         <h1 class="text-4xl font-bold text-blue-600 mb-2">자기소개서 완전 정복</h1>
-        <p class="text-lg text-gray-600">핵심 어휘 카드 게임</p>
+        <p class="text-lg text-gray-600">핵심 어휘 카드 & 퀴즈</p>
+        <div id="last-score-display" class="mt-2 text-sm text-gray-500 font-medium hidden"></div>
     </div>
 
     <div id="language-selector" class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 bg-white p-2 rounded-xl shadow-md">
@@ -42,245 +104,521 @@
         <button data-lang="chinese" class="lang-btn px-4 py-2 text-sm sm:text-base font-semibold text-white bg-red-500 rounded-lg shadow-md hover:bg-red-600 transition-all duration-300">중국어</button>
     </div>
 
-    <div id="game-board" class="w-full max-w-7xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">경험</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">직접 해 보거나 겪어 본 일.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">계획</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">앞으로 할 일에 대한 생각.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">노력</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">목표를 이루기 위해 힘을 쓰는 것.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">노력을 기울이다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 일에 많은 힘을 쓰다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">능력</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 일을 할 수 있는 힘.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">능력을 갖추다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 일을 할 수 있는 힘을 가지다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">단점</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">나쁜 점. 부족한 점.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">동기</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 일이나 행동을 하게 된 이유.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">목표</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">이루고 싶은 것.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">목표를 세우다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">무엇을 이룰지 정하다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">목표를 이루다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">원하는 것을 성공적으로 해내다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">분야</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 활동의 범위나 부분.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">서류</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">글이나 정보가 적힌 종이.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">성격</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">그 사람이 본래 가지고 있는 마음의 특징.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">영향을 미치다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 것에 변화를 주다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">유학 생활</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">외국에 가서 공부하며 지내는 것.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">인재</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 분야에 능력이 뛰어난 사람.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">자기소개서</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">자신에 대해 다른 사람에게 알리는 글.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">장점</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">좋은 점.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">적합하다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">조건이나 상황에 꼭 맞다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">전공</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">대학교에서 깊이 있게 공부하는 분야.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">준비</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">필요한 것을 미리 갖추는 것.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">지원</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 조직에 들어가기를 원하는 것.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">지원하다</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 조직에 들어가기를 바라다.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">진로</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">앞으로 나아갈 길. (주로 직업)</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">학과</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">대학교의 전공에 따른 작은 단위.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">학업</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">학교에서 하는 공부.</p></div></div></div><div class="card-container h-48 cursor-pointer"><div class="card-inner"><div class="card-front bg-white text-blue-800"><h2 class="text-2xl font-bold">형성</h2></div><div class="card-back text-white bg-blue-500"><p class="text-lg font-semibold">어떤 모습이나 모양이 만들어지는 것.</p></div></div></div></div>
+    <!-- Main Card View -->
+    <div id="card-view" class="w-full max-w-7xl">
+        <div class="flex justify-center mb-6">
+            <button id="start-quiz-btn" class="px-6 py-3 font-bold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300">퀴즈 시작하기</button>
+        </div>
+        <div id="game-board" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
+    </div>
+
+    <!-- Quiz View -->
+    <div id="quiz-view" class="w-full max-w-2xl hidden">
+        <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 flex flex-col items-center text-center">
+            <div id="quiz-header" class="w-full mb-4">
+                <p id="quiz-question-number" class="text-gray-500 text-sm mb-2"></p>
+                <h3 id="quiz-question" class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6"></h3>
+            </div>
+            <div id="quiz-options" class="w-full grid gap-4"></div>
+            <div id="quiz-feedback" class="answer-feedback"></div>
+            <div id="quiz-combo" class="mt-4 text-gray-500 text-lg font-semibold"></div>
+        </div>
+    </div>
+
+    <!-- Result View -->
+    <div id="result-view" class="w-full max-w-2xl hidden">
+        <div id="result-content-to-capture" class="bg-white rounded-xl shadow-md p-6 sm:p-8 flex flex-col items-center text-center">
+            <h3 id="result-title" class="text-3xl font-bold text-blue-600 mb-4"></h3>
+            <p id="result-score" class="text-xl text-gray-700 mb-6"></p>
+            <table class="w-full text-left table-auto border-collapse">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-3 border-b-2">문제</th>
+                        <th class="p-3 border-b-2">정답</th>
+                        <th class="p-3 border-b-2">결과</th>
+                        <th class="p-3 border-b-2 text-right">점수</th>
+                    </tr>
+                </thead>
+                <tbody id="result-table-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="flex flex-wrap justify-center gap-4 mt-6">
+            <button id="capture-btn" class="px-6 py-3 font-bold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300">
+                <span id="capture-text">결과 캡처하기</span> 📸
+            </button>
+            <button id="restart-quiz-btn" class="px-6 py-3 font-bold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300">퀴즈 다시 풀기</button>
+            <button id="back-to-cards-btn" class="px-6 py-3 font-bold text-gray-700 bg-gray-200 rounded-lg shadow-md hover:bg-gray-300 transition-all duration-300">어휘 카드 보기</button>
+        </div>
+    </div>
 
     <script>
-        const allVocabulary = {
-            korean: {
-                themeColor: 'blue',
-                data: [
-                    { korean: "자기소개서", foreign: "자신에 대해 다른 사람에게 알리는 글." },
-                    { korean: "지원", foreign: "어떤 조직에 들어가기를 원하는 것." },
-                    { korean: "서류", foreign: "글이나 정보가 적힌 종이." },
-                    { korean: "동기", foreign: "어떤 일이나 행동을 하게 된 이유." },
-                    { korean: "전공", foreign: "대학교에서 깊이 있게 공부하는 분야." },
-                    { korean: "성격", foreign: "그 사람이 본래 가지고 있는 마음의 특징." },
-                    { korean: "장점", foreign: "좋은 점." },
-                    { korean: "단점", foreign: "나쁜 점. 부족한 점." },
-                    { korean: "형성", foreign: "어떤 모습이나 모양이 만들어지는 것." },
-                    { korean: "인재", foreign: "어떤 분야에 능력이 뛰어난 사람." },
-                    { korean: "노력", foreign: "목표를 이루기 위해 힘을 쓰는 것." },
-                    { korean: "준비", foreign: "필요한 것을 미리 갖추는 것." },
-                    { korean: "학업", foreign: "학교에서 하는 공부." },
-                    { korean: "분야", foreign: "어떤 활동의 범위나 부분." },
-                    { korean: "목표", foreign: "이루고 싶은 것." },
-                    { korean: "경험", foreign: "직접 해 보거나 겪어 본 일." },
-                    { korean: "유학 생활", foreign: "외국에 가서 공부하며 지내는 것." },
-                    { korean: "능력", foreign: "어떤 일을 할 수 있는 힘." },
-                    { korean: "계획", foreign: "앞으로 할 일에 대한 생각." },
-                    { korean: "진로", foreign: "앞으로 나아갈 길. (주로 직업)" },
-                    { korean: "학과", foreign: "대학교의 전공에 따른 작은 단위." },
-                    { korean: "지원하다", foreign: "어떤 조직에 들어가기를 바라다." },
-                    { korean: "영향을 미치다", foreign: "어떤 것에 변화를 주다." },
-                    { korean: "적합하다", foreign: "조건이나 상황에 꼭 맞다." },
-                    { korean: "목표를 세우다", foreign: "무엇을 이룰지 정하다." },
-                    { korean: "노력을 기울이다", foreign: "어떤 일에 많은 힘을 쓰다." },
-                    { korean: "능력을 갖추다", foreign: "어떤 일을 할 수 있는 힘을 가지다." },
-                    { korean: "목표를 이루다", foreign: "원하는 것을 성공적으로 해내다." }
-                ]
-            },
-            english: {
-                themeColor: 'teal',
-                data: [
-                    { korean: "자기소개서", foreign: "Personal Statement" },
-                    { korean: "지원", foreign: "Application" },
-                    { korean: "서류", foreign: "Document" },
-                    { korean: "동기", foreign: "Motivation" },
-                    { korean: "전공", foreign: "Major" },
-                    { korean: "성격", foreign: "Personality" },
-                    { korean: "장점", foreign: "Strength" },
-                    { korean: "단점", foreign: "Weakness" },
-                    { korean: "형성", foreign: "Formation" },
-                    { korean: "인재", foreign: "Talented Person" },
-                    { korean: "노력", foreign: "Effort" },
-                    { korean: "준비", foreign: "Preparation" },
-                    { korean: "학업", foreign: "Academics" },
-                    { korean: "분야", foreign: "Field" },
-                    { korean: "목표", foreign: "Goal" },
-                    { korean: "경험", foreign: "Experience" },
-                    { korean: "유학 생활", foreign: "Studying Abroad" },
-                    { korean: "능력", foreign: "Ability" },
-                    { korean: "계획", foreign: "Plan" },
-                    { korean: "진로", foreign: "Career Path" },
-                    { korean: "학과", foreign: "Department" },
-                    { korean: "지원하다", foreign: "To apply for" },
-                    { korean: "영향을 미치다", foreign: "To influence" },
-                    { korean: "적합하다", foreign: "To be suitable" },
-                    { korean: "목표를 세우다", foreign: "To set a goal" },
-                    { korean: "노력을 기울이다", foreign: "To make an effort" },
-                    { korean: "능력을 갖추다", foreign: "To have an ability" },
-                    { korean: "목표를 이루다", foreign: "To achieve a goal" }
-                ]
-            },
-            vietnamese: {
-                themeColor: 'green',
-                data: [
-                    { korean: "자기소개서", foreign: "Bản giới thiệu bản thân" },
-                    { korean: "지원", foreign: "Việc ứng tuyển" },
-                    { korean: "서류", foreign: "Hồ sơ, tài liệu" },
-                    { korean: "동기", foreign: "Động lực" },
-                    { korean: "전공", foreign: "Chuyên ngành" },
-                    { korean: "성격", foreign: "Tính cách" },
-                    { korean: "장점", foreign: "Ưu điểm" },
-                    { korean: "단점", foreign: "Nhược điểm" },
-                    { korean: "형성", foreign: "Sự hình thành" },
-                    { korean: "인재", foreign: "Nhân tài" },
-                    { korean: "노력", foreign: "Sự nỗ lực" },
-                    { korean: "준비", foreign: "Sự chuẩn bị" },
-                    { korean: "학업", foreign: "Việc học" },
-                    { korean: "분야", foreign: "Lĩnh vực" },
-                    { korean: "목표", foreign: "Mục tiêu" },
-                    { korean: "경험", foreign: "Kinh nghiệm" },
-                    { korean: "유학 생활", foreign: "Cuộc sống du học" },
-                    { korean: "능력", foreign: "Năng lực" },
-                    { korean: "계획", foreign: "Kế hoạch" },
-                    { korean: "진로", foreign: "Con đường sự nghiệp" },
-                    { korean: "학과", foreign: "Khoa" },
-                    { korean: "지원하다", foreign: "Ứng tuyển vào" },
-                    { korean: "영향을 미치다", foreign: "Gây ảnh hưởng" },
-                    { korean: "적합하다", foreign: "Phù hợp" },
-                    { korean: "목표를 세우다", foreign: "Đặt ra mục tiêu" },
-                    { korean: "노력을 기울이다", foreign: "Nỗ lực" },
-                    { korean: "능력을 갖추다", foreign: "Có năng lực" },
-                    { korean: "목표를 이루다", foreign: "Đạt được mục tiêu" }
-                ]
-            },
-            japanese: {
-                themeColor: 'purple',
-                data: [
-                    { korean: "자기소개서", foreign: "自己紹介書" },
-                    { korean: "지원", foreign: "志願" },
-                    { korean: "서류", foreign: "書類" },
-                    { korean: "동기", foreign: "動機" },
-                    { korean: "전공", foreign: "専攻" },
-                    { korean: "성격", foreign: "性格" },
-                    { korean: "장점", foreign: "長所" },
-                    { korean: "단점", foreign: "短所" },
-                    { korean: "형성", foreign: "形成" },
-                    { korean: "인재", foreign: "人材" },
-                    { korean: "노력", foreign: "努力" },
-                    { korean: "준비", foreign: "準備" },
-                    { korean: "학업", foreign: "学業" },
-                    { korean: "분야", foreign: "分野" },
-                    { korean: "목표", foreign: "目標" },
-                    { korean: "경험", foreign: "経験" },
-                    { korean: "유학 생활", foreign: "留学生活" },
-                    { korean: "능력", foreign: "能力" },
-                    { korean: "계획", foreign: "計画" },
-                    { korean: "진로", foreign: "進路" },
-                    { korean: "학과", foreign: "学科" },
-                    { korean: "지원하다", foreign: "志願する" },
-                    { korean: "영향을 미치다", foreign: "影響を及ぼす" },
-                    { korean: "적합하다", foreign: "適合する" },
-                    { korean: "목표를 세우다", foreign: "目標を立てる" },
-                    { korean: "노력을 기울이다", foreign: "努力を傾ける" },
-                    { korean: "능력을 갖추다", foreign: "能力を備える" },
-                    { korean: "목표를 이루다", foreign: "目標を達成する" }
-                ]
-            },
-            chinese: {
-                themeColor: 'red',
-                data: [
-                    { korean: "자기소개서", foreign: "自我介绍书" },
-                    { korean: "지원", foreign: "申请" },
-                    { korean: "서류", foreign: "文件" },
-                    { korean: "동기", foreign: "动机" },
-                    { korean: "전공", foreign: "专业" },
-                    { korean: "성격", foreign: "性格" },
-                    { korean: "장점", foreign: "优点" },
-                    { korean: "단점", foreign: "缺点" },
-                    { korean: "형성", foreign: "形成" },
-                    { korean: "인재", foreign: "人才" },
-                    { korean: "노력", foreign: "努力" },
-                    { korean: "준비", foreign: "准备" },
-                    { korean: "학업", foreign: "学业" },
-                    { korean: "분야", foreign: "领域" },
-                    { korean: "목표", foreign: "目标" },
-                    { korean: "경험", foreign: "经验" },
-                    { korean: "유학 생활", foreign: "留学生活" },
-                    { korean: "능력", foreign: "能力" },
-                    { korean: "계획", foreign: "计划" },
-                    { korean: "진로", foreign: "前途" },
-                    { korean: "학과", foreign: "学系" },
-                    { korean: "지원하다", foreign: "申请" },
-                    { korean: "영향을 미치다", foreign: "产生影响" },
-                    { korean: "적합하다", foreign: "适合" },
-                    { korean: "목표를 세우다", foreign: "树立目标" },
-                    { korean: "노력을 기울이다", foreign: "付出努力" },
-                    { korean: "능력을 갖추다", foreign: "具备能力" },
-                    { korean: "목표를 이루다", foreign: "实现目标" }
-                ]
+        document.addEventListener('DOMContentLoaded', () => {
+            const allVocabulary = {
+                korean: {
+                    themeColor: 'blue',
+                    data: [
+                        { korean: "자기소개서", foreign: "자신에 대해 다른 사람에게 알리는 글." },
+                        { korean: "지원", foreign: "어떤 조직에 들어가기를 원하는 것." },
+                        { korean: "서류", foreign: "글이나 정보가 적힌 종이." },
+                        { korean: "동기", foreign: "어떤 일이나 행동을 하게 된 이유." },
+                        { korean: "전공", foreign: "대학교에서 깊이 있게 공부하는 분야." },
+                        { korean: "성격", foreign: "그 사람이 본래 가지고 있는 마음의 특징." },
+                        { korean: "장점", foreign: "좋은 점." },
+                        { korean: "단점", foreign: "나쁜 점. 부족한 점." },
+                        { korean: "형성", foreign: "어떤 모습이나 모양이 만들어지는 것." },
+                        { korean: "인재", foreign: "어떤 분야에 능력이 뛰어난 사람." },
+                        { korean: "노력", foreign: "목표를 이루기 위해 힘을 쓰는 것." },
+                        { korean: "준비", foreign: "필요한 것을 미리 갖추는 것." },
+                        { korean: "학업", foreign: "학교에서 하는 공부." },
+                        { korean: "분야", foreign: "어떤 활동의 범위나 부분." },
+                        { korean: "목표", foreign: "이루고 싶은 것." },
+                        { korean: "경험", foreign: "직접 해 보거나 겪어 본 일." },
+                        { korean: "유학 생활", foreign: "외국에 가서 공부하며 지내는 것." },
+                        { korean: "능력", foreign: "어떤 일을 할 수 있는 힘." },
+                        { korean: "계획", foreign: "앞으로 할 일에 대한 생각." },
+                        { korean: "진로", foreign: "앞으로 나아갈 길. (주로 직업)" },
+                        { korean: "학과", foreign: "대학교의 전공에 따른 작은 단위." },
+                        { korean: "지원하다", foreign: "어떤 조직에 들어가기를 바라다." },
+                        { korean: "영향을 미치다", foreign: "어떤 것에 변화를 주다." },
+                        { korean: "적합하다", foreign: "조건이나 상황에 꼭 맞다." },
+                        { korean: "목표를 세우다", foreign: "무엇을 이룰지 정하다." },
+                        { korean: "노력을 기울이다", foreign: "어떤 일에 많은 힘을 쓰다." },
+                        { korean: "능력을 갖추다", foreign: "어떤 일을 할 수 있는 힘을 가지다." },
+                        { korean: "목표를 이루다", foreign: "원하는 것을 성공적으로 해내다." }
+                    ]
+                },
+                english: {
+                    themeColor: 'teal',
+                    data: [
+                        { korean: "자기소개서", foreign: "Personal Statement" },
+                        { korean: "지원", foreign: "Application" },
+                        { korean: "서류", foreign: "Document" },
+                        { korean: "동기", foreign: "Motivation" },
+                        { korean: "전공", foreign: "Major" },
+                        { korean: "성격", foreign: "Personality" },
+                        { korean: "장점", foreign: "Strength" },
+                        { korean: "단점", foreign: "Weakness" },
+                        { korean: "형성", foreign: "Formation" },
+                        { korean: "인재", foreign: "Talented Person" },
+                        { korean: "노력", foreign: "Effort" },
+                        { korean: "준비", foreign: "Preparation" },
+                        { korean: "학업", foreign: "Academics" },
+                        { korean: "분야", foreign: "Field" },
+                        { korean: "목표", foreign: "Goal" },
+                        { korean: "경험", foreign: "Experience" },
+                        { korean: "유학 생활", foreign: "Studying Abroad" },
+                        { korean: "능력", foreign: "Ability" },
+                        { korean: "계획", foreign: "Plan" },
+                        { korean: "진로", foreign: "Career Path" },
+                        { korean: "학과", foreign: "Department" },
+                        { korean: "지원하다", foreign: "To apply for" },
+                        { korean: "영향을 미치다", foreign: "To influence" },
+                        { korean: "적합하다", foreign: "To be suitable" },
+                        { korean: "목표를 세우다", foreign: "To set a goal" },
+                        { korean: "노력을 기울이다", foreign: "To make an effort" },
+                        { korean: "능력을 갖추다", foreign: "To have an ability" },
+                        { korean: "목표를 이루다", foreign: "To achieve a goal" }
+                    ]
+                },
+                vietnamese: {
+                    themeColor: 'green',
+                    data: [
+                        { korean: "자기소개서", foreign: "Bản giới thiệu bản thân" },
+                        { korean: "지원", foreign: "Việc ứng tuyển" },
+                        { korean: "서류", foreign: "Hồ sơ, tài liệu" },
+                        { korean: "동기", foreign: "Động lực" },
+                        { korean: "전공", foreign: "Chuyên ngành" },
+                        { korean: "성격", foreign: "Tính cách" },
+                        { korean: "장점", foreign: "Ưu điểm" },
+                        { korean: "단점", foreign: "Nhược điểm" },
+                        { korean: "형성", foreign: "Sự hình thành" },
+                        { korean: "인재", foreign: "Nhân tài" },
+                        { korean: "노력", foreign: "Sự nỗ lực" },
+                        { korean: "준비", foreign: "Sự chuẩn bị" },
+                        { korean: "학업", foreign: "Việc học" },
+                        { korean: "분야", foreign: "Lĩnh vực" },
+                        { korean: "목표", foreign: "Mục tiêu" },
+                        { korean: "경험", foreign: "Kinh nghiệm" },
+                        { korean: "유학 생활", foreign: "Cuộc sống du học" },
+                        { korean: "능력", foreign: "Năng lực" },
+                        { korean: "계획", foreign: "Kế hoạch" },
+                        { korean: "진로", foreign: "Con đường sự nghiệp" },
+                        { korean: "학과", foreign: "Khoa" },
+                        { korean: "지원하다", foreign: "Ứng tuyển vào" },
+                        { korean: "영향을 미치다", foreign: "Gây ảnh hưởng" },
+                        { korean: "적합하다", foreign: "Phù hợp" },
+                        { korean: "목표를 세우다", foreign: "Đặt ra mục tiêu" },
+                        { korean: "노력을 기울이다", foreign: "Nỗ lực" },
+                        { korean: "능력을 갖추다", foreign: "Có năng lực" },
+                        { korean: "목표를 이루다", foreign: "Đạt được mục tiêu" }
+                    ]
+                },
+                japanese: {
+                    themeColor: 'purple',
+                    data: [
+                        { korean: "자기소개서", foreign: "自己紹介書" },
+                        { korean: "지원", foreign: "志願" },
+                        { korean: "서류", foreign: "書類" },
+                        { korean: "동기", foreign: "動機" },
+                        { korean: "전공", foreign: "専攻" },
+                        { korean: "성격", foreign: "性格" },
+                        { korean: "장점", foreign: "長所" },
+                        { korean: "단점", foreign: "短所" },
+                        { korean: "형성", foreign: "形成" },
+                        { korean: "인재", foreign: "人材" },
+                        { korean: "노력", foreign: "努力" },
+                        { korean: "준비", foreign: "準備" },
+                        { korean: "학업", foreign: "学業" },
+                        { korean: "분야", foreign: "分野" },
+                        { korean: "목표", foreign: "目標" },
+                        { korean: "경험", foreign: "経験" },
+                        { korean: "유학 생활", foreign: "留学生活" },
+                        { korean: "능력", foreign: "能力" },
+                        { korean: "계획", foreign: "計画" },
+                        { korean: "진로", foreign: "進路" },
+                        { korean: "학과", foreign: "学科" },
+                        { korean: "지원하다", foreign: "志願する" },
+                        { korean: "영향을 미치다", foreign: "影響を及ぼす" },
+                        { korean: "적합하다", foreign: "適合する" },
+                        { korean: "목표를 세우다", foreign: "目標を立てる" },
+                        { korean: "노력을 기울이다", foreign: "努力を傾ける" },
+                        { korean: "능력을 갖추다", foreign: "能力を備える" },
+                        { korean: "목표를 이루다", foreign: "目標を達成する" }
+                    ]
+                },
+                chinese: {
+                    themeColor: 'red',
+                    data: [
+                        { korean: "자기소개서", foreign: "自我介绍书" },
+                        { korean: "지원", foreign: "申请" },
+                        { korean: "서류", foreign: "文件" },
+                        { korean: "동기", foreign: "动机" },
+                        { korean: "전공", foreign: "专业" },
+                        { korean: "성격", foreign: "性格" },
+                        { korean: "장점", foreign: "优点" },
+                        { korean: "단점", foreign: "缺点" },
+                        { korean: "형성", foreign: "形成" },
+                        { korean: "인재", foreign: "人才" },
+                        { korean: "노력", foreign: "努力" },
+                        { korean: "준비", foreign: "准备" },
+                        { korean: "학업", foreign: "学业" },
+                        { korean: "분야", foreign: "领域" },
+                        { korean: "목표", foreign: "目标" },
+                        { korean: "경험", foreign: "经验" },
+                        { korean: "유학 생활", foreign: "留学生活" },
+                        { korean: "능력", foreign: "能力" },
+                        { korean: "계획", foreign: "计划" },
+                        { korean: "진로", foreign: "前途" },
+                        { korean: "학과", foreign: "学系" },
+                        { korean: "지원하다", foreign: "申请" },
+                        { korean: "영향을 미치다", foreign: "产生影响" },
+                        { korean: "적합하다", foreign: "适合" },
+                        { korean: "목표를 세우다", foreign: "树立目标" },
+                        { korean: "노력을 기울이다", foreign: "付出努力" },
+                        { korean: "능력을 갖추다", foreign: "具备能力" },
+                        { korean: "목표를 이루다", foreign: "实现目标" }
+                    ]
+                }
+            };
+
+            const gameBoard = document.getElementById('game-board');
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const body = document.body;
+            const cardView = document.getElementById('card-view');
+            const quizView = document.getElementById('quiz-view');
+            const resultView = document.getElementById('result-view');
+            const startQuizBtn = document.getElementById('start-quiz-btn');
+            const restartQuizBtn = document.getElementById('restart-quiz-btn');
+            const backToCardsBtn = document.getElementById('back-to-cards-btn');
+            const captureBtn = document.getElementById('capture-btn');
+            const captureText = document.getElementById('capture-text');
+            const resultContentToCapture = document.getElementById('result-content-to-capture');
+            const quizQuestionEl = document.getElementById('quiz-question');
+            const quizQuestionNumberEl = document.getElementById('quiz-question-number');
+            const quizOptionsEl = document.getElementById('quiz-options');
+            const quizFeedbackEl = document.getElementById('quiz-feedback');
+            const quizComboEl = document.getElementById('quiz-combo');
+            const resultTitleEl = document.getElementById('result-title');
+            const resultScoreEl = document.getElementById('result-score');
+            const resultTableBodyEl = document.getElementById('result-table-body');
+            const lastScoreDisplayEl = document.getElementById('last-score-display');
+            
+            let currentLang = 'korean';
+            let currentQuizData = [];
+            let currentQuestionIndex = 0;
+            let totalScore = 0;
+            let combo = 0;
+            let quizResults = [];
+
+            const colorMap = {
+                blue: { bg: 'bg-blue-50', text: 'text-blue-800', cardBack: 'bg-blue-500', button: 'bg-blue-500' },
+                teal: { bg: 'bg-teal-50', text: 'text-teal-800', cardBack: 'bg-teal-500', button: 'bg-teal-500' },
+                green: { bg: 'bg-green-50', text: 'text-green-800', cardBack: 'bg-green-500', button: 'bg-green-500' },
+                purple: { bg: 'bg-purple-50', text: 'text-purple-800', cardBack: 'bg-purple-500', button: 'bg-purple-500' },
+                red: { bg: 'bg-red-50', text: 'text-red-800', cardBack: 'bg-red-500', button: 'bg-red-500' }
+            };
+
+            // Fisher-Yates shuffle algorithm
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
             }
-        };
 
-        const gameBoard = document.getElementById('game-board');
-        const langButtons = document.querySelectorAll('.lang-btn');
-        const body = document.body;
+            // Function to save quiz result to local storage
+            function saveQuizResult() {
+                try {
+                    const resultData = {
+                        score: totalScore,
+                        totalQuestions: allVocabulary[currentLang].data.length,
+                        date: new Date().toLocaleDateString('ko-KR')
+                    };
+                    localStorage.setItem(`quizResult_자기소개서_${currentLang}`, JSON.stringify(resultData));
+                    displayLastScore();
+                } catch (e) {
+                    console.error("Local storage save failed:", e);
+                }
+            }
 
-        const colorMap = {
-            blue: { bg: 'bg-blue-50', text: 'text-blue-800', cardBack: 'bg-blue-500' },
-            teal: { bg: 'bg-teal-50', text: 'text-teal-800', cardBack: 'bg-teal-500' },
-            green: { bg: 'bg-green-50', text: 'text-green-800', cardBack: 'bg-green-500' },
-            purple: { bg: 'bg-purple-50', text: 'text-purple-800', cardBack: 'bg-purple-500' },
-            red: { bg: 'bg-red-50', text: 'text-red-800', cardBack: 'bg-red-500' }
-        };
-
-        function createBoard(language) {
-            gameBoard.innerHTML = '';
-            const langData = allVocabulary[language];
-            const vocabulary = langData.data;
-            const colors = colorMap[langData.themeColor];
+            // Function to load and display the last score
+            function displayLastScore() {
+                try {
+                    const savedData = localStorage.getItem(`quizResult_자기소개서_${currentLang}`);
+                    if (savedData) {
+                        const result = JSON.parse(savedData);
+                        lastScoreDisplayEl.textContent = `최근 점수: ${result.score}점 (총 ${result.totalQuestions}문제)`;
+                        lastScoreDisplayEl.classList.remove('hidden');
+                    } else {
+                        lastScoreDisplayEl.classList.add('hidden');
+                    }
+                } catch (e) {
+                    console.error("Local storage load failed:", e);
+                }
+            }
             
-            // Remove all color classes before adding the new one
-            Object.values(colorMap).forEach(color => body.classList.remove(color.bg));
-            body.classList.add(colors.bg);
-            
-            const sortedVocabulary = [...vocabulary].sort((a, b) => a.korean.localeCompare(b.korean, 'ko'));
+            // Function to switch views
+            function showView(view) {
+                cardView.classList.add('hidden');
+                quizView.classList.add('hidden');
+                resultView.classList.add('hidden');
+                document.getElementById(view).classList.remove('hidden');
+            }
 
-            sortedVocabulary.forEach(item => {
-                const cardContainer = document.createElement('div');
-                cardContainer.className = 'card-container h-48 cursor-pointer';
-                const cardInner = document.createElement('div');
-                cardInner.className = 'card-inner';
-
-                const cardFront = document.createElement('div');
-                cardFront.className = `card-front bg-white ${colors.text}`;
-                const koreanText = document.createElement('h2');
-                koreanText.className = 'text-2xl font-bold';
-                koreanText.textContent = item.korean;
-                cardFront.appendChild(koreanText);
-
-                const cardBack = document.createElement('div');
-                cardBack.className = `card-back text-white ${colors.cardBack}`;
-                const foreignText = document.createElement('p');
-                foreignText.className = 'text-lg font-semibold';
-                foreignText.textContent = item.foreign;
-                cardBack.appendChild(foreignText);
+            // Renders the vocabulary cards
+            function createCardBoard(language) {
+                gameBoard.innerHTML = '';
+                const langData = allVocabulary[language];
+                const vocabulary = langData.data;
+                const colors = colorMap[langData.themeColor];
                 
-                cardInner.appendChild(cardFront);
-                cardInner.appendChild(cardBack);
-                cardContainer.appendChild(cardInner);
-                gameBoard.appendChild(cardContainer);
+                // Remove all color classes before adding the new one
+                Object.values(colorMap).forEach(color => body.classList.remove(color.bg));
+                body.classList.add(colors.bg);
+                
+                const sortedVocabulary = [...vocabulary].sort((a, b) => a.korean.localeCompare(b.korean, 'ko'));
 
-                cardContainer.addEventListener('click', () => cardContainer.classList.toggle('flipped'));
-            });
-        }
+                sortedVocabulary.forEach(item => {
+                    const cardContainer = document.createElement('div');
+                    cardContainer.className = 'card-container h-48 cursor-pointer';
+                    const cardInner = document.createElement('div');
+                    cardInner.className = 'card-inner';
 
-        langButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                langButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                const selectedLang = button.dataset.lang;
-                createBoard(selectedLang);
+                    const cardFront = document.createElement('div');
+                    cardFront.className = `card-front bg-white ${colors.text}`;
+                    const koreanText = document.createElement('h2');
+                    koreanText.className = 'text-2xl font-bold';
+                    koreanText.textContent = item.korean;
+                    cardFront.appendChild(koreanText);
+
+                    const cardBack = document.createElement('div');
+                    cardBack.className = `card-back text-white ${colors.cardBack}`;
+                    const foreignText = document.createElement('p');
+                    foreignText.className = 'text-lg font-semibold';
+                    foreignText.textContent = item.foreign;
+                    cardBack.appendChild(foreignText);
+                    
+                    cardInner.appendChild(cardFront);
+                    cardInner.appendChild(cardBack);
+                    cardContainer.appendChild(cardInner);
+                    gameBoard.appendChild(cardContainer);
+
+                    cardContainer.addEventListener('click', () => cardContainer.classList.toggle('flipped'));
+                });
+            }
+
+            // Generates and displays a single quiz question
+            function showQuizQuestion() {
+                const totalQuestions = currentQuizData.length;
+                if (currentQuestionIndex >= totalQuestions) {
+                    showQuizResult();
+                    return;
+                }
+
+                const currentItem = currentQuizData[currentQuestionIndex];
+                const allItems = allVocabulary[currentLang].data;
+                
+                // Generate wrong answers
+                const distractors = [];
+                while (distractors.length < 2) {
+                    const randomIndex = Math.floor(Math.random() * allItems.length);
+                    const randomItem = allItems[randomIndex];
+                    if (randomItem.foreign !== currentItem.foreign && !distractors.includes(randomItem.foreign)) {
+                        distractors.push(randomItem.foreign);
+                    }
+                }
+
+                // Create and shuffle options
+                const options = [currentItem.foreign, ...distractors];
+                shuffleArray(options);
+
+                // Update UI
+                quizQuestionNumberEl.textContent = `${currentQuestionIndex + 1} / ${totalQuestions}`;
+                quizQuestionEl.textContent = currentItem.korean;
+                quizOptionsEl.innerHTML = '';
+                quizFeedbackEl.textContent = ''; // Clear feedback
+                quizComboEl.textContent = (combo > 0) ? `✨ ${combo} 콤보! ✨` : '';
+
+                options.forEach(option => {
+                    const optionBtn = document.createElement('button');
+                    optionBtn.className = `w-full px-4 py-4 text-lg font-semibold rounded-lg shadow-md transition-all duration-300 text-gray-800 bg-gray-100 hover:bg-gray-200`;
+                    optionBtn.textContent = option;
+                    optionBtn.addEventListener('click', () => handleAnswer(option, currentItem.foreign, optionBtn));
+                    quizOptionsEl.appendChild(optionBtn);
+                });
+            }
+
+            // Handles user's answer
+            function handleAnswer(selectedAnswer, correctAnswer, selectedBtn) {
+                const isCorrect = selectedAnswer === correctAnswer;
+                
+                // Disable all buttons after selection
+                Array.from(quizOptionsEl.children).forEach(btn => btn.disabled = true);
+
+                let pointsGained = 0;
+                if (isCorrect) {
+                    combo++;
+                    pointsGained = 10 + combo; // Basic point + combo bonus
+                    totalScore += pointsGained;
+                    selectedBtn.classList.add('bg-green-300', 'text-white');
+                    quizFeedbackEl.textContent = '정답입니다! 🎉';
+                    quizFeedbackEl.classList.add('correct');
+                } else {
+                    combo = 0;
+                    pointsGained = 0;
+                    selectedBtn.classList.add('bg-red-300', 'text-white');
+                    quizFeedbackEl.textContent = `아쉽네요. 정답은 '${correctAnswer}' 입니다.`;
+                    quizFeedbackEl.classList.add('wrong');
+                    
+                    // Highlight the correct answer
+                    Array.from(quizOptionsEl.children).forEach(btn => {
+                        if (btn.textContent === correctAnswer) {
+                            btn.classList.add('bg-green-300', 'text-white');
+                        }
+                    });
+                }
+                
+                // Track result
+                quizResults.push({
+                    question: currentQuizData[currentQuestionIndex].korean,
+                    userAnswer: selectedAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect,
+                    points: pointsGained
+                });
+                
+                // Move to the next question after a short delay
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    quizFeedbackEl.classList.remove('correct', 'wrong');
+                    showQuizQuestion();
+                }, 1500);
+            }
+
+            // Shows the quiz results page
+            function showQuizResult() {
+                showView('result-view');
+                resultTitleEl.textContent = `퀴즈 완료!`;
+                resultScoreEl.textContent = `총 점수: ${totalScore}점`;
+                resultTableBodyEl.innerHTML = '';
+                
+                quizResults.forEach(result => {
+                    const row = document.createElement('tr');
+                    const correctClass = result.isCorrect ? 'correct-answer' : 'wrong-answer';
+                    row.className = correctClass;
+                    
+                    row.innerHTML = `
+                        <td class="p-3 border-b-2 font-medium">${result.question}</td>
+                        <td class="p-3 border-b-2 text-gray-700">${result.correctAnswer}</td>
+                        <td class="p-3 border-b-2 font-bold">${result.isCorrect ? 'O' : 'X'}</td>
+                        <td class="p-3 border-b-2 text-right">${result.points}점</td>
+                    `;
+                    resultTableBodyEl.appendChild(row);
+                });
+
+                saveQuizResult();
+            }
+
+            // Event Listeners
+            langButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentLang = button.dataset.lang;
+                    createCardBoard(currentLang);
+                    displayLastScore();
+                    showView('card-view');
+                });
             });
+
+            startQuizBtn.addEventListener('click', () => {
+                currentQuizData = [...allVocabulary[currentLang].data];
+                shuffleArray(currentQuizData);
+                currentQuestionIndex = 0;
+                totalScore = 0;
+                combo = 0;
+                quizResults = [];
+                showView('quiz-view');
+                showQuizQuestion();
+            });
+
+            restartQuizBtn.addEventListener('click', () => {
+                startQuizBtn.click(); // Re-use the start quiz logic
+            });
+
+            backToCardsBtn.addEventListener('click', () => {
+                createCardBoard(currentLang);
+                showView('card-view');
+            });
+
+            captureBtn.addEventListener('click', () => {
+                // Hide buttons before capture
+                const buttons = document.querySelectorAll('#result-view button');
+                buttons.forEach(btn => btn.style.display = 'none');
+                
+                captureText.textContent = '캡처 중...';
+                
+                html2canvas(resultContentToCapture, {
+                    scale: 2, // Capture at a higher resolution
+                    useCORS: true
+                }).then(canvas => {
+                    const a = document.createElement('a');
+                    a.href = canvas.toDataURL('image/png');
+                    a.download = `quiz_result_${new Date().toLocaleDateString('ko-KR')}.png`;
+                    a.click();
+                    
+                    // Show buttons again after capture
+                    buttons.forEach(btn => btn.style.display = '');
+                    captureText.textContent = '결과 캡처하기';
+                });
+            });
+
+            // Initial setup
+            document.querySelector('[data-lang="korean"]').classList.add('active');
+            createCardBoard('korean');
+            displayLastScore();
         });
-
-        // Initialize with Korean
-        document.querySelector('[data-lang="korean"]').classList.add('active');
-        createBoard('korean');
     </script>
-
-
-
-
-</body></html>
+</body>
+</html>
