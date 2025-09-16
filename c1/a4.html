@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기 연습 문제</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .quiz-card {
+            transition: all 0.3s ease;
+        }
+        .correct {
+            background-color: #e0f2fe; /* light-blue-100 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+        }
+        .incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-left: 4px solid #ef4444; /* red-500 */
+        }
+        .feedback {
+            display: none;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .correct-feedback {
+            color: #1d4ed8; /* blue-700 */
+        }
+        .incorrect-feedback {
+            color: #b91c1c; /* red-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto max-w-2xl p-4 sm:p-6">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">💼 진로 상담 읽기 연습</h1>
+            <p class="text-gray-600 mt-2">다음 질문을 읽고 가장 알맞은 답을 선택하세요.</p>
+        </header>
+
+        <main id="quiz-container" class="space-y-6">
+            
+            <!-- Question Type 1: Multiple Choice -->
+            <div class="bg-white p-6 rounded-lg shadow-md quiz-card" id="card-q1">
+                <p class="font-semibold text-lg text-gray-800 mb-4">1. 질문자의 전공은 무엇입니까?</p>
+                <div class="space-y-3">
+                    <div><label class="flex items-center"><input type="radio" name="q1" value="a" class="mr-3"> A) 한국어</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q1" value="b" class="mr-3"> B) 중국어</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q1" value="c" class="mr-3"> C) 여행학</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q1" value="d" class="mr-3"> D) 항공 서비스학</label></div>
+                </div>
+                <div id="feedback-q1" class="feedback"></div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md quiz-card" id="card-q2">
+                <p class="font-semibold text-lg text-gray-800 mb-4">2. 글의 내용과 다른 것은 무엇입니까?</p>
+                <div class="space-y-3">
+                    <div><label class="flex items-center"><input type="radio" name="q2" value="a" class="mr-3"> A) 질문자는 다른 사람과 어울리는 것을 좋아합니다.</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q2" value="b" class="mr-3"> B) 여행 관련 직업은 외국어 능력이 필요합니다.</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q2" value="c" class="mr-3"> C) 질문자는 졸업을 앞두고 진로를 고민하고 있습니다.</label></div>
+                    <div><label class="flex items-center"><input type="radio" name="q2" value="d" class="mr-3"> D) 공항에서 일하면 월급을 많이 받을 수 있어 추천되었습니다.</label></div>
+                </div>
+                 <div id="feedback-q2" class="feedback"></div>
+            </div>
+
+            <!-- Question Type 2: O/X Quiz -->
+            <div class="bg-white p-6 rounded-lg shadow-md quiz-card" id="card-q3">
+                <p class="font-semibold text-lg text-gray-800 mb-4">3. (O/X 퀴즈) 질문자는 혼자 일하는 것을 더 편하게 생각합니다.</p>
+                <div class="flex space-x-4">
+                    <button onclick="selectOx('q3', 'o')" id="q3-o" class="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">O</button>
+                    <button onclick="selectOx('q3', 'x')" id="q3-x" class="w-full py-2 px-4 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition">X</button>
+                    <input type="hidden" id="q3" name="q3" value="">
+                </div>
+                <div id="feedback-q3" class="feedback"></div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md quiz-card" id="card-q4">
+                <p class="font-semibold text-lg text-gray-800 mb-4">4. (O/X 퀴즈) 답변자는 질문자의 성격이 서비스업에 잘 맞는다고 생각합니다.</p>
+                <div class="flex space-x-4">
+                    <button onclick="selectOx('q4', 'o')" id="q4-o" class="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">O</button>
+                    <button onclick="selectOx('q4', 'x')" id="q4-x" class="w-full py-2 px-4 bg-red-500 text-white font-bold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition">X</button>
+                    <input type="hidden" id="q4" name="q4" value="">
+                </div>
+                <div id="feedback-q4" class="feedback"></div>
+            </div>
+            
+            <!-- Submission Button -->
+            <div class="text-center mt-8">
+                <button id="submit-btn" class="w-full sm:w-auto py-3 px-8 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-transform transform hover:scale-105">
+                    정답 확인하기
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 정답 객체
+        const answers = {
+            q1: 'b',
+            q2: 'd',
+            q3: 'x',
+            q4: 'o'
+        };
+
+        // O/X 퀴즈 선택 함수
+        function selectOx(questionId, value) {
+            document.getElementById(questionId).value = value;
+            const oButton = document.getElementById(`${questionId}-o`);
+            const xButton = document.getElementById(`${questionId}-x`);
+            if (value === 'o') {
+                oButton.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                oButton.classList.add('bg-blue-700', 'ring-2', 'ring-blue-400');
+                xButton.classList.remove('bg-red-700', 'ring-2', 'ring-red-400');
+                xButton.classList.add('bg-red-500', 'hover:bg-red-600');
+            } else {
+                xButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                xButton.classList.add('bg-red-700', 'ring-2', 'ring-red-400');
+                oButton.classList.remove('bg-blue-700', 'ring-2', 'ring-blue-400');
+                oButton.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }
+        }
+        
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.addEventListener('click', () => {
+            // 1번 문제 채점 (객관식)
+            checkRadio('q1');
+            
+            // 2번 문제 채점 (객관식)
+            checkRadio('q2');
+
+            // 3번 문제 채점 (O/X)
+            checkOx('q3', `X가 정답입니다. 질문자는 활발하고 사교적인 성격입니다.`);
+            
+            // 4번 문제 채점 (O/X)
+            checkOx('q4', `O가 정답입니다. 질문자의 밝고 적극적인 성격이 서비스업에 잘 맞습니다.`);
+            
+            // 버튼 텍스트 변경
+            submitBtn.textContent = '다시 풀어보기';
+            submitBtn.onclick = () => window.location.reload();
+        });
+
+        function showFeedback(questionId, isCorrect, message) {
+            const card = document.getElementById(`card-${questionId}`);
+            const feedbackEl = document.getElementById(`feedback-${questionId}`);
+            
+            card.classList.remove('correct', 'incorrect');
+            feedbackEl.classList.remove('correct-feedback', 'incorrect-feedback');
+            
+            if (isCorrect) {
+                card.classList.add('correct');
+                feedbackEl.textContent = '정답입니다! ' + message;
+                feedbackEl.classList.add('correct-feedback');
+            } else {
+                card.classList.add('incorrect');
+                feedbackEl.textContent = '틀렸습니다. ' + message;
+                feedbackEl.classList.add('incorrect-feedback');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        function checkRadio(questionId) {
+            const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+            if (selected) {
+                const isCorrect = selected.value === answers[questionId];
+                let feedbackMessage = `정답은 ${answers[questionId].toUpperCase()}입니다.`;
+                if(questionId === 'q2') {
+                    feedbackMessage = `정답은 D입니다. 공항 근무는 월급이 아니라 외국 여행 기회가 많다는 점이 장점으로 언급되었습니다.`
+                }
+                showFeedback(questionId, isCorrect, isCorrect ? '' : feedbackMessage);
+            } else {
+                showFeedback(questionId, false, `답을 선택해주세요. 정답은 ${answers[questionId].toUpperCase()}입니다.`);
+            }
+        }
+        
+        function checkOx(questionId, correctMessage) {
+            const selectedValue = document.getElementById(questionId).value;
+            if(selectedValue){
+                const isCorrect = selectedValue === answers[questionId];
+                showFeedback(questionId, isCorrect, isCorrect ? '정확합니다!' : correctMessage);
+            } else {
+                showFeedback(questionId, false, `O/X를 선택해주세요. ${correctMessage}`);
+            }
+        }
+    </script>
+</body>
+</html>
+
