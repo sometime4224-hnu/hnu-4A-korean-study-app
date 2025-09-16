@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유학생을 위한 자기소개서 길잡이</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        .step-indicator.active {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-color: #3b82f6; /* border-blue-500 */
+        }
+        .step-indicator.completed {
+            background-color: #2563eb; /* bg-blue-600 */
+            color: white;
+            border-color: #2563eb; /* border-blue-600 */
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600">유학생을 위한 자기소개서 길잡이</h1>
+            <p class="mt-2 text-md sm:text-lg text-gray-600">한국 대학교 입학을 위한 자기소개서, A부터 Z까지 함께해요!</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="flex items-center justify-center mb-8">
+            <div id="step-indicator-1" class="step-indicator active flex items-center justify-center w-10 h-10 rounded-full border-2 border-blue-500 font-bold">1</div>
+            <div class="flex-auto border-t-2 border-gray-300 mx-4"></div>
+            <div id="step-indicator-2" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 font-bold">2</div>
+            <div class="flex-auto border-t-2 border-gray-300 mx-4"></div>
+            <div id="step-indicator-3" class="step-indicator flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 font-bold">3</div>
+        </div>
+
+        <main class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+            <!-- Step 1: Brainstorming -->
+            <div id="step-1" class="step-content active">
+                <h2 class="text-2xl font-bold mb-1 text-blue-700">1단계: 아이디어 구상하기</h2>
+                <p class="mb-6 text-gray-600">본격적인 작성에 앞서, 자기소개서에 어떤 내용을 담을지 충분히 생각해 보세요.</p>
+                <div class="space-y-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800">지원 동기</h3>
+                        <p class="text-sm text-gray-700">왜 이 대학교, 이 전공에 지원하고 싶나요? 자신의 꿈과 어떻게 연결되나요?</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-gray-800">성격과 가치관</h3>
+                        <p class="text-sm text-gray-700">자신의 장단점은 무엇이며, 성격 형성에 영향을 준 사람이나 경험이 있나요?</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800">준비 과정과 노력</h3>
+                        <p class="text-sm text-gray-700">이 전공에 지원하기 위해 어떤 구체적인 노력을 했나요? (예: 관련 과목 수강, 동아리 활동, 수상 경력 등)</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-gray-800">학업 외 경험</h3>
+                        <p class="text-sm text-gray-700">스스로 목표를 세우고 노력하여 이룬 특별한 경험이 있나요?</p>
+                    </div>
+                     <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800">학업 목표 및 미래 계획</h3>
+                        <p class="text-sm text-gray-700">입학 후 학업 계획과 졸업 후 진로 계획은 무엇인가요?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Drafting -->
+            <div id="step-2" class="step-content">
+                <h2 class="text-2xl font-bold mb-1 text-blue-700">2단계: 초안 작성하기</h2>
+                <p class="mb-6 text-gray-600">1단계에서 구상한 아이디어를 바탕으로 각 항목을 구체적으로 작성해 보세요.</p>
+                <div class="space-y-6">
+                    <div>
+                        <label for="draft-1" class="block text-lg font-semibold mb-2">1. 우리 학교와 해당 전공에 지원한 동기가 무엇입니까?</label>
+                        <p class="text-sm text-gray-500 mb-2">Tip: 이 학교와 전공이 아니면 안 되는 이유, 자신의 꿈과 어떻게 연결되는지를 진솔하게 보여주세요.</p>
+                        <textarea id="draft-1" rows="6" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="draft-2" class="block text-lg font-semibold mb-2">2. 우리 학교에 적합한 인재가 되기 위해 어떠한 노력과 준비를 했습니까?</label>
+                         <p class="text-sm text-gray-500 mb-2">Tip: 구체적인 경험(동아리, 수상 경력, 관련 과목 등)을 지원 전공과 연결하여 설명하는 것이 좋습니다.</p>
+                        <textarea id="draft-2" rows="6" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="draft-3" class="block text-lg font-semibold mb-2">3. 우리 학교에 다니는 동안의 학업 목표는 무엇이고, 어떻게 할 것입니까?</label>
+                         <p class="text-sm text-gray-500 mb-2">Tip: 듣고 싶은 수업, 참여하고 싶은 연구 등 학교에 대해 충분히 알아봤다는 것을 보여주며 구체적인 계획을 제시하세요.</p>
+                        <textarea id="draft-3" rows="6" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="draft-4" class="block text-lg font-semibold mb-2">4. 우리 학교를 졸업한 이후의 계획은 무엇입니까?</label>
+                         <p class="text-sm text-gray-500 mb-2">Tip: 학업 목표가 졸업 후의 진로 계획과 어떻게 이어지는지를 보여주며 장기적인 비전을 제시해 보세요.</p>
+                        <textarea id="draft-4" rows="6" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Review & Refine -->
+            <div id="step-3" class="step-content">
+                <h2 class="text-2xl font-bold mb-1 text-blue-700">3단계: 검토 및 수정하기</h2>
+                <p class="mb-6 text-gray-600">완성도를 높이는 마지막 단계입니다. 아래 기준에 따라 스스로 검토하고 수정해 보세요.</p>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-3">Part 1. 자가 진단 체크리스트</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center bg-gray-50 p-3 rounded-md">
+                            <input id="check-1" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="check-1" class="ml-3 text-md text-gray-800">지원한 학교와 전공에 대한 이해가 잘 드러나는가?</label>
+                        </div>
+                        <div class="flex items-center bg-gray-50 p-3 rounded-md">
+                            <input id="check-2" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="check-2" class="ml-3 text-md text-gray-800">나의 경험과 능력을 전공과 잘 관련지어 설명했는가?</label>
+                        </div>
+                        <div class="flex items-center bg-gray-50 p-3 rounded-md">
+                            <input id="check-3" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="check-3" class="ml-3 text-md text-gray-800">학업 계획이 구체적이고 실현 가능한가?</label>
+                        </div>
+                        <div class="flex items-center bg-gray-50 p-3 rounded-md">
+                            <input id="check-4" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label for="check-4" class="ml-3 text-md text-gray-800">학업에 대한 나의 열정과 의지가 잘 느껴지는가?</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">Part 2. 수정 계획 세우기</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="revise-1" class="block font-medium text-gray-700">부족한 점은 무엇이며, 어떤 내용을 추가할까요?</label>
+                            <textarea id="revise-1" rows="3" class="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label for="revise-2" class="block font-medium text-gray-700">불필요한 부분은 어디이며, 어떻게 수정할까요?</label>
+                            <textarea id="revise-2" rows="3" class="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Step -->
+            <div id="step-final" class="step-content text-center">
+                 <h2 class="text-2xl font-bold mb-4 text-gray-800">나의 자기소개서 초안</h2>
+                 <p class="mb-6 text-gray-600">작성한 내용을 최종 확인하고, 이미지로 저장하여 보관하세요.</p>
+
+                <div id="capture-area" class="p-6 border rounded-lg bg-gray-50">
+                    <div id="summary-content" class="space-y-4 text-left">
+                        <!-- User's content will be populated here -->
+                    </div>
+                </div>
+
+                <button id="capture-btn" class="mt-6 bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600 transition">
+                    이미지로 저장하기
+                </button>
+                 <button id="restart-btn" class="mt-4 text-sm text-gray-500 hover:text-blue-600">
+                    처음으로 돌아가기
+                </button>
+            </div>
+
+
+            <!-- Navigation -->
+            <div class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center">
+                <button id="prev-btn" class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition invisible">
+                    이전
+                </button>
+                <button id="next-btn" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-600 transition">
+                    다음
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // DOM Elements
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const captureBtn = document.getElementById('capture-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const stepContents = document.querySelectorAll('.step-content');
+        const stepIndicators = document.querySelectorAll('.step-indicator');
+
+        // State
+        let currentStep = 1;
+        const totalSteps = 3;
+        
+        // Store user input
+        const userDrafts = {
+            'draft-1': '', 'draft-2': '', 'draft-3': '', 'draft-4': '',
+        };
+
+        // Functions
+        function updateStepView() {
+            stepContents.forEach((content, index) => {
+                const stepNum = index + 1;
+                if (stepNum <= totalSteps) { // Regular steps
+                    content.classList.toggle('active', stepNum === currentStep);
+                } else { // Final summary step
+                     content.classList.toggle('active', currentStep > totalSteps);
+                }
+            });
+
+            stepIndicators.forEach((indicator, index) => {
+                const stepNum = index + 1;
+                indicator.classList.toggle('active', stepNum === currentStep);
+                indicator.classList.toggle('completed', stepNum < currentStep);
+            });
+
+            prevBtn.classList.toggle('invisible', currentStep === 1 || currentStep > totalSteps);
+            nextBtn.classList.toggle('invisible', currentStep > totalSteps);
+
+            nextBtn.textContent = (currentStep === totalSteps) ? '완료' : '다음';
+        }
+        
+        function saveDrafts() {
+            if (currentStep === 2) {
+                for (const key in userDrafts) {
+                    userDrafts[key] = document.getElementById(key).value;
+                }
+            }
+        }
+
+        function loadDrafts() {
+             if (currentStep === 2) {
+                for (const key in userDrafts) {
+                    document.getElementById(key).value = userDrafts[key];
+                }
+            }
+        }
+        
+        function populateSummary() {
+            const summaryContainer = document.getElementById('summary-content');
+            summaryContainer.innerHTML = ''; 
+
+            const questions = {
+                'draft-1': document.querySelector('label[for="draft-1"]').textContent,
+                'draft-2': document.querySelector('label[for="draft-2"]').textContent,
+                'draft-3': document.querySelector('label[for="draft-3"]').textContent,
+                'draft-4': document.querySelector('label[for="draft-4"]').textContent,
+            };
+
+            for (const key in userDrafts) {
+                if (userDrafts[key].trim() !== '') {
+                    const questionText = questions[key];
+                    const answerText = userDrafts[key];
+
+                    const item = document.createElement('div');
+                    item.className = 'mb-6 p-4 border-l-4 border-blue-200 bg-white shadow-sm rounded-r-lg';
+                    item.innerHTML = `
+                        <h4 class="font-semibold text-blue-800">${questionText}</h4>
+                        <p class="mt-2 text-gray-700 whitespace-pre-wrap">${answerText}</p>
+                    `;
+                    summaryContainer.appendChild(item);
+                }
+            }
+        }
+
+        function resetApp() {
+            currentStep = 1;
+            for (const key in userDrafts) { userDrafts[key] = ''; }
+            
+            document.querySelectorAll('#step-2 textarea').forEach(ta => ta.value = '');
+            document.querySelectorAll('#step-3 input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#step-3 textarea').forEach(ta => ta.value = '');
+            
+            updateStepView();
+        }
+
+        // Event Listeners
+        nextBtn.addEventListener('click', () => {
+            if (currentStep <= totalSteps) {
+                saveDrafts();
+                currentStep++;
+                if (currentStep > totalSteps) {
+                    populateSummary();
+                }
+                updateStepView();
+                loadDrafts();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                saveDrafts();
+                currentStep--;
+                updateStepView();
+                loadDrafts();
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            const captureArea = document.getElementById('capture-area');
+            const originalBg = captureArea.style.backgroundColor;
+            captureArea.style.backgroundColor = '#f9fafb'; // Ensure consistent background for capture
+            
+            html2canvas(captureArea, {
+                 scale: 1.5 // Increase resolution for better quality
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '자기소개서_초안.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                captureArea.style.backgroundColor = originalBg; // Revert background color
+            });
+        });
+
+        restartBtn.addEventListener('click', resetApp);
+
+        // Initial setup
+        updateStepView();
+    </script>
+</body>
+</html>
+
