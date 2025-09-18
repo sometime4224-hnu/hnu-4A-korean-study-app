@@ -90,8 +90,14 @@
             <!-- Vocabulary Chapter -->
             <div id="vocab-chapter" class="chapter-content">
                 <div class="slide active" data-slide="1">
-                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">1/4: 단어 카드</h2>
-                    <p class="mb-4">카드를 클릭해서 뜻을 확인하고, 화살표를 눌러 다른 단어를 보세요.</p>
+                    <h2 class="text-2xl font-semibold mb-2 text-cyan-800">1/4: 단어 카드</h2>
+                    <p class="mb-3">카드를 클릭해서 뜻을 확인하고, 아래 버튼으로 언어를 변경할 수 있어요.</p>
+                    <div class="flex justify-center space-x-2 mb-3">
+                        <button class="lang-btn bg-cyan-600 text-white py-1 px-3 rounded-full text-sm" data-lang="en">영어</button>
+                        <button class="lang-btn bg-gray-200 text-gray-700 py-1 px-3 rounded-full text-sm" data-lang="vi">베트남어</button>
+                        <button class="lang-btn bg-gray-200 text-gray-700 py-1 px-3 rounded-full text-sm" data-lang="ja">일본어</button>
+                        <button class="lang-btn bg-gray-200 text-gray-700 py-1 px-3 rounded-full text-sm" data-lang="zh">중국어</button>
+                    </div>
                     <div class="relative h-64">
                         <div id="flashcard-container" class="w-full max-w-md mx-auto">
                             <!-- Flashcard will be injected here -->
@@ -344,26 +350,56 @@
         });
 
         // --- Chapter 1: Vocabulary Logic ---
+        let currentLanguage = 'en';
         const vocabData = [
-            { term: '발목', definition: 'ankle', example: '발목을 삐었어요.' },
-            { term: '삐다', definition: 'to sprain', example: '운동하다가 발목을 삐었어요.' },
-            { term: '멍이 들다', definition: 'to have a bruise', example: '넘어져서 무릎에 멍이 들었어요.' },
-            { term: '깁스를 하다', definition: 'to put on a cast', example: '뼈가 부러져서 깁스를 했어요.' },
-            { term: '붕대를 감다', definition: 'to bandage', example: '상처에 붕대를 감았어요.' },
-            { term: '침을 놓다', definition: 'to do acupuncture', example: '한의원에서 침을 맞았어요.' },
-            { term: '얼음찜질', definition: 'ice pack application', example: '부은 곳에 얼음찜질을 하세요.' },
+            { 
+                term: '발목', 
+                definition: { en: 'ankle', vi: 'mắt cá chân', ja: '足首 (ashikubi)', zh: '脚踝 (jiǎohuái)' },
+                example: '발목을 삐었어요.' 
+            },
+            { 
+                term: '삐다', 
+                definition: { en: 'to sprain', vi: 'bong gân', ja: '捻挫する (nenza suru)', zh: '扭伤 (niǔshāng)' }, 
+                example: '운동하다가 발목을 삐었어요.' 
+            },
+            { 
+                term: '멍이 들다', 
+                definition: { en: 'to have a bruise', vi: 'bị bầm', ja: 'あざができる (aza ga dekiru)', zh: '瘀青 (yūqīng)' }, 
+                example: '넘어져서 무릎에 멍이 들었어요.' 
+            },
+            { 
+                term: '깁스를 하다', 
+                definition: { en: 'to put on a cast', vi: 'bó bột', ja: 'ギプスをする (gipusu o suru)', zh: '打石膏 (dǎ shígāo)' }, 
+                example: '뼈가 부러져서 깁스를 했어요.' 
+            },
+            { 
+                term: '붕대를 감다', 
+                definition: { en: 'to bandage', vi: 'băng bó', ja: '包帯を巻く (hōtai o maku)', zh: '包扎 (bāozā)' }, 
+                example: '상처에 붕대를 감았어요.' 
+            },
+            { 
+                term: '침을 놓다', 
+                definition: { en: 'to do acupuncture', vi: 'châm cứu', ja: '鍼を打つ (hari o utsu)', zh: '针灸 (zhēnjiǔ)' }, 
+                example: '한의원에서 침을 맞았어요.' 
+            },
+            { 
+                term: '얼음찜질', 
+                definition: { en: 'ice pack application', vi: 'chườm đá', ja: '氷嚢 (hyōnō)', zh: '冰敷 (bīngfū)' }, 
+                example: '부은 곳에 얼음찜질을 하세요.' 
+            },
         ];
         let currentCardIndex = 0;
         const flashcardContainer = document.getElementById('flashcard-container');
+        const langButtons = document.querySelectorAll('.lang-btn');
         
-        const createFlashcard = (index) => {
+        const createFlashcard = (index, lang) => {
             const cardData = vocabData[index];
             flashcardContainer.innerHTML = `
                 <div class="flip-card h-64 w-full" onclick="this.classList.toggle('flipped')">
                     <div class="flip-card-inner">
                         <div class="flip-card-front bg-cyan-100 text-cyan-800 text-4xl font-bold p-2">${cardData.term}</div>
                         <div class="flip-card-back bg-cyan-600 text-white p-4 flex flex-col justify-center">
-                            <p class="text-2xl font-bold">${cardData.definition}</p>
+                            <p class="text-2xl font-bold">${cardData.definition[lang]}</p>
                             <p class="mt-4 text-lg italic">예) ${cardData.example}</p>
                         </div>
                     </div>
@@ -371,14 +407,28 @@
             `;
         };
 
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentLanguage = button.dataset.lang;
+                createFlashcard(currentCardIndex, currentLanguage);
+                langButtons.forEach(btn => {
+                    const isSelected = btn.dataset.lang === currentLanguage;
+                    btn.classList.toggle('bg-cyan-600', isSelected);
+                    btn.classList.toggle('text-white', isSelected);
+                    btn.classList.toggle('bg-gray-200', !isSelected);
+                    btn.classList.toggle('text-gray-700', !isSelected);
+                });
+            });
+        });
+
         document.getElementById('prev-card').addEventListener('click', () => {
             currentCardIndex = (currentCardIndex - 1 + vocabData.length) % vocabData.length;
-            createFlashcard(currentCardIndex);
+            createFlashcard(currentCardIndex, currentLanguage);
         });
 
         document.getElementById('next-card').addEventListener('click', () => {
             currentCardIndex = (currentCardIndex + 1) % vocabData.length;
-            createFlashcard(currentCardIndex);
+            createFlashcard(currentCardIndex, currentLanguage);
         });
         
         // Vocab Line connecting logic
@@ -814,7 +864,7 @@
         // --- Initial Load ---
         const initApp = () => {
             switchChapter('vocab');
-            createFlashcard(currentCardIndex);
+            createFlashcard(currentCardIndex, currentLanguage);
             setupVocabConnectingGame();
             initSentenceScramble(sentenceWords1, sentenceDisplay1, wordOptionsContainer1, sentenceFeedback1);
             initSentenceScramble(sentenceWords2, sentenceDisplay2, wordOptionsContainer2, sentenceFeedback2);
@@ -827,4 +877,5 @@
     </script>
 </body>
 </html>
+
 
