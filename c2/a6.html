@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 학습 웹앱: 2과 건강한 삶</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+        }
+        .flip-card {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0.5rem;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .draggable {
+            cursor: move;
+        }
+        .drop-target {
+            border-style: dashed;
+        }
+        .drop-target.drag-over {
+            background-color: #e0f2fe;
+            border-color: #0284c7;
+        }
+        .correct-match {
+            border: 2px solid #22c55e;
+            background-color: #dcfce7;
+        }
+        .incorrect-match {
+             border: 2px solid #ef4444;
+             background-color: #fee2e2;
+        }
+        .option-item {
+            cursor: pointer;
+        }
+        .connect-point {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <header class="bg-white rounded-lg shadow p-6 mb-6">
+            <h1 class="text-3xl font-bold text-cyan-700">2과: 건강한 삶</h1>
+            <p class="text-gray-600 mt-1">부상 및 치료법에 대해 학습해 봅시다.</p>
+        </header>
+
+        <!-- Chapter Navigation -->
+        <div id="chapter-nav" class="flex justify-center space-x-2 sm:space-x-4 mb-6 bg-white p-3 rounded-lg shadow">
+            <button data-chapter="vocab" class="chapter-btn bg-cyan-600 text-white py-2 px-4 rounded-lg font-semibold w-full sm:w-auto transition-transform transform hover:scale-105">1장: 어휘와 표현</button>
+            <button data-chapter="reading" class="chapter-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold w-full sm:w-auto transition-transform transform hover:scale-105">2장: 읽기</button>
+            <button data-chapter="writing" class="chapter-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold w-full sm:w-auto transition-transform transform hover:scale-105">3장: 쓰기</button>
+        </div>
+
+        <main id="app-container" class="bg-white rounded-lg shadow p-6 min-h-[450px] relative">
+            <!-- Vocabulary Chapter -->
+            <div id="vocab-chapter" class="chapter-content">
+                <div class="slide active" data-slide="1">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">1/4: 단어 카드</h2>
+                    <p class="mb-4">카드를 클릭해서 뜻을 확인하고, 화살표를 눌러 다른 단어를 보세요.</p>
+                    <div class="relative h-64">
+                        <div id="flashcard-container" class="w-full max-w-md mx-auto">
+                            <!-- Flashcard will be injected here -->
+                        </div>
+                        <button id="prev-card" class="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-200 p-2 rounded-full hover:bg-gray-300">&lt;</button>
+                        <button id="next-card" class="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-200 p-2 rounded-full hover:bg-gray-300">&gt;</button>
+                    </div>
+                </div>
+                <div class="slide" data-slide="2">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">2/4: 단어와 표현 연결하기</h2>
+                    <p class="mb-4">왼쪽의 단어와 어울리는 오른쪽의 표현을 선으로 연결하세요.</p>
+                    <div class="flex justify-center items-center relative h-80">
+                        <canvas id="vocab-connecting-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                        <div id="vocab-nouns" class="space-y-4"></div>
+                        <div id="vocab-verbs" class="space-y-4 ml-16"></div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button id="reset-vocab-lines-btn" class="bg-yellow-500 text-white py-2 px-4 rounded-lg">다시하기</button>
+                    </div>
+                </div>
+                <div class="slide" data-slide="3">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">3/4: 문장 만들기 (1)</h2>
+                    <p class="mb-4">단어들을 순서에 맞게 클릭하여 올바른 문장을 만드세요.</p>
+                    <div id="sentence-scramble-container">
+                        <div class="bg-gray-100 rounded-lg p-4 min-h-[60px] mb-4 text-lg font-semibold flex items-center" id="sentence-display"></div>
+                        <div class="flex flex-wrap justify-center gap-3 mb-4" id="word-options">
+                            <!-- Word options will be injected here -->
+                        </div>
+                        <div class="text-center">
+                            <button id="reset-sentence-btn" class="bg-yellow-500 text-white py-2 px-4 rounded-lg">다시하기</button>
+                             <button id="check-sentence-btn" class="bg-cyan-600 text-white py-2 px-4 rounded-lg ml-2">확인</button>
+                        </div>
+                        <p id="sentence-feedback" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                </div>
+                <div class="slide" data-slide="4">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">4/4: 문장 만들기 (2)</h2>
+                    <p class="mb-4">단어들을 순서에 맞게 클릭하여 올바른 문장을 만드세요.</p>
+                    <div id="sentence-scramble-container-2">
+                        <div class="bg-gray-100 rounded-lg p-4 min-h-[60px] mb-4 text-lg font-semibold flex items-center" id="sentence-display-2"></div>
+                        <div class="flex flex-wrap justify-center gap-3 mb-4" id="word-options-2">
+                            <!-- Word options will be injected here -->
+                        </div>
+                        <div class="text-center">
+                            <button id="reset-sentence-btn-2" class="bg-yellow-500 text-white py-2 px-4 rounded-lg">다시하기</button>
+                             <button id="check-sentence-btn-2" class="bg-cyan-600 text-white py-2 px-4 rounded-lg ml-2">확인</button>
+                        </div>
+                        <p id="sentence-feedback-2" class="text-center mt-3 font-semibold"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reading Chapter -->
+            <div id="reading-chapter" class="chapter-content hidden">
+                 <div class="slide active" data-slide="1">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">1/4: 본문 읽기</h2>
+                    <div class="bg-gray-50 p-4 rounded-lg max-h-80 overflow-y-auto">
+                        <h3 class="font-bold text-lg mb-2">발목을 삐었을 때는?</h3>
+                        <p class="mb-3">걷거나 뛰다가 넘어지면서 발목을 삐는 경우가 가끔 있습니다. '금방 괜찮아지겠지?' 하고 치료하지 않고 지내다가는 증상이 심해질 수 있습니다. 발목을 삐었을 때 어떻게 치료하는 것이 좋을까요?</p>
+                        <strong class="text-cyan-700">정형외과 치료</strong>
+                        <p class="mb-3">먼저 다친 부분이 붓고 멍이 들었는지 확인하고 손가락으로 눌러 봐서 얼마나 아픈지 확인합니다. 필요한 경우 뼈를 다치지 않았는지 엑스레이(X-ray) 검사를 하기도 합니다. 발목이 움직이지 않도록 부어 있는 발목에 붕대를 감거나 심할 경우 깁스를 합니다.</p>
+                        <strong class="text-cyan-700">한의원 치료</strong>
+                        <p class="mb-3">검사를 해서 뼈가 부러진 정도가 아니라면 침을 놓아서 치료를 합니다. 다친 지 얼마 되지 않았으면 얼음찜질을 하는 것도 부어 있는 발목을 치료하는 데에 도움이 됩니다. 심한 경우에는 한약을 먹기도 합니다.</p>
+                         <strong class="text-cyan-700">민간요법 치료</strong>
+                        <p>발목을 삐어서 멍이 들었을 때 집에서 쉽게 할 수 있는 치료법도 있습니다. 감자 한 개와 생강 한 개를 갈아서 밀가루와 섞어 반죽을 만들고 그것을 멍이 든 곳에 붙이면 멍이 빨리 사라지게 됩니다.</p>
+                    </div>
+                </div>
+                <div class="slide" data-slide="2">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">2/4: 중심 내용 파악하기</h2>
+                     <p class="mb-6 text-lg">이 글은 무엇을 소개하는 글입니까?</p>
+                     <div id="main-idea-quiz" class="space-y-3">
+                        <div class="option-item border-2 border-gray-200 p-3 rounded-lg hover:bg-cyan-50" data-correct="false">☐ 여러 종류의 발목 병원</div>
+                        <div class="option-item border-2 border-gray-200 p-3 rounded-lg hover:bg-cyan-50" data-correct="true">☐ 발목을 삐었을 때의 치료법</div>
+                        <div class="option-item border-2 border-gray-200 p-3 rounded-lg hover:bg-cyan-50" data-correct="false">☐ 민간요법의 좋은 점</div>
+                     </div>
+                     <p id="quiz-feedback" class="text-center mt-4 font-bold text-xl"></p>
+                </div>
+                <div class="slide" data-slide="3">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">3/4: 정보 확인하기</h2>
+                    <p class="mb-4">각 치료법에서 사용하는 것을 아래에서 드래그하여 빈칸에 놓으세요.</p>
+                    <table class="w-full text-center border-collapse">
+                        <thead>
+                            <tr class="bg-cyan-100">
+                                <th class="border p-2">치료법</th><th class="border p-2">사용하는 것</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border p-2 font-semibold">정형외과</td>
+                                <td class="border p-2 drop-target-table h-16" data-answer="엑스레이, 깁스, 붕대"></td>
+                            </tr>
+                             <tr>
+                                <td class="border p-2 font-semibold">한의원</td>
+                                <td class="border p-2 drop-target-table h-16" data-answer="침, 얼음찜질, 한약"></td>
+                            </tr>
+                             <tr>
+                                <td class="border p-2 font-semibold">민간요법</td>
+                                <td class="border p-2 drop-target-table h-16" data-answer="감자, 생강, 밀가루"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                     <div id="reading-options" class="flex flex-wrap justify-center gap-3 mt-6">
+                        <!-- Reading draggable options injected here -->
+                    </div>
+                </div>
+                 <div class="slide" data-slide="4">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">4/4: 목적 연결하기</h2>
+                    <p class="mb-4">치료 방법과 그 목적을 선으로 연결하세요.</p>
+                    <div class="flex justify-center items-center relative">
+                        <canvas id="connecting-lines-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                        <div id="methods" class="space-y-4"></div>
+                        <div id="purposes" class="space-y-4 ml-16"></div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button id="reset-lines-btn" class="bg-yellow-500 text-white py-2 px-4 rounded-lg">다시하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Writing Chapter -->
+            <div id="writing-chapter" class="chapter-content hidden">
+                <div class="slide active" data-slide="1">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">1/3: 아이디어 구상하기</h2>
+                    <p class="mb-4">여러분이 알고 있는 특별한 치료법이나 민간요법에 대해 생각해 보세요.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-semibold">어떤 증상에 대한 것인가요? (예: 감기, 소화불량)</label>
+                            <input type="text" id="writing-idea-1" class="w-full border-2 border-gray-200 p-2 rounded-lg mt-1" placeholder="증상을 입력하세요">
+                        </div>
+                        <div>
+                            <label class="font-semibold">필요한 재료는 무엇인가요?</label>
+                            <input type="text" id="writing-idea-2" class="w-full border-2 border-gray-200 p-2 rounded-lg mt-1" placeholder="재료를 입력하세요">
+                        </div>
+                    </div>
+                </div>
+                <div class="slide" data-slide="2">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">2/3: 글 구조 배우기</h2>
+                    <p class="mb-4">아래와 같은 구조로 글을 쓸 수 있습니다.</p>
+                     <div class="space-y-3">
+                        <div class="bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500">
+                            <strong class="text-cyan-800">1. 도입:</strong> 어떤 증상에 사용하는지 소개<br>
+                            <span class="text-gray-600">예) (증상) 때 집에서 쉽게 할 수 있는 치료법이 있습니다.</span>
+                        </div>
+                         <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <strong class="text-green-800">2. 방법:</strong> 재료와 만드는 방법 설명<br>
+                            <span class="text-gray-600">예) 이 방법은 (재료)을/를 (행동) 것입니다.</span>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
+                            <strong class="text-amber-800">3. 효과:</strong> 치료법의 효능 소개<br>
+                            <span class="text-gray-600">예) ...에 좋을 뿐만 아니라 ...에도 효과가 있습니다.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide pb-16" data-slide="3">
+                    <h2 class="text-2xl font-semibold mb-4 text-cyan-800">3/3: 직접 써보기</h2>
+                    <p class="mb-4">앞에서 배운 구조를 생각하며 여러분의 민간요법을 소개하는 글을 써 보세요.</p>
+                    <textarea id="writing-area" class="w-full h-56 border-2 border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="여기에 글을 작성해 보세요..."></textarea>
+                     <div class="text-center mt-4">
+                        <button id="save-writing-btn" class="bg-cyan-600 text-white py-2 px-4 rounded-lg">저장하고 결과 보기</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Chapter -->
+            <div id="results-chapter" class="chapter-content hidden">
+                <div id="capture-area" class="bg-gray-50 rounded-lg p-6">
+                    <h2 class="text-3xl font-bold text-center text-cyan-700 mb-4">🎉 학습 완료! 🎉</h2>
+                    <p class="text-center text-gray-600 mb-6">수고하셨습니다. 다음은 여러분이 작성한 글입니다.</p>
+                    <div class="bg-white p-4 rounded-lg border min-h-[150px]">
+                        <h3 class="font-semibold text-lg mb-2" id="result-title">나만의 민간요법</h3>
+                        <p id="result-text" class="text-gray-700 whitespace-pre-wrap"></p>
+                    </div>
+                </div>
+                 <div class="text-center mt-6 space-x-4">
+                    <button id="capture-btn" class="bg-green-500 text-white py-2 px-5 rounded-lg">결과 캡처하기</button>
+                    <button id="restart-btn" class="bg-yellow-500 text-white py-2 px-5 rounded-lg">다시 시작하기</button>
+                </div>
+            </div>
+
+
+            <!-- Slide Navigation -->
+            <div id="slide-nav" class="absolute bottom-6 right-6 flex items-center">
+                <button id="prev-slide" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 mr-2">&lt;</button>
+                <span id="slide-counter" class="font-semibold text-gray-600"></span>
+                <button id="next-slide" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 ml-2">&gt;</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const chapterButtons = document.querySelectorAll('.chapter-btn');
+        const chapterContents = document.querySelectorAll('.chapter-content');
+        const slideNav = document.getElementById('slide-nav');
+        const prevSlideBtn = document.getElementById('prev-slide');
+        const nextSlideBtn = document.getElementById('next-slide');
+        const slideCounter = document.getElementById('slide-counter');
+
+        let currentChapter = 'vocab';
+        let slideIndexes = {
+            vocab: 0,
+            reading: 0,
+            writing: 0
+        };
+
+        // --- Utility Functions ---
+        const updateSlideView = () => {
+            const slides = document.querySelectorAll(`#${currentChapter}-chapter .slide`);
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === slideIndexes[currentChapter]);
+            });
+            slideCounter.textContent = `${slideIndexes[currentChapter] + 1} / ${slides.length}`;
+            prevSlideBtn.disabled = slideIndexes[currentChapter] === 0;
+            nextSlideBtn.disabled = slideIndexes[currentChapter] === slides.length - 1;
+        };
+
+        const switchChapter = (chapterId) => {
+            currentChapter = chapterId;
+            chapterContents.forEach(content => {
+                content.classList.toggle('hidden', content.id !== `${chapterId}-chapter`);
+            });
+            chapterButtons.forEach(btn => {
+                const isSelected = btn.dataset.chapter === chapterId;
+                btn.classList.toggle('bg-cyan-600', isSelected);
+                btn.classList.toggle('text-white', isSelected);
+                btn.classList.toggle('bg-gray-200', !isSelected);
+                btn.classList.toggle('text-gray-700', !isSelected);
+            });
+            slideNav.style.display = 'flex';
+            updateSlideView();
+        };
+        
+        // --- Event Listeners ---
+        chapterButtons.forEach(button => {
+            button.addEventListener('click', () => switchChapter(button.dataset.chapter));
+        });
+
+        prevSlideBtn.addEventListener('click', () => {
+            if (slideIndexes[currentChapter] > 0) {
+                slideIndexes[currentChapter]--;
+                updateSlideView();
+            }
+        });
+
+        nextSlideBtn.addEventListener('click', () => {
+            const slides = document.querySelectorAll(`#${currentChapter}-chapter .slide`);
+            if (slideIndexes[currentChapter] < slides.length - 1) {
+                slideIndexes[currentChapter]++;
+                updateSlideView();
+            }
+        });
+
+        // --- Chapter 1: Vocabulary Logic ---
+        const vocabData = [
+            { term: '발목', definition: 'ankle', example: '발목을 삐었어요.' },
+            { term: '삐다', definition: 'to sprain', example: '운동하다가 발목을 삐었어요.' },
+            { term: '멍이 들다', definition: 'to have a bruise', example: '넘어져서 무릎에 멍이 들었어요.' },
+            { term: '깁스를 하다', definition: 'to put on a cast', example: '뼈가 부러져서 깁스를 했어요.' },
+            { term: '붕대를 감다', definition: 'to bandage', example: '상처에 붕대를 감았어요.' },
+            { term: '침을 놓다', definition: 'to do acupuncture', example: '한의원에서 침을 맞았어요.' },
+            { term: '얼음찜질', definition: 'ice pack application', example: '부은 곳에 얼음찜질을 하세요.' },
+        ];
+        let currentCardIndex = 0;
+        const flashcardContainer = document.getElementById('flashcard-container');
+        
+        const createFlashcard = (index) => {
+            const cardData = vocabData[index];
+            flashcardContainer.innerHTML = `
+                <div class="flip-card h-64 w-full" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-cyan-100 text-cyan-800 text-4xl font-bold p-2">${cardData.term}</div>
+                        <div class="flip-card-back bg-cyan-600 text-white p-4 flex flex-col justify-center">
+                            <p class="text-2xl font-bold">${cardData.definition}</p>
+                            <p class="mt-4 text-lg italic">예) ${cardData.example}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        document.getElementById('prev-card').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex - 1 + vocabData.length) % vocabData.length;
+            createFlashcard(currentCardIndex);
+        });
+
+        document.getElementById('next-card').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex + 1) % vocabData.length;
+            createFlashcard(currentCardIndex);
+        });
+        
+        // Vocab Line connecting logic
+        const vocabCanvas = document.getElementById('vocab-connecting-canvas');
+        const vocabCtx = vocabCanvas.getContext('2d');
+        const vocabNounsContainer = document.getElementById('vocab-nouns');
+        const vocabVerbsContainer = document.getElementById('vocab-verbs');
+        const resetVocabLinesBtn = document.getElementById('reset-vocab-lines-btn');
+        let vocabPoints = { nouns: [], verbs: [] };
+        let vocabConnections = [];
+        let vocabSelectedPoint = null;
+
+        const connectionDataVocab = {
+            '붕대': '~을/를 감다',
+            '깁스': '~을/를 하다',
+            '침': '~을/를 놓다',
+            '멍': '~이/가 들다',
+            '얼음찜질': '~을/를 하다'
+        };
+
+        const setupVocabConnectingGame = () => {
+            vocabNounsContainer.innerHTML = '';
+            vocabVerbsContainer.innerHTML = '';
+            vocabConnections = [];
+            vocabPoints = { nouns: [], verbs: [] };
+
+            const nouns = Object.keys(connectionDataVocab);
+            const verbs = Object.values(connectionDataVocab).filter((v, i, a) => a.indexOf(v) === i).sort(() => Math.random() - 0.5);
+
+            nouns.forEach((text, i) => createVocabPoint(text, i, 'nouns', vocabNounsContainer));
+            verbs.forEach((text, i) => createVocabPoint(text, i, 'verbs', vocabVerbsContainer));
+            
+            setTimeout(() => {
+                resizeVocabCanvas();
+                recordVocabPointCoordinates();
+                drawVocabLines();
+            }, 100);
+        };
+        
+        function createVocabPoint(text, index, type, container) {
+            const div = document.createElement('div');
+            div.className = 'connect-point p-3 bg-gray-100 border-2 border-gray-300 rounded-lg hover:bg-cyan-50';
+            div.textContent = text;
+            div.dataset.type = type;
+            div.dataset.index = index;
+            div.dataset.text = text;
+            container.appendChild(div);
+            div.addEventListener('click', handleVocabPointClick);
+        }
+
+        function handleVocabPointClick(e) {
+            const pointEl = e.target;
+            const { type, index, text } = pointEl.dataset;
+            if (pointEl.classList.contains('correct-match')) return;
+
+            if (vocabSelectedPoint) {
+                if (vocabSelectedPoint.type !== type) {
+                    vocabConnections.push({ from: vocabSelectedPoint, to: { type, index, text } });
+                    const fromText = vocabSelectedPoint.text;
+                    const toText = text;
+                    const isCorrect = connectionDataVocab[fromText] === toText;
+                    
+                    const fromEl = document.querySelector(`#vocab-nouns [data-text="${fromText}"]`);
+                    const toEl = document.querySelector(`#vocab-verbs [data-text="${toText}"]`);
+                    
+                    if (isCorrect) {
+                        fromEl.classList.add('correct-match');
+                        fromEl.style.cursor = 'default';
+                        // Don't mark the verb correct yet if it can be reused
+                        const verbUsageCount = Object.values(connectionDataVocab).filter(v => v === toText).length;
+                        const verbConnectedCount = vocabConnections.filter(c => c.to.text === toText && connectionDataVocab[c.from.text] === c.to.text).length;
+                        if(verbUsageCount === verbConnectedCount) {
+                            toEl.classList.add('correct-match');
+                            toEl.style.cursor = 'default';
+                        }
+                    } else {
+                         fromEl.classList.add('incorrect-match');
+                         toEl.classList.add('incorrect-match');
+                         setTimeout(()=> {
+                             fromEl.classList.remove('incorrect-match');
+                             toEl.classList.remove('incorrect-match');
+                             vocabConnections.pop();
+                             drawVocabLines();
+                         }, 500);
+                    }
+                    vocabSelectedPoint = null;
+                } else {
+                    vocabSelectedPoint = { type, index, text };
+                }
+            } else {
+                vocabSelectedPoint = { type, index, text };
+            }
+            drawVocabLines();
+        }
+
+        function resizeVocabCanvas() {
+            const rect = vocabCanvas.parentElement.getBoundingClientRect();
+            vocabCanvas.width = rect.width;
+            vocabCanvas.height = rect.height;
+        }
+
+        function recordVocabPointCoordinates() {
+            ['nouns', 'verbs'].forEach(type => {
+                vocabPoints[type] = Array.from(document.querySelectorAll(`#vocab-${type} > div`)).map(div => {
+                    const rect = div.getBoundingClientRect();
+                    const parentRect = vocabCanvas.parentElement.getBoundingClientRect();
+                    const x = (type === 'nouns') ? rect.right - parentRect.left : rect.left - parentRect.left;
+                    const y = rect.top + rect.height / 2 - parentRect.top;
+                    return { x, y };
+                });
+            });
+        }
+        
+        function drawVocabLines() {
+            vocabCtx.clearRect(0, 0, vocabCanvas.width, vocabCanvas.height);
+            vocabConnections.forEach(conn => {
+                const fromPoint = vocabPoints[conn.from.type][conn.from.index];
+                const toPoint = vocabPoints[conn.to.type][conn.to.index];
+
+                const isCorrect = connectionDataVocab[conn.from.text] === conn.to.text;
+
+                vocabCtx.beginPath();
+                vocabCtx.moveTo(fromPoint.x, fromPoint.y);
+                vocabCtx.lineTo(toPoint.x, toPoint.y);
+                vocabCtx.strokeStyle = isCorrect ? '#22c55e' : '#ef4444';
+                vocabCtx.lineWidth = 3;
+                vocabCtx.stroke();
+            });
+             if (vocabSelectedPoint) {
+                const point = vocabPoints[vocabSelectedPoint.type][vocabSelectedPoint.index];
+                vocabCtx.beginPath();
+                vocabCtx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+                vocabCtx.fillStyle = '#0891b2';
+                vocabCtx.fill();
+            }
+        }
+        resetVocabLinesBtn.addEventListener('click', setupVocabConnectingGame);
+        
+        // Sentence Scramble Logic
+        const sentenceWords1 = ['발목을', '삐어서', '깁스를', '했어요'];
+        const wordOptionsContainer1 = document.getElementById('word-options');
+        const sentenceDisplay1 = document.getElementById('sentence-display');
+        const sentenceFeedback1 = document.getElementById('sentence-feedback');
+        
+        const initSentenceScramble = (words, display, options, feedback) => {
+            options.innerHTML = '';
+            display.innerHTML = '';
+            feedback.textContent = '';
+            feedback.className = 'text-center mt-3 font-semibold';
+
+            words.sort(() => Math.random() - 0.5).forEach(word => {
+                const wordBtn = document.createElement('button');
+                wordBtn.textContent = word;
+                wordBtn.className = 'bg-cyan-100 text-cyan-800 py-2 px-4 rounded-lg hover:bg-cyan-200';
+                wordBtn.onclick = () => {
+                    display.textContent += word + ' ';
+                    wordBtn.disabled = true;
+                    wordBtn.classList.add('opacity-50');
+                };
+                options.appendChild(wordBtn);
+            });
+        };
+
+        document.getElementById('reset-sentence-btn').addEventListener('click', () => initSentenceScramble(sentenceWords1, sentenceDisplay1, wordOptionsContainer1, sentenceFeedback1));
+        document.getElementById('check-sentence-btn').addEventListener('click', () => {
+            const userAnswer = sentenceDisplay1.textContent.trim();
+            const correctAnswer = '발목을 삐어서 깁스를 했어요';
+            if (userAnswer === correctAnswer) {
+                sentenceFeedback1.textContent = '정답입니다! 🎉';
+                sentenceFeedback1.className += ' text-green-600';
+            } else {
+                sentenceFeedback1.textContent = '아쉬워요, 다시 시도해 보세요.';
+                sentenceFeedback1.className += ' text-red-600';
+            }
+        });
+
+        const sentenceWords2 = ['넘어져서', '무릎에', '멍이', '들었어요'];
+        const wordOptionsContainer2 = document.getElementById('word-options-2');
+        const sentenceDisplay2 = document.getElementById('sentence-display-2');
+        const sentenceFeedback2 = document.getElementById('sentence-feedback-2');
+
+        document.getElementById('reset-sentence-btn-2').addEventListener('click', () => initSentenceScramble(sentenceWords2, sentenceDisplay2, wordOptionsContainer2, sentenceFeedback2));
+        document.getElementById('check-sentence-btn-2').addEventListener('click', () => {
+             const userAnswer = sentenceDisplay2.textContent.trim();
+            const correctAnswer = '넘어져서 무릎에 멍이 들었어요';
+            if (userAnswer === correctAnswer) {
+                sentenceFeedback2.textContent = '정답입니다! 🎉';
+                sentenceFeedback2.className += ' text-green-600';
+            } else {
+                sentenceFeedback2.textContent = '아쉬워요, 다시 시도해 보세요.';
+                sentenceFeedback2.className += ' text-red-600';
+            }
+        });
+        
+        // --- Chapter 2: Reading Logic ---
+        document.querySelectorAll('#main-idea-quiz .option-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('#main-idea-quiz .option-item').forEach(i => {
+                    i.classList.remove('correct-match', 'incorrect-match');
+                });
+                const isCorrect = item.dataset.correct === 'true';
+                const feedbackEl = document.getElementById('quiz-feedback');
+                if (isCorrect) {
+                    item.classList.add('correct-match');
+                    feedbackEl.textContent = '맞아요! 이 글은 여러 치료법을 소개하고 있어요.';
+                    feedbackEl.className = 'text-center mt-4 font-bold text-xl text-green-600';
+                } else {
+                    item.classList.add('incorrect-match');
+                    feedbackEl.textContent = '다시 생각해 보세요.';
+                    feedbackEl.className = 'text-center mt-4 font-bold text-xl text-red-600';
+                }
+            });
+        });
+
+        const readingOptionsContainer = document.getElementById('reading-options');
+        const readingDropTargets = document.querySelectorAll('.drop-target-table');
+        const readingItems = ['엑스레이', '깁스', '붕대', '침', '얼음찜질', '한약', '감자', '생강', '밀가루'];
+
+        const initReadingDragDrop = () => {
+            readingOptionsContainer.innerHTML = '';
+            readingDropTargets.forEach(t => { t.innerHTML = ''; t.classList.remove('correct-match'); });
+            readingItems.sort(() => Math.random() - 0.5).forEach(item => {
+                 const el = document.createElement('div');
+                 el.textContent = item;
+                 el.className = 'draggable bg-gray-200 py-1 px-3 rounded-lg';
+                 el.draggable = true;
+                 el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', item));
+                 readingOptionsContainer.appendChild(el);
+            });
+
+             readingDropTargets.forEach(target => {
+                target.addEventListener('dragover', e => { e.preventDefault(); target.classList.add('drag-over'); });
+                target.addEventListener('dragleave', e => { target.classList.remove('drag-over'); });
+                target.addEventListener('drop', e => {
+                    e.preventDefault();
+                    target.classList.remove('drag-over');
+                    const droppedItem = e.dataTransfer.getData('text/plain');
+                    const droppedEl = document.createElement('span');
+                    droppedEl.className = 'bg-cyan-100 text-cyan-800 text-sm py-1 px-2 rounded-full m-1 inline-block';
+                    droppedEl.textContent = droppedItem;
+                    target.appendChild(droppedEl);
+
+                    const currentAnswers = Array.from(target.children).map(child => child.textContent).sort();
+                    const correctAnswers = target.dataset.answer.split(', ').sort();
+                    
+                    if(currentAnswers.length === correctAnswers.length){
+                        const isCorrect = JSON.stringify(currentAnswers) === JSON.stringify(correctAnswers);
+                        target.classList.toggle('correct-match', isCorrect);
+                    }
+                });
+            });
+        };
+
+        // Reading Line connecting logic
+        const canvas = document.getElementById('connecting-lines-canvas');
+        const ctx = canvas.getContext('2d');
+        const methodsContainer = document.getElementById('methods');
+        const purposesContainer = document.getElementById('purposes');
+        const resetLinesBtn = document.getElementById('reset-lines-btn');
+        let points = { methods: [], purposes: [] };
+        let connections = [];
+        let selectedPoint = null;
+
+        const connectionData = {
+            '엑스레이 검사를 한다.': '뼈가 부러졌는지 확인한다.',
+            '깁스를 한다.': '발목을 움직이지 않게 한다.',
+            '얼음찜질을 한다.': '부어 있는 곳을 치료한다.',
+            '밀가루 반죽을 붙인다.': '멍을 빨리 사라지게 한다.'
+        };
+
+        const setupConnectingGame = () => {
+            methodsContainer.innerHTML = '';
+            purposesContainer.innerHTML = '';
+            connections = [];
+            points = { methods: [], purposes: [] };
+
+            const methods = Object.keys(connectionData);
+            const purposes = Object.values(connectionData).sort(() => Math.random() - 0.5);
+
+            methods.forEach((text, i) => createPoint(text, i, 'methods', methodsContainer));
+            purposes.forEach((text, i) => createPoint(text, i, 'purposes', purposesContainer));
+            
+            setTimeout(() => {
+                resizeCanvas();
+                recordPointCoordinates();
+                drawLines();
+            }, 100);
+        };
+        
+        function createPoint(text, index, type, container) {
+            const div = document.createElement('div');
+            div.className = 'connect-point p-3 bg-gray-100 border-2 border-gray-300 rounded-lg hover:bg-cyan-50';
+            div.textContent = text;
+            div.dataset.type = type;
+            div.dataset.index = index;
+            div.dataset.text = text;
+            container.appendChild(div);
+            div.addEventListener('click', handlePointClick);
+        }
+
+        function handlePointClick(e) {
+            const pointEl = e.target;
+            const { type, index, text } = pointEl.dataset;
+            if (pointEl.classList.contains('correct-match')) return;
+
+            if (selectedPoint) {
+                if (selectedPoint.type !== type) {
+                    connections.push({ from: selectedPoint, to: { type, index, text } });
+                    const fromText = selectedPoint.text;
+                    const toText = text;
+                    const isCorrect = connectionData[fromText] === toText || connectionData[toText] === fromText;
+                    
+                    const fromEl = document.querySelector(`#methods [data-text="${fromText}"]`);
+                    const toEl = document.querySelector(`#purposes [data-text="${toText}"]`);
+                    
+                    if (isCorrect) {
+                        fromEl.classList.add('correct-match');
+                        toEl.classList.add('correct-match');
+                        fromEl.style.cursor = 'default';
+                        toEl.style.cursor = 'default';
+
+                    } else {
+                         fromEl.classList.add('incorrect-match');
+                         toEl.classList.add('incorrect-match');
+                         setTimeout(()=> {
+                             fromEl.classList.remove('incorrect-match');
+                             toEl.classList.remove('incorrect-match');
+                             connections.pop();
+                             drawLines();
+                         }, 500);
+                    }
+                    selectedPoint = null;
+                } else {
+                     selectedPoint = { type, index, text };
+                }
+            } else {
+                selectedPoint = { type, index, text };
+            }
+            drawLines();
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        function recordPointCoordinates() {
+            ['methods', 'purposes'].forEach(type => {
+                points[type] = Array.from(document.querySelectorAll(`#${type} > div`)).map(div => {
+                    const rect = div.getBoundingClientRect();
+                    const parentRect = canvas.parentElement.getBoundingClientRect();
+                    const x = (type === 'methods') ? rect.right - parentRect.left : rect.left - parentRect.left;
+                    const y = rect.top + rect.height / 2 - parentRect.top;
+                    return { x, y };
+                });
+            });
+        }
+        
+        function drawLines() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            connections.forEach(conn => {
+                const fromPoint = points[conn.from.type][conn.from.index];
+                const toPoint = points[conn.to.type][conn.to.index];
+
+                const isCorrect = connectionData[conn.from.text] === conn.to.text || connectionData[conn.to.text] === conn.from.text;
+
+                ctx.beginPath();
+                ctx.moveTo(fromPoint.x, fromPoint.y);
+                ctx.lineTo(toPoint.x, toPoint.y);
+                ctx.strokeStyle = isCorrect ? '#22c55e' : '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            });
+             if (selectedPoint) {
+                const point = points[selectedPoint.type][selectedPoint.index];
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = '#0891b2';
+                ctx.fill();
+            }
+        }
+        resetLinesBtn.addEventListener('click', setupConnectingGame);
+        
+        const resizeObserver = new ResizeObserver(() => {
+            resizeCanvas();
+            recordPointCoordinates();
+            drawLines();
+            resizeVocabCanvas();
+            recordVocabPointCoordinates();
+            drawVocabLines();
+        });
+        resizeObserver.observe(document.getElementById('app-container'));
+
+
+        // --- Chapter 3 & Results Logic ---
+        document.getElementById('save-writing-btn').addEventListener('click', () => {
+            const text = document.getElementById('writing-area').value;
+            const idea1 = document.getElementById('writing-idea-1').value;
+
+            if (text.trim().length > 0) {
+                document.getElementById('result-text').textContent = text;
+                if(idea1.trim().length > 0) {
+                    document.getElementById('result-title').textContent = `'${idea1}'에 대한 나만의 민간요법`;
+                } else {
+                    document.getElementById('result-title').textContent = `나만의 민간요법`;
+                }
+
+                chapterContents.forEach(c => c.classList.add('hidden'));
+                document.getElementById('results-chapter').classList.remove('hidden');
+                document.getElementById('chapter-nav').style.display = 'none';
+                slideNav.style.display = 'none';
+            } else {
+                alert('내용을 입력해주세요.');
+            }
+        });
+
+        document.getElementById('capture-btn').addEventListener('click', () => {
+            const captureArea = document.getElementById('capture-area');
+            html2canvas(captureArea).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'korean-learning-result.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            location.reload();
+        });
+
+
+        // --- Initial Load ---
+        const initApp = () => {
+            switchChapter('vocab');
+            createFlashcard(currentCardIndex);
+            setupVocabConnectingGame();
+            initSentenceScramble(sentenceWords1, sentenceDisplay1, wordOptionsContainer1, sentenceFeedback1);
+            initSentenceScramble(sentenceWords2, sentenceDisplay2, wordOptionsContainer2, sentenceFeedback2);
+            initReadingDragDrop();
+            setupConnectingGame();
+        };
+
+        initApp();
+
+    </script>
+</body>
+</html>
+
