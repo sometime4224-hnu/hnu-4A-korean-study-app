@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 학습: 집 안의 문제</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+        }
+        .flashcard {
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        .lang-btn.active {
+            background-color: #3b82f6; /* bg-blue-600 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8 m-4">
+        
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">집 안의 문제 해결하기</h1>
+            <p class="text-gray-500 mt-2">집에 문제가 생겼을 때 관리자나 집주인에게 요청하는 방법을 배워봅시다.</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 25%;"></div>
+        </div>
+        <div class="flex justify-between text-sm text-gray-500 mb-8 -mt-6">
+            <span id="step-1-text" class="font-bold text-blue-600">어휘</span>
+            <span id="step-2-text">문법</span>
+            <span id="step-3-text">문장 만들기</span>
+            <span id="step-4-text">글 구성</span>
+        </div>
+
+        <!-- Slides Container -->
+        <div id="slides-container" class="min-h-[400px]">
+            <!-- Slide 1: Vocabulary & Expressions -->
+            <div id="slide-1" class="slide active">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">1. 어휘 및 표현</h2>
+                <!-- Language Buttons -->
+                <div class="flex justify-center flex-wrap space-x-2 mb-4">
+                    <button onclick="changeLanguage('en', event)" class="lang-btn active bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">영어</button>
+                    <button onclick="changeLanguage('vi', event)" class="lang-btn bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">베트남어</button>
+                    <button onclick="changeLanguage('ja', event)" class="lang-btn bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">일본어</button>
+                    <button onclick="changeLanguage('zh', event)" class="lang-btn bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-semibold">중국어</button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <!-- Vocabulary Items -->
+                    <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-blue-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-blue-800">물이 안 나오다</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-blue-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-blue-900" data-key="water_out">Water isn't coming out</p>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-blue-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-blue-800">하수구가 막히다</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-blue-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-blue-900" data-key="drain_clogged">The drain is clogged</p>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-blue-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-blue-800">전등이 나가다</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-blue-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-blue-900" data-key="light_out">The light is out</p>
+                           </div>
+                        </div>
+                    </div>
+                     <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-green-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-green-800">보일러가 고장 나다</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-green-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-green-900" data-key="boiler_broken">The boiler is broken</p>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-green-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-green-800">악취가 나다</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-green-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-green-900" data-key="bad_smell">There's a bad smell</p>
+                           </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-container cursor-pointer" onclick="flipCard(this)">
+                        <div class="flashcard relative w-full h-32 rounded-lg">
+                           <div class="flashcard-front absolute w-full h-full bg-green-100 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-lg font-semibold text-green-800">수리/조치/해결</p>
+                           </div>
+                           <div class="flashcard-back absolute w-full h-full bg-green-200 flex items-center justify-center text-center p-2 rounded-lg shadow">
+                               <p class="text-md text-green-900" data-key="repair_action">Repair / Action / Solution</p>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center text-gray-500 text-sm mt-4">카드를 클릭하여 뜻을 확인하세요.</p>
+            </div>
+
+            <!-- Slide 2: Grammar -->
+            <div id="slide-2" class="slide">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">2. 주요 문법</h2>
+                 <div class="space-y-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg text-gray-800">-(으)ㄴ 지 ...이/가 되다/넘다/지나다</h3>
+                        <p class="mt-1 text-gray-600">어떤 일이 시작되고 시간이 얼마나 흘렀는지 나타낼 때 사용합니다.</p>
+                        <p class="mt-2 text-blue-700 bg-blue-50 p-2 rounded">예) 화장실 불이 <span class="font-semibold">나간 지</span> 3일이 <span class="font-semibold">되었습니다</span>.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg text-gray-800">-아/어 주시기 바랍니다</h3>
+                        <p class="mt-1 text-gray-600">상대방에게 정중하게 무언가를 요청할 때 사용합니다.</p>
+                        <p class="mt-2 text-blue-700 bg-blue-50 p-2 rounded">예) 가능한 한 빨리 <span class="font-semibold">수리해 주시기 바랍니다</span>.</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg text-gray-800">-는 것 같다</h3>
+                        <p class="mt-1 text-gray-600">확실하지 않은 사실에 대해 추측하여 말할 때 사용합니다.</p>
+                        <p class="mt-2 text-blue-700 bg-blue-50 p-2 rounded">예) 싱크대 배관에 문제가 <span class="font-semibold">생긴 것 같습니다</span>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Sentence Building -->
+            <div id="slide-3" class="slide">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">3. 문장 만들기</h2>
+                <p class="mb-6 text-gray-600">배운 어휘와 문법을 사용해서 문장을 만들어 보세요.</p>
+                <div class="space-y-6">
+                    <div>
+                        <p class="font-medium text-gray-800">문제 1: 이틀 전부터 부엌 싱크대 물이 잘 안내려갑니다. 집주인에게 이 상황을 설명하는 문장을 만드세요.</p>
+                        <textarea id="textarea1" class="w-full mt-2 p-2 border rounded-md h-24" placeholder="여기에 문장을 입력하세요..."></textarea>
+                        <div class="mt-2">
+                             <button onclick="checkSentence('textarea1', 'result1')" class="text-sm bg-blue-600 text-white py-1 px-3 rounded-md hover:bg-blue-700">작성 내용 확인</button>
+                             <button onclick="toggleAnswer('answer1')" class="ml-2 text-sm text-blue-600 hover:underline">예시 답안 보기</button>
+                        </div>
+                        <p id="answer1" class="hidden mt-2 p-3 bg-gray-100 text-gray-700 rounded-md">예시: 이틀 전부터 싱크대 물이 안 내려가기 시작했습니다. 싱크대가 막힌 지 이틀이 되었습니다.</p>
+                        <div id="result1" class="hidden mt-2 p-3 bg-green-100 text-green-800 rounded-md"></div>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">문제 2: 화장실 변기가 고장 난 것 같습니다. 빠른 수리를 요청하는 문장을 만드세요.</p>
+                        <textarea id="textarea2" class="w-full mt-2 p-2 border rounded-md h-24" placeholder="여기에 문장을 입력하세요..."></textarea>
+                        <div class="mt-2">
+                            <button onclick="checkSentence('textarea2', 'result2')" class="text-sm bg-blue-600 text-white py-1 px-3 rounded-md hover:bg-blue-700">작성 내용 확인</button>
+                            <button onclick="toggleAnswer('answer2')" class="ml-2 text-sm text-blue-600 hover:underline">예시 답안 보기</button>
+                        </div>
+                        <p id="answer2" class="hidden mt-2 p-3 bg-gray-100 text-gray-700 rounded-md">예시: 화장실 변기가 고장 난 것 같습니다. 확인해 보시고 수리해 주시기 바랍니다.</p>
+                        <div id="result2" class="hidden mt-2 p-3 bg-green-100 text-green-800 rounded-md"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Composition -->
+            <div id="slide-4" class="slide">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">4. 글 구성하기</h2>
+                <p class="mb-4 text-gray-600">아래 순서와 예시를 참고하여 집주인이나 관리자에게 보낼 글을 직접 작성해 보세요.</p>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">글의 순서</h3>
+                    <ol class="list-decimal list-inside mt-2 text-gray-600 space-y-1">
+                        <li><b>인사 및 자기소개:</b> 몇 호에 사는지 밝힙니다.</li>
+                        <li><b>문제 상황 설명:</b> 언제부터, 어디에, 어떤 문제가 생겼는지 구체적으로 작성합니다.</li>
+                        <li><b>요청 사항:</b> 원하는 해결 방법과 처리 기한을 정중하게 요청합니다.</li>
+                        <li><b>끝인사:</b> 연락을 기다린다는 내용으로 마무리합니다.</li>
+                    </ol>
+                </div>
+                <textarea id="composition-area" class="w-full p-2 border rounded-md h-36" placeholder="이곳에 직접 글을 작성해 보세요..."></textarea>
+                <button onclick="saveComposition('composition-area', 'composition-result-modal')" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">작성 완료</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <footer class="flex justify-between items-center mt-8 pt-6 border-t">
+            <button id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg invisible">이전</button>
+            <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">다음</button>
+        </footer>
+    </div>
+    
+    <!-- Result Modal for Composition -->
+    <div id="composition-result-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
+        <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-2xl bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-xl leading-6 font-bold text-gray-900">작성한 내용</h3>
+                <div id="capture-area" class="mt-4 p-5 bg-white border border-gray-200 rounded-lg shadow-inner">
+                    <p id="composition-text" class="text-base text-gray-800 whitespace-pre-line text-left"></p>
+                </div>
+                <div class="items-center px-4 py-3 mt-4 space-y-2 sm:space-y-0 sm:flex sm:flex-row-reverse sm:space-x-2 sm:space-x-reverse">
+                    <button onclick="closeModal('composition-result-modal')" class="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-lg shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                        닫기
+                    </button>
+                    <button onclick="captureAndDownload()" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        이미지로 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 4;
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const stepTexts = [
+            document.getElementById('step-1-text'),
+            document.getElementById('step-2-text'),
+            document.getElementById('step-3-text'),
+            document.getElementById('step-4-text'),
+        ];
+
+        const translations = {
+            'water_out': {
+                en: "Water isn't coming out",
+                vi: "Nước không chảy",
+                ja: "水が出ない",
+                zh: "不出水"
+            },
+            'drain_clogged': {
+                en: "The drain is clogged",
+                vi: "Cống bị tắc",
+                ja: "排水溝が詰まった",
+                zh: "下水道堵了"
+            },
+            'light_out': {
+                en: "The light is out",
+                vi: "Đèn bị tắt",
+                ja: "電灯が切れた",
+                zh: "灯灭了"
+            },
+            'boiler_broken': {
+                en: "The boiler is broken",
+                vi: "Nồi hơi bị hỏng",
+                ja: "ボイラーが故障した",
+                zh: "锅炉坏了"
+            },
+            'bad_smell': {
+                en: "There's a bad smell",
+                vi: "Có mùi hôi",
+                ja: "悪臭がする",
+                zh: "有臭味"
+            },
+            'repair_action': {
+                en: "Repair / Action / Solution",
+                vi: "Sửa chữa / Hành động / Giải pháp",
+                ja: "修理・措置・解決",
+                zh: "修理/措施/解决"
+            }
+        };
+
+        function showSlide(slideNumber) {
+            document.querySelectorAll('.slide').forEach(slide => slide.classList.remove('active'));
+            document.getElementById(`slide-${slideNumber}`).classList.add('active');
+
+            const progress = (slideNumber / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            stepTexts.forEach((text, index) => {
+                if (index < slideNumber) {
+                    text.classList.add('font-bold', 'text-blue-600');
+                } else {
+                     text.classList.remove('font-bold', 'text-blue-600');
+                }
+            });
+
+            prevBtn.style.visibility = (slideNumber === 1) ? 'hidden' : 'visible';
+            nextBtn.style.visibility = (slideNumber === totalSlides) ? 'hidden' : 'visible';
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+
+        function flipCard(cardContainer) {
+            cardContainer.querySelector('.flashcard').classList.toggle('flipped');
+        }
+
+        function changeLanguage(lang, event) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-100', 'text-blue-800');
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+            });
+            const activeBtn = event ? event.target : document.querySelector('.lang-btn');
+            
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-blue-100', 'text-blue-800');
+                activeBtn.classList.remove('bg-gray-100', 'text-gray-800');
+            }
+
+            document.querySelectorAll('[data-key]').forEach(p => {
+                const key = p.dataset.key;
+                if (translations[key] && translations[key][lang]) {
+                    p.textContent = translations[key][lang];
+                }
+            });
+        }
+        
+        function toggleAnswer(answerId) {
+            document.getElementById(answerId).classList.toggle('hidden');
+        }
+
+        function checkSentence(textareaId, resultId) {
+            const textarea = document.getElementById(textareaId);
+            const resultDiv = document.getElementById(resultId);
+            if (textarea.value.trim() === "") {
+                resultDiv.innerHTML = "<strong>내용을 입력해주세요.</strong>";
+                resultDiv.classList.remove('bg-green-100', 'text-green-800');
+                resultDiv.classList.add('bg-red-100', 'text-red-800');
+            } else {
+                resultDiv.textContent = textarea.value;
+                resultDiv.classList.remove('bg-red-100', 'text-red-800');
+                resultDiv.classList.add('bg-green-100', 'text-green-800');
+            }
+            resultDiv.classList.remove('hidden');
+        }
+
+        function saveComposition(textareaId, modalId) {
+            const textarea = document.getElementById(textareaId);
+            const modal = document.getElementById(modalId);
+            const textDisplay = document.getElementById('composition-text');
+            if (textarea.value.trim() !== "") {
+                textDisplay.textContent = textarea.value;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function captureAndDownload() {
+            const captureElement = document.getElementById('capture-area');
+            if (captureElement) {
+                html2canvas(captureElement, {
+                    useCORS: true,
+                    scale: 2 // Higher scale for better image quality
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'my-korean-writing.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+        }
+
+        // Initialize first slide
+        showSlide(currentSlide);
+        // Initialize default language
+        if (document.querySelector('.lang-btn')) {
+             changeLanguage('en');
+        }
+
+    </script>
+</body>
+</html>
+
