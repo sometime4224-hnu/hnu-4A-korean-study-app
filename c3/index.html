@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5LBTZ7N5');</script>
+<!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3장 집안의 문제</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0f4f7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .activity-button {
+            display: block;
+            padding: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            background-color: #28a745; /* Green color for activities */
+            border-radius: 12px;
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            text-align: center;
+        }
+        
+        .activity-button:hover {
+            background-color: #218838;
+            transform: translateY(-4px);
+        }
+        
+        /* 어휘 버튼 스타일 */
+        .btn-vocabulary {
+            background-color: #007bff; /* Blue color */
+        }
+        
+        .btn-vocabulary:hover {
+            background-color: #0056b3;
+        }
+
+        /* 비활성화된 버튼 스타일 */
+        .activity-button.disabled {
+            background-color: #b0b0b0;
+            cursor: not-allowed;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .activity-button.disabled:hover {
+            background-color: #b0b0b0;
+            transform: none;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 30px;
+            }
+            .activity-button {
+                font-size: 1.1em;
+                padding: 20px;
+            }
+            .button-container {
+                 grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>3장 활동을 선택하세요</h1>
+    <div class="button-container">
+        <a href="v1.html" class="activity-button">어휘</a>
+        <a href="a1.html" class="activity-button">활동 1</a>
+        <a href="a2.html" class="activity-button">활동 2</a>
+        <a href="a3.html" class="activity-button">활동 3</a>
+        <a href="a4.html" class="activity-button">활동 4</a>
+        <a href="a5.html" class="activity-button">활동 5</a>
+        <a href="a6.html" class="activity-button">활동 6</a>
+    </div>
+
+    <script>
+        // 이 스크립트는 각 활동의 .html 파일이 존재하는지 확인하고,
+        // 파일이 없으면 해당 버튼을 비활성화합니다.
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.activity-button');
+            
+            buttons.forEach(button => {
+                const fileUrl = button.getAttribute('href');
+                
+                fetch(fileUrl, { method: 'HEAD' })
+                    .then(response => {
+                        if (!response.ok) {
+                            // 파일이 존재하지 않으면 'disabled' 클래스 추가
+                            button.classList.add('disabled');
+                            button.setAttribute('title', '준비 중인 활동입니다.');
+                        }
+                    })
+                    .catch(error => {
+                        // 네트워크 오류 또는 파일을 찾을 수 없는 경우
+                        button.classList.add('disabled');
+                        button.setAttribute('title', '파일을 찾을 수 없습니다.');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
+
