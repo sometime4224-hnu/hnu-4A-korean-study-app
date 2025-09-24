@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 학습 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+        }
+        .flashcard-container {
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0.5rem;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        .droppable.drag-over {
+            border: 2px dashed #3b82f6;
+            background-color: #bfdbfe;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 md:p-8">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600">3과: 스포츠의 세계 🌍</h1>
+            <p class="text-center text-gray-500 mt-2">PDF 자료를 활용한 한국어 학습</p>
+        </header>
+
+        <main id="app-container">
+            <!-- Slide 1: 어휘 1 (운동 경기) -->
+            <div id="slide-1" class="slide active">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">어휘 1: 운동 경기 ⚽🏀🏐</h2>
+                <p class="mb-6 text-gray-600">각 운동의 이름과 알맞은 공을 연결해 보세요. 공을 드래그해서 점선 상자에 놓아주세요.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                            <span class="font-bold text-lg text-gray-700 w-16">농구</span>
+                            <div class="droppable flex-1 h-20 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex justify-center items-center" data-match="basketball">
+                                <span class="text-gray-500">이곳에 놓으세요</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                            <span class="font-bold text-lg text-gray-700 w-16">배구</span>
+                            <div class="droppable flex-1 h-20 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex justify-center items-center" data-match="volleyball">
+                                <span class="text-gray-500">이곳에 놓으세요</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                            <span class="font-bold text-lg text-gray-700 w-16">축구</span>
+                            <div class="droppable flex-1 h-20 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex justify-center items-center" data-match="soccer">
+                                <span class="text-gray-500">이곳에 놓으세요</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                            <span class="font-bold text-lg text-gray-700 w-16">풋살</span>
+                            <div class="droppable flex-1 h-20 bg-gray-200 rounded-lg border-2 border-dashed border-gray-400 flex justify-center items-center" data-match="futsal">
+                                <span class="text-gray-500">이곳에 놓으세요</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 items-center justify-items-center bg-blue-50 p-4 rounded-lg">
+                        <div class="draggable cursor-grab text-5xl w-20 h-20 flex items-center justify-center bg-orange-100 rounded-full" draggable="true" data-item="basketball">🏀</div>
+                        <div class="draggable cursor-grab text-5xl w-20 h-20 flex items-center justify-center bg-blue-100 rounded-full" draggable="true" data-item="volleyball">🏐</div>
+                        <div class="draggable cursor-grab text-5xl w-20 h-20 flex items-center justify-center bg-green-100 rounded-full" draggable="true" data-item="soccer">⚽</div>
+                        <div class="draggable cursor-grab text-5xl w-20 h-20 flex items-center justify-center bg-yellow-100 rounded-full" draggable="true" data-item="futsal">🟡</div>
+                    </div>
+                </div>
+                <div id="vocab-feedback" class="mt-4 text-center font-semibold"></div>
+            </div>
+
+            <!-- Slide 2: 어휘 2 (새로운 단어) -->
+            <div id="slide-2" class="slide">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">어휘 2: 새로운 단어 📖</h2>
+                <p class="mb-4 text-gray-600">카드를 클릭하여 단어의 뜻을 확인하고, 언어를 선택해 보세요.</p>
+                <div class="flex justify-center mb-4 gap-2">
+                    <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold bg-blue-500 text-white" data-lang="eng">영어</button>
+                    <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700" data-lang="vie">베트남어</button>
+                    <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700" data-lang="jpn">일본어</button>
+                    <button class="lang-btn px-4 py-1 rounded-full text-sm font-semibold bg-gray-200 text-gray-700" data-lang="cmn">중국어</button>
+                </div>
+                <div class="flex items-center justify-center gap-4">
+                    <button id="prev-card" class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">◀</button>
+                    <div id="flashcard-container" class="flashcard-container w-full h-48">
+                        <div class="flashcard">
+                            <div class="flashcard-front bg-blue-500 text-white p-4">
+                                <p class="text-3xl font-bold"></p>
+                            </div>
+                            <div class="flashcard-back bg-blue-100 text-blue-800 p-4">
+                                <p class="text-xl text-center"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="next-card" class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors">▶</button>
+                </div>
+            </div>
+            
+            <!-- Slide 3: 표현 -->
+            <div id="slide-3" class="slide">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">표현: 주요 문법 및 표현 ✍️</h2>
+                <p class="mb-6 text-gray-600">본문에 나온 주요 표현을 배우고 문장을 만들어 봅시다.</p>
+                <div class="space-y-6">
+                    <div class="p-4 border rounded-lg bg-gray-50">
+                        <p class="font-bold text-lg text-blue-600">1. A은/는 B와/과 비슷하다</p>
+                        <p class="text-gray-700 mt-1"><span class="font-semibold">예문:</span> 풋살은 축구와 비슷한 경기입니다.</p>
+                        <div class="mt-2 flex gap-2 items-center">
+                            <input type="text" class="w-full p-2 border rounded" placeholder="연습 문장을 만들어 보세요. (예: 야구는 크리켓과 비슷해요.)">
+                        </div>
+                    </div>
+                    <div class="p-4 border rounded-lg bg-gray-50">
+                        <p class="font-bold text-lg text-blue-600">2. A-(으)려면 B-이/가 필요하다</p>
+                        <p class="text-gray-700 mt-1"><span class="font-semibold">예문:</span> 축구를 하려면 11명의 선수가 필요합니다.</p>
+                         <div class="mt-2 flex gap-2 items-center">
+                            <input type="text" class="w-full p-2 border rounded" placeholder="연습 문장을 만들어 보세요. (예: 요리하려면 재료가 필요해요.)">
+                        </div>
+                    </div>
+                    <div class="p-4 border rounded-lg bg-gray-50">
+                        <p class="font-bold text-lg text-blue-600">3. A-다는 점이 다르다</p>
+                        <p class="text-gray-700 mt-1"><span class="font-semibold">예문:</span> 풋살은 실내에서도 할 수 있다는 점이 다릅니다.</p>
+                         <div class="mt-2 flex gap-2 items-center">
+                            <input type="text" class="w-full p-2 border rounded" placeholder="연습 문장을 만들어 보세요. (예: 한국은 4계절이 있다는 점이 달라요.)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: 읽기 1 (본문) -->
+            <div id="slide-4" class="slide">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">읽기 1: 본문 읽기 👓</h2>
+                <div class="p-6 bg-blue-50 rounded-lg max-h-96 overflow-y-auto space-y-4 text-gray-800 leading-relaxed">
+                    <h3 class="text-xl font-bold text-center text-blue-700">풋살이라는 경기를 아세요?</h3>
+                    <p><span class="font-bold bg-blue-200 px-2 py-1 rounded">가</span> 풋살은 축구와 비슷한 경기입니다. 스페인어로 축구를 의미하는 'Futbol'과 실내를 의미하는 프랑스어의 'Salle'을 합쳐서 만든 이름입니다. 즉 실내에서 하는 축구라는 뜻입니다.</p>
+                    <p><span class="font-bold bg-blue-200 px-2 py-1 rounded">나</span> 축구를 하려면 11명의 선수가 필요하지만 풋살은 5명이 할 수 있는 경기입니다. 선수의 인원뿐만 아니라 경기장과 공의 크기도 축구에 비해 작습니다. 또 축구는 실내에서는 할 수 없지만 풋살은 실내에서도 할 수 있다는 점이 다릅니다. 경기 시간도 다른데 축구 경기는 전반전과 후반전 각각 45분씩 경기를 하지만 풋살은 20분씩 경기를 합니다.</p>
+                    <p><span class="font-bold bg-blue-200 px-2 py-1 rounded">다</span> 풋살을 하는 방법은 축구 경기와 비슷합니다. 공을 발로 차서 상대편 골문에 넣는데 공을 많이 넣는 팀이 이기게 됩니다. 이때 선수는 발만을 사용해야 하는데 손을 쓰면 반칙이 되고 반칙을 하면 상대편에게 공을 넘겨줘야 합니다. 경기를 마치고도 승부가 나지 않아 무승부이면 연장전을 하게 됩니다.</p>
+                    <p><span class="font-bold bg-blue-200 px-2 py-1 rounded">라</span> 풋살이 축구에 비해 좋은 점은 아무 데서나 쉽게 할 수 있다는 점입니다. 선수의 수가 적고 경기장이 작아도 되기 때문에 친구들이 모였을 때 쉽게 할 수 있습니다. 또 좁은 공간에서 하기 때문에 경기 진행이 빨라서 매우 흥미진진한 경기를 즐길 수 있다는 것도 장점입니다.</p>
+                </div>
+            </div>
+
+            <!-- Slide 5: 읽기 2 (내용 확인) -->
+            <div id="slide-5" class="slide">
+                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">읽기 2: 내용 확인 퀴즈 🧐</h2>
+                 <div class="space-y-6">
+                    <div>
+                        <p class="font-semibold mb-2">1) 이 글은 무엇에 대한 글입니까?</p>
+                        <div class="space-y-2" id="quiz1">
+                            <button class="w-full text-left p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition-colors" data-correct="true">풋살에 대한 설명</button>
+                            <button class="w-full text-left p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition-colors">풋살 경기장에 대한 설명</button>
+                            <button class="w-full text-left p-3 bg-gray-100 rounded-lg hover:bg-blue-100 transition-colors">풋살 선수에 대한 설명</button>
+                        </div>
+                        <p id="quiz1-feedback" class="mt-2"></p>
+                    </div>
+                    <div>
+                        <p class="font-semibold mb-2">2) 풋살과 축구를 비교하여 표를 완성해 보세요.</p>
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-blue-100">
+                                    <th class="border p-2">구분</th>
+                                    <th class="border p-2">풋살</th>
+                                    <th class="border p-2">축구</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border p-2 font-medium">인원</td>
+                                    <td class="border p-2"><input type="text" class="w-full text-center" placeholder="?"></td>
+                                    <td class="border p-2">11명</td>
+                                </tr>
+                                <tr>
+                                    <td class="border p-2 font-medium">경기 시간 (전/후반)</td>
+                                    <td class="border p-2">각각 20분</td>
+                                    <td class="border p-2"><input type="text" class="w-full text-center" placeholder="?"></td>
+                                </tr>
+                                <tr>
+                                    <td class="border p-2 font-medium">경기 장소</td>
+                                    <td class="border p-2">실내/실외 가능</td>
+                                    <td class="border p-2"><input type="text" class="w-full text-center" placeholder="?"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Slide 6: 쓰기 -->
+            <div id="slide-6" class="slide">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">쓰기: 운동 경기 비교하기 📝</h2>
+                <p class="mb-4 text-gray-600">좋아하는 운동 경기를 다른 경기와 비교하여 설명하는 글을 써 보세요.</p>
+                <div class="space-y-4 p-4 border rounded-lg bg-gray-50 mb-6">
+                    <h3 class="font-semibold text-lg">1. 내용 정리하기</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <input type="text" placeholder="비교할 두 경기 (예: 농구와 배구)" class="p-2 border rounded col-span-1 md:col-span-2">
+                       <textarea rows="2" placeholder="경기 이름의 뜻, 역사" class="p-2 border rounded w-full"></textarea>
+                       <textarea rows="2" placeholder="공통점, 좋은 점" class="p-2 border rounded w-full"></textarea>
+                       <textarea rows="2" placeholder="차이점 (인원, 규칙 등)" class="p-2 border rounded w-full"></textarea>
+                       <textarea rows="2" placeholder="결론, 나의 생각" class="p-2 border rounded w-full"></textarea>
+                    </div>
+                </div>
+                <div>
+                     <h3 class="font-semibold text-lg mb-2">2. 설명문 쓰기</h3>
+                     <textarea rows="8" class="w-full p-4 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="위에서 정리한 내용을 바탕으로 글을 써 보세요."></textarea>
+                </div>
+            </div>
+
+        </main>
+        
+        <!-- Navigation -->
+        <footer class="mt-8 pt-6 border-t">
+            <div id="navigation" class="flex flex-wrap justify-center gap-2">
+                <button data-slide="1" class="nav-btn bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">어휘 1</button>
+                <button data-slide="2" class="nav-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg shadow hover:bg-blue-50 transition-all">어휘 2</button>
+                <button data-slide="3" class="nav-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg shadow hover:bg-blue-50 transition-all">표현</button>
+                <button data-slide="4" class="nav-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg shadow hover:bg-blue-50 transition-all">읽기 1</button>
+                <button data-slide="5" class="nav-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg shadow hover:bg-blue-50 transition-all">읽기 2</button>
+                <button data-slide="6" class="nav-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg shadow hover:bg-blue-50 transition-all">쓰기</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const slides = document.querySelectorAll('.slide');
+            const navButtons = document.querySelectorAll('.nav-btn');
+            let currentSlide = 1;
+
+            function showSlide(slideNumber) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                document.getElementById(`slide-${slideNumber}`).classList.add('active');
+                
+                navButtons.forEach(btn => {
+                    if (btn.dataset.slide == slideNumber) {
+                        btn.classList.add('bg-blue-600', 'text-white');
+                        btn.classList.remove('bg-white', 'text-blue-600', 'border', 'border-blue-600');
+                    } else {
+                        btn.classList.remove('bg-blue-600', 'text-white');
+                        btn.classList.add('bg-white', 'text-blue-600', 'border', 'border-blue-600');
+                    }
+                });
+                currentSlide = slideNumber;
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    showSlide(button.dataset.slide);
+                });
+            });
+
+            // --- 어휘 1: Drag and Drop ---
+            const draggables = document.querySelectorAll('.draggable');
+            const droppables = document.querySelectorAll('.droppable');
+            const vocabFeedback = document.getElementById('vocab-feedback');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('opacity-50');
+                });
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('opacity-50');
+                });
+            });
+
+            droppables.forEach(droppable => {
+                droppable.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    droppable.classList.add('drag-over');
+                });
+                droppable.addEventListener('dragleave', () => {
+                    droppable.classList.remove('drag-over');
+                });
+                droppable.addEventListener('drop', e => {
+                    e.preventDefault();
+                    droppable.classList.remove('drag-over');
+                    const draggedItemId = e.dataTransfer.getData('text');
+                    const draggedItem = document.querySelector(`[data-item=${draggedItemId}]`);
+                    
+                    if (droppable.dataset.match === draggedItemId) {
+                        droppable.innerHTML = '';
+                        droppable.appendChild(draggedItem);
+                        draggedItem.classList.remove('cursor-grab');
+                        draggedItem.setAttribute('draggable', 'false');
+                        vocabFeedback.textContent = '정답입니다! 🎉';
+                        vocabFeedback.className = 'mt-4 text-center font-semibold text-green-600';
+                    } else {
+                        vocabFeedback.textContent = '틀렸어요. 다시 시도해 보세요. 🤔';
+                        vocabFeedback.className = 'mt-4 text-center font-semibold text-red-600';
+                    }
+                     setTimeout(() => vocabFeedback.textContent = '', 2000);
+                });
+            });
+            
+             draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text', draggable.dataset.item);
+                });
+            });
+
+
+            // --- 어휘 2: Flashcards ---
+            const flashcards = [
+                { kor: '의미하다', eng: 'to mean, signify', vie: 'có nghĩa là', jpn: '意味する', cmn: '意思是' },
+                { kor: '합치다', eng: 'to combine, unite', vie: 'kết hợp', jpn: '合わせる', cmn: '合并' },
+                { kor: '즉', eng: 'in other words, that is to say', vie: 'tức là', jpn: 'つまり', cmn: '也就是' },
+                { kor: '뜻', eng: 'meaning', vie: 'ý nghĩa', jpn: '意味', cmn: '意思' },
+                { kor: '인원', eng: 'the number of people', vie: 'số người', jpn: '人員', cmn: '人员' },
+                { kor: '각각', eng: 'each, respectively', vie: 'mỗi', jpn: 'それぞれ', cmn: '各自' },
+                { kor: '골문', eng: '(entrance of a) goal', vie: 'khung thành', jpn: 'ゴール', cmn: '球门' },
+                { kor: '넘겨주다', eng: 'to hand over, turn over', vie: 'giao lại', jpn: '引き渡す', cmn: '交给' },
+                { kor: '무승부', eng: 'a tie, a draw', vie: 'trận hòa', jpn: '引き分け', cmn: '平局' },
+                { kor: '진행', eng: 'progress', vie: 'tiến hành', jpn: '進行', cmn: '进行' }
+            ];
+            let currentCardIndex = 0;
+            let currentLang = 'eng';
+            const flashcardContainer = document.querySelector('.flashcard');
+            const flashcardFront = document.querySelector('.flashcard-front p');
+            const flashcardBack = document.querySelector('.flashcard-back p');
+            const langButtons = document.querySelectorAll('.lang-btn');
+
+            function updateFlashcard() {
+                flashcardFront.textContent = flashcards[currentCardIndex].kor;
+                flashcardBack.textContent = flashcards[currentCardIndex][currentLang];
+                flashcardContainer.classList.remove('flipped');
+            }
+
+            langButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentLang = button.dataset.lang;
+                    langButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    button.classList.add('bg-blue-500', 'text-white');
+                    button.classList.remove('bg-gray-200', 'text-gray-700');
+                    updateFlashcard();
+                });
+            });
+
+            document.getElementById('flashcard-container').addEventListener('click', () => {
+                flashcardContainer.classList.toggle('flipped');
+            });
+
+            document.getElementById('prev-card').addEventListener('click', () => {
+                currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+                updateFlashcard();
+            });
+
+            document.getElementById('next-card').addEventListener('click', () => {
+                currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+                updateFlashcard();
+            });
+            
+            // --- 읽기 2: Quiz ---
+            const quiz1Buttons = document.querySelectorAll('#quiz1 button');
+            const quiz1Feedback = document.getElementById('quiz1-feedback');
+            quiz1Buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    quiz1Buttons.forEach(btn => btn.classList.remove('bg-red-200', 'bg-green-200'));
+                    if (button.dataset.correct) {
+                        button.classList.add('bg-green-200');
+                        quiz1Feedback.textContent = '맞아요! 풋살에 대한 설명문입니다.';
+                        quiz1Feedback.className = 'mt-2 text-green-700 font-semibold';
+                    } else {
+                        button.classList.add('bg-red-200');
+                        quiz1Feedback.textContent = '아쉬워요. 다시 생각해 보세요.';
+                         quiz1Feedback.className = 'mt-2 text-red-700 font-semibold';
+                    }
+                });
+            });
+
+
+            // Initialize first slide
+            showSlide(currentSlide);
+            updateFlashcard();
+        });
+    </script>
+</body>
+</html>
+
