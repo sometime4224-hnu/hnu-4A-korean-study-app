@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 문법 복습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kqaFNojp2uaWAEzACmaQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* 모바일 클릭 시 파란색 하이라이트 제거 */
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-answer:disabled {
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* green-600 */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* red-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div id="app" class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 transition-all duration-500">
+        
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">한국어 문법 복습</h1>
+            <p class="text-base md:text-lg text-gray-600 mb-8">1과부터 3과까지의 문법을 복습해 봅시다.<br>총 3단계로 구성되어 있습니다.</p>
+            <div class="space-y-4">
+                <button onclick="startQuiz(true)" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg text-lg md:text-xl">
+                    새로 시작하기
+                </button>
+                <button id="continue-button" onclick="startQuiz(false)" class="btn w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-lg text-lg md:text-xl hidden">
+                    이어하기
+                </button>
+                 <button id="reset-button" onclick="resetProgress()" class="text-sm text-gray-500 hover:text-red-500 transition-colors mt-2 hidden">
+                    학습 기록 초기화
+                </button>
+            </div>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="stage-title" class="text-xl md:text-2xl font-bold text-blue-600"></h2>
+                <div id="progress-text" class="text-base md:text-lg font-semibold text-gray-700"></div>
+            </div>
+            
+            <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 mb-6 min-h-[120px] flex items-center justify-center">
+                <p id="question-text" class="text-lg md:text-xl font-medium text-gray-800 leading-relaxed text-center"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- 선택지 버튼이 여기에 동적으로 추가됩니다. -->
+            </div>
+
+            <div id="feedback-container" class="text-center min-h-[80px] flex items-center justify-center flex-col">
+                 <p id="feedback-text" class="text-lg md:text-xl font-bold mb-4"></p>
+                 <button id="next-question-button" onclick="nextStep()" class="btn hidden w-full md:w-auto bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-lg">
+                    다음 문제로
+                </button>
+            </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="result-screen" class="hidden text-center">
+             <h2 id="result-title" class="text-2xl md:text-3xl font-bold text-gray-800 mb-4"></h2>
+            <div id="final-score-text" class="text-5xl font-bold text-blue-600 my-8"></div>
+            <p id="result-message" class="text-base md:text-lg text-gray-600 mb-10"></p>
+            <div id="result-buttons" class="space-y-4">
+                <button id="next-stage-button" onclick="nextStage()" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    다음 단계로
+                </button>
+                <button id="restart-button" onclick="restartQuiz()" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    처음부터 다시하기
+                </button>
+                <button id="capture-button" onclick="captureResult()" class="btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    결과 캡쳐하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // 1단계: 1과 문법
+            { stage: 1, question: "A: 민수 씨가 다음 주에 유학을 (      )?<br>B: 네, 맞아요. 그렇게 들었어요.", options: ["간다면서요", "가다 보면", "가는 대로", "간다가는"], answer: "간다면서요" },
+            { stage: 1, question: "한국 드라마를 꾸준히 (      ) 한국어 실력이 늘 거예요.<br>(힌트: 어떤 행동을 계속하면 결과가 있을 것을 예상)", options: ["보다 보면", "보나 마나", "보는 바람에", "볼 뿐만 아니라"], answer: "보다 보면" },
+            { stage: 1, question: "그 사람의 가장 큰 장점은 약속을 잘 (      ).<br>(힌트: 특징이나 사실을 설명)", options: ["지킨다는 것이다", "지킬 정도이다", "지키는 대로", "지키나 마나"], answer: "지킨다는 것이다" },
+            { stage: 1, question: "수업이 (      ) 바로 전화할게요.<br>(힌트: 어떤 행동이 끝나자마자)", options: ["끝나는 대로", "끝나다가는", "끝난다는 것이다", "끝나면서요"], answer: "끝나는 대로" },
+            { stage: 1, question: "이 일은 혼자 (      ) 여러 사람이 같이 하는 것이 좋아요.", options: ["하기보다는", "한다면서요", "하는 대로", "하다 보면"], answer: "하기보다는" },
+
+            // 2단계: 2과 문법
+            { stage: 2, question: "(      ) 시험이 어려웠는지 반에서 한 명도 통과하지 못했어요.<br>(힌트: 정도가 심함을 강조)", options: ["어찌나", "비해서", "만일", "대신"], answer: "어찌나" },
+            { stage: 2, question: "너무 피곤해서 손가락 하나 까딱할 수 없을 (      ) 힘들었어요.<br>(힌트: 뒤 내용의 정도나 기준)", options: ["정도로", "바람에", "마나", "뿐만 아니라"], answer: "정도로" },
+            { stage: 2, question: "그렇게 매일 밤 늦게 게임을 하(      ) 건강이 나빠질 거예요.<br>(힌트: 부정적 결과 경고)", options: ["다가는", "는다는 것이다", "는 대로", "면서요"], answer: "다가는" },
+            { stage: 2, question: "이 음식은 맛이 좋을 (      ) 건강에도 좋아요.<br>(힌트: 사실을 덧붙여 말함)", options: ["뿐만 아니라", "정도이다", "다가는", "는지"], answer: "뿐만 아니라" },
+            { stage: 2, question: "가: 목이 너무 아파요.<br>나: 그렇게 말을 많이 하(      ) 목이 더 아플 거예요.", options: ["다가는", "는 대로", "나 마나", "는 바람에"], answer: "다가는" },
+
+            // 3단계: 3과 문법
+            { stage: 3, question: "지금 출발해도 약속 시간에 늦을 게 뻔해요. 지금은 가(      ) 늦을 거예요.<br>(힌트: 행동이 소용없음을 예상)", options: ["나 마나", "는 바람에", "다가는", "는 대로"], answer: "나 마나" },
+            { stage: 3, question: "아침에 늦잠을 자(      ) 학교에 지각했어요.<br>(힌트: 예상치 못한 원인으로 부정적 결과 발생)", options: ["는 바람에", "다 보면", "나 마나", "ㄹ 정도로"], answer: "는 바람에" },
+            { stage: 3, question: "혹시 '기생충'(      ) 영화를 본 적이 있어요?<br>(힌트: 앞 명사를 정의하거나 명칭을 말함)", options: ["이라는", "에 비해서", "뿐만 아니라", "이라는서요"], answer: "이라는" },
+            { stage: 3, question: "작년(      ) 올해 겨울은 훨씬 더 추운 것 같아요.<br>(힌트: 두 대상을 비교)", options: ["에 비해서", "이라는", "는 바람에", "나 마나"], answer: "에 비해서" },
+            { stage: 3, question: "결과는 보(      ) 우리 팀이 이길 것이 확실해요.", options: ["나 마나", "는 바람에", "ㄹ 뿐만 아니라", "다가는"], answer: "나 마나" }
+        ];
+
+        let currentStage = 1;
+        let stageQuestions = [];
+        let currentQuestionIndex = 0;
+        let stageScore = 0;
+        let totalScore = 0;
+        const totalStages = 3;
+
+        const ui = {
+            startScreen: document.getElementById('start-screen'),
+            quizScreen: document.getElementById('quiz-screen'),
+            resultScreen: document.getElementById('result-screen'),
+            continueButton: document.getElementById('continue-button'),
+            resetButton: document.getElementById('reset-button'),
+            stageTitle: document.getElementById('stage-title'),
+            progressText: document.getElementById('progress-text'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            feedbackText: document.getElementById('feedback-text'),
+            nextQuestionButton: document.getElementById('next-question-button'),
+            resultTitle: document.getElementById('result-title'),
+            finalScoreText: document.getElementById('final-score-text'),
+            resultMessage: document.getElementById('result-message'),
+            nextStageButton: document.getElementById('next-stage-button'),
+            restartButton: document.getElementById('restart-button'),
+            captureButton: document.getElementById('capture-button')
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function saveProgress() {
+            const progress = { currentStage, totalScore };
+            localStorage.setItem('koreanGrammarProgress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('koreanGrammarProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                if (progress.currentStage <= totalStages) {
+                    ui.continueButton.classList.remove('hidden');
+                    ui.resetButton.classList.remove('hidden');
+                    return progress;
+                }
+            }
+            return null;
+        }
+
+        function resetProgress() {
+            localStorage.removeItem('koreanGrammarProgress');
+            ui.continueButton.classList.add('hidden');
+            ui.resetButton.classList.add('hidden');
+        }
+
+        window.onload = loadProgress;
+
+        function startQuiz(fromBeginning) {
+            if (fromBeginning) {
+                currentStage = 1;
+                totalScore = 0;
+                resetProgress();
+            } else {
+                const progress = loadProgress();
+                if (progress) {
+                    currentStage = progress.currentStage;
+                    totalScore = progress.totalScore;
+                }
+            }
+            
+            ui.startScreen.classList.add('hidden');
+            ui.quizScreen.classList.remove('hidden');
+            ui.resultScreen.classList.add('hidden');
+            loadStage();
+        }
+
+        function loadStage() {
+            stageQuestions = quizData.filter(q => q.stage === currentStage);
+            currentQuestionIndex = 0;
+            stageScore = 0;
+            ui.stageTitle.textContent = `${currentStage}단계: 문법 복습`;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            ui.feedbackText.textContent = '';
+            ui.nextQuestionButton.classList.add('hidden');
+
+            if (currentQuestionIndex < stageQuestions.length) {
+                const question = stageQuestions[currentQuestionIndex];
+                ui.questionText.innerHTML = question.question; // textContent를 innerHTML로 변경
+                ui.progressText.textContent = `${currentQuestionIndex + 1} / ${stageQuestions.length}`;
+                
+                ui.optionsContainer.innerHTML = '';
+                const shuffledOptions = [...question.options];
+                shuffleArray(shuffledOptions);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = "btn btn-answer w-full text-left p-4 rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium text-base md:text-lg";
+                    button.onclick = () => selectAnswer(option, question.answer);
+                    ui.optionsContainer.appendChild(button);
+                });
+            }
+        }
+
+        function selectAnswer(selectedOption, correctAnswer) {
+            const allOptions = ui.optionsContainer.querySelectorAll('button');
+            allOptions.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (selectedOption === correctAnswer) {
+                stageScore++;
+                totalScore++;
+                ui.feedbackText.textContent = "정답입니다! 🎉";
+                ui.feedbackText.style.color = '#22c55e';
+            } else {
+                ui.feedbackText.textContent = `틀렸습니다. 정답은 '${correctAnswer}' 입니다.`;
+                ui.feedbackText.style.color = '#ef4444';
+            }
+            ui.nextQuestionButton.classList.remove('hidden');
+            saveProgress();
+        }
+
+        function nextStep() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < stageQuestions.length) {
+                showQuestion();
+            } else {
+                showStageResult();
+            }
+        }
+
+        function showStageResult() {
+            ui.quizScreen.classList.add('hidden');
+            ui.resultScreen.classList.remove('hidden');
+            
+            ui.resultTitle.textContent = `${currentStage}단계 결과`;
+            ui.finalScoreText.textContent = `${stageScore} / ${stageQuestions.length}`;
+            
+            const accuracy = (stageScore / stageQuestions.length) * 100;
+            if (accuracy === 100) {
+                 ui.resultMessage.textContent = "완벽해요! 이 단계의 문법을 모두 이해했네요.";
+            } else if (accuracy >= 60) {
+                 ui.resultMessage.textContent = "잘했어요. 다음 단계로 넘어가 봅시다!";
+            } else {
+                 ui.resultMessage.textContent = "조금 더 노력이 필요해요. 다시 복습해 보세요.";
+            }
+            
+            if (currentStage < totalStages) {
+                ui.nextStageButton.classList.remove('hidden');
+                ui.restartButton.classList.add('hidden');
+                ui.captureButton.classList.add('hidden');
+            } else {
+                showFinalResult();
+            }
+        }
+        
+        function nextStage() {
+            currentStage++;
+            saveProgress();
+            ui.resultScreen.classList.add('hidden');
+            ui.quizScreen.classList.remove('hidden');
+            loadStage();
+        }
+        
+        function showFinalResult() {
+             ui.resultTitle.textContent = "최종 학습 결과";
+             const totalQuestions = quizData.length;
+             ui.finalScoreText.textContent = `${totalScore} / ${totalQuestions}`;
+             
+             const accuracy = (totalScore / totalQuestions) * 100;
+             if (accuracy > 80) {
+                 ui.resultMessage.textContent = "훌륭해요! 문법을 완벽하게 이해하고 있네요.";
+             } else if (accuracy > 50) {
+                 ui.resultMessage.textContent = "잘했어요! 조금만 더 복습하면 완벽해질 거예요.";
+             } else {
+                 ui.resultMessage.textContent = "수고하셨습니다. 다시 한번 복습해 보는 건 어떨까요?";
+             }
+
+             ui.nextStageButton.classList.add('hidden');
+             ui.restartButton.classList.remove('hidden');
+             ui.captureButton.classList.remove('hidden');
+             resetProgress();
+        }
+
+        function restartQuiz() {
+            resetProgress();
+            ui.resultScreen.classList.add('hidden');
+            ui.startScreen.classList.remove('hidden');
+        }
+
+        function captureResult() {
+            document.getElementById('result-buttons').style.visibility = 'hidden';
+            html2canvas(document.getElementById('result-screen')).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'korean-grammar-result.png';
+                link.click();
+                document.getElementById('result-buttons').style.visibility = 'visible';
+            }).catch(err => {
+                console.error("캡쳐 기능에 오류가 발생했습니다:", err);
+                alert("결과를 캡쳐하는 데 실패했습니다.");
+                document.getElementById('result-buttons').style.visibility = 'visible';
+            });
+        }
+    </script>
+</body>
+</html>
+
+
