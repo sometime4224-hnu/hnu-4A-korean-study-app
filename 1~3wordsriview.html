@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 어휘 복습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kqaFNojp2uaWAEzACmaQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-answer:disabled {
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* green-600 */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* red-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div id="app" class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 transition-all duration-500">
+        
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">한국어 어휘 복습</h1>
+            <p class="text-lg text-gray-600 mb-8">1과부터 3과까지의 어휘를 복습해 봅시다.<br>총 3단계로 구성되어 있습니다.</p>
+            <div class="space-y-4">
+                <button onclick="startQuiz(true)" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg text-xl">
+                    새로 시작하기
+                </button>
+                <button id="continue-button" onclick="startQuiz(false)" class="btn w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-lg text-xl hidden">
+                    이어하기
+                </button>
+                 <button id="reset-button" onclick="resetProgress()" class="text-sm text-gray-500 hover:text-red-500 transition-colors mt-2 hidden">
+                    학습 기록 초기화
+                </button>
+            </div>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="stage-title" class="text-2xl font-bold text-blue-600"></h2>
+                <div id="progress-text" class="text-lg font-semibold text-gray-700"></div>
+            </div>
+            
+            <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 mb-6 min-h-[100px] flex items-center justify-center">
+                <p id="question-text" class="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed text-center"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- 선택지 버튼이 여기에 동적으로 추가됩니다. -->
+            </div>
+
+            <div id="feedback-container" class="text-center min-h-[80px] flex items-center justify-center flex-col">
+                 <p id="feedback-text" class="text-xl font-bold mb-4"></p>
+                 <button id="next-question-button" onclick="nextStep()" class="btn hidden w-full md:w-auto bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-lg">
+                    다음 문제로
+                </button>
+            </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="result-screen" class="hidden text-center">
+             <h2 id="result-title" class="text-3xl font-bold text-gray-800 mb-4"></h2>
+            <div id="final-score-text" class="text-5xl font-bold text-blue-600 my-8"></div>
+            <p id="result-message" class="text-lg text-gray-600 mb-10"></p>
+            <div id="result-buttons" class="space-y-4">
+                <button id="next-stage-button" onclick="nextStage()" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    다음 단계로
+                </button>
+                <button id="restart-button" onclick="restartQuiz()" class="btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    처음부터 다시하기
+                </button>
+                <button id="capture-button" onclick="captureResult()" class="btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg text-lg">
+                    결과 캡쳐하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // ... (기존 quizData는 변경 없이 그대로 유지됩니다) ...
+            // 1단계: 1과 어휘
+            { stage: 1, question: "저는 손으로 무언가를 잘 만들어요. (      )가 좋은 편이에요.", options: ["손재주가 좋다", "설득력이 있다", "이해가 빠르다", "책임감이 강하다"], answer: "손재주가 좋다" },
+            { stage: 1, question: "다른 사람의 마음을 움직이는 힘이 있는 사람은 (      )고 할 수 있어요.", options: ["설득력이 있다", "소질이 있다", "적성에 맞다", "전공을 살리다"], answer: "설득력이 있다" },
+            { stage: 1, question: "맡은 일은 끝까지 해내는 사람은 (      )고 할 수 있어요.", options: ["책임감이 강하다", "사교적이다", "긍정적이다", "적극적이다"], answer: "책임감이 강하다" },
+            { stage: 1, question: "미술이나 음악처럼 아름다움을 표현하는 것을 좋아하는 성격은 (      )이라고 해요.", options: ["예술적", "실용적", "사교적", "적극적"], answer: "예술적" },
+            { stage: 1, question: "어떤 일이 자신에게 잘 맞고 즐겁게 할 수 있을 때 '(      )'고 말해요.", options: ["적성에 맞다", "진로를 정하다", "전공을 살리다", "조언하다"], answer: "적성에 맞다" },
+            { stage: 1, question: "사람들과 어울리는 것을 좋아하고 친구가 많은 성격은 (      )인 성격이에요.", options: ["사교적", "예술적", "실용적", "긍정적"], answer: "사교적" },
+            // 2단계: 2과 어휘
+            { stage: 2, question: "꽃가루 알레르기 때문에 눈과 코가 너무 (      ).", options: ["가렵다", "쓰리다", "저리다", "뻣뻣하다"], answer: "가렵다" },
+            { stage: 2, question: "걱정이 많아서 그런지 (      )고 숨쉬기 힘들어요.", options: ["가슴이 답답하다", "목이 따끔거리다", "속이 거북하다", "눈이 침침하다"], answer: "가슴이 답답하다" },
+            { stage: 2, question: "너무 많이 먹어서 (      ) 소화가 잘 안 돼요.", options: ["과식해서", "과로해서", "과음해서", "과속해서"], answer: "과식해서" },
+            { stage: 2, question: "오랫동안 같은 자세로 앉아 있었더니 다리가 (      ).", options: ["저리다", "붓다", "막히다", "쓰리다"], answer: "저리다" },
+            { stage: 2, question: "감기에 걸려서 그런지 (      )고 아파요.", options: ["목이 따끔거리다", "눈이 침침하다", "가슴이 답답하다", "속이 거북하다"], answer: "목이 따끔거리다" },
+            { stage: 2, question: "넘어져서 발목을 다쳤을 때, 차갑게 (      )을/를 하면 붓기를 가라앉힐 수 있어요.", options: ["얼음찜질", "민간요법", "침을 놓다", "깁스를 하다"], answer: "얼음찜질" },
+            { stage: 2, question: "어제 회식에서 술을 너무 많이 마셨어요. (      ) 때문에 머리가 아파요.", options: ["과음", "과식", "과소비", "과로"], answer: "과음" },
+            // 3단계: 3과 어휘
+            { stage: 3, question: "경기 규칙을 어기는 행동을 (      )이라고 해요.", options: ["반칙", "득점", "연장전", "승부"], answer: "반칙" },
+            { stage: 3, question: "우리 팀이 열심히 노력해서 드디어 (      )에 진출했어요.", options: ["결승전", "상대편", "경기 종목", "상품"], answer: "결승전" },
+            { stage: 3, question: "두 팀의 실력이 비슷해서 누가 이길지 모르는 상황을 (      )라고 해요.", options: ["막상막하이다", "자신만만하다", "정정당당하다", "흥미진진하다"], answer: "막상막하이다" },
+            { stage: 3, question: "경기에서 이기고 지는 것보다 속임수 없이 깨끗하게 경쟁하는 것이 중요해요. (      )게 싸워야 해요.", options: ["정정당당하", "아슬아슬하", "자신만만하", "흥미진진하"], answer: "정정당당하" },
+            { stage: 3, question: "경기 종료 직전에 골을 넣어 거의 질 뻔한 경기를 이겼어요. 정말 (      )!", options: ["아슬아슬했어요", "막상막하이었어요", "퇴장당했어요", "부상당했어요"], answer: "아슬아슬했어요" },
+            { stage: 3, question: "경기 내내 이기고 있다가 마지막에 역전을 당해서 졌어요. (      ).", options: ["역전패했어요", "득점했어요", "진출했어요", "응원했어요"], answer: "역전패했어요" },
+            { stage: 3, question: "축구 경기에서 규칙을 심하게 어겨서 선수가 (      ).", options: ["퇴장당했다", "득점했다", "연장전을 했다", "승리했다"], answer: "퇴장당했다" }
+        ];
+
+        let currentStage = 1;
+        let stageQuestions = [];
+        let currentQuestionIndex = 0;
+        let stageScore = 0;
+        let totalScore = 0;
+        const totalStages = 3;
+
+        const ui = {
+            startScreen: document.getElementById('start-screen'),
+            quizScreen: document.getElementById('quiz-screen'),
+            resultScreen: document.getElementById('result-screen'),
+            continueButton: document.getElementById('continue-button'),
+            resetButton: document.getElementById('reset-button'),
+            stageTitle: document.getElementById('stage-title'),
+            progressText: document.getElementById('progress-text'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            feedbackText: document.getElementById('feedback-text'),
+            nextQuestionButton: document.getElementById('next-question-button'),
+            resultTitle: document.getElementById('result-title'),
+            finalScoreText: document.getElementById('final-score-text'),
+            resultMessage: document.getElementById('result-message'),
+            nextStageButton: document.getElementById('next-stage-button'),
+            restartButton: document.getElementById('restart-button'),
+            captureButton: document.getElementById('capture-button')
+        };
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function saveProgress() {
+            const progress = { currentStage, totalScore };
+            localStorage.setItem('koreanVocabProgress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('koreanVocabProgress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                // 마지막 단계까지 완료했으면 이어하기를 보여주지 않음
+                if (progress.currentStage <= totalStages) {
+                    ui.continueButton.classList.remove('hidden');
+                    ui.resetButton.classList.remove('hidden');
+                    return progress;
+                }
+            }
+            return null;
+        }
+
+        function resetProgress() {
+            localStorage.removeItem('koreanVocabProgress');
+            ui.continueButton.classList.add('hidden');
+            ui.resetButton.classList.add('hidden');
+        }
+
+        window.onload = loadProgress;
+
+        function startQuiz(fromBeginning) {
+            if (fromBeginning) {
+                currentStage = 1;
+                totalScore = 0;
+                resetProgress();
+            } else {
+                const progress = loadProgress();
+                if (progress) {
+                    currentStage = progress.currentStage;
+                    totalScore = progress.totalScore;
+                }
+            }
+            
+            ui.startScreen.classList.add('hidden');
+            ui.quizScreen.classList.remove('hidden');
+            ui.resultScreen.classList.add('hidden');
+            loadStage();
+        }
+
+        function loadStage() {
+            stageQuestions = quizData.filter(q => q.stage === currentStage);
+            currentQuestionIndex = 0;
+            stageScore = 0;
+            ui.stageTitle.textContent = `${currentStage}단계: 어휘 복습`;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            ui.feedbackText.textContent = '';
+            ui.nextQuestionButton.classList.add('hidden');
+
+            if (currentQuestionIndex < stageQuestions.length) {
+                const question = stageQuestions[currentQuestionIndex];
+                ui.questionText.textContent = question.question;
+                ui.progressText.textContent = `${currentQuestionIndex + 1} / ${stageQuestions.length}`;
+                
+                ui.optionsContainer.innerHTML = '';
+                const shuffledOptions = [...question.options];
+                shuffleArray(shuffledOptions);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = "btn btn-answer w-full text-left p-4 rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium text-lg";
+                    button.onclick = () => selectAnswer(option, question.answer);
+                    ui.optionsContainer.appendChild(button);
+                });
+            }
+        }
+
+        function selectAnswer(selectedOption, correctAnswer) {
+            const allOptions = ui.optionsContainer.querySelectorAll('button');
+            allOptions.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (selectedOption === correctAnswer) {
+                stageScore++;
+                totalScore++;
+                ui.feedbackText.textContent = "정답입니다! 🎉";
+                ui.feedbackText.style.color = '#22c55e';
+            } else {
+                ui.feedbackText.textContent = `틀렸습니다. 정답은 '${correctAnswer}' 입니다.`;
+                ui.feedbackText.style.color = '#ef4444';
+            }
+            ui.nextQuestionButton.classList.remove('hidden');
+            saveProgress();
+        }
+
+        function nextStep() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < stageQuestions.length) {
+                showQuestion();
+            } else {
+                showStageResult();
+            }
+        }
+
+        function showStageResult() {
+            ui.quizScreen.classList.add('hidden');
+            ui.resultScreen.classList.remove('hidden');
+            
+            ui.resultTitle.textContent = `${currentStage}단계 결과`;
+            ui.finalScoreText.textContent = `${stageScore} / ${stageQuestions.length}`;
+            
+            const accuracy = (stageScore / stageQuestions.length) * 100;
+            if (accuracy === 100) {
+                 ui.resultMessage.textContent = "완벽해요! 이 단계의 어휘를 모두 알고 있네요.";
+            } else if (accuracy >= 60) {
+                 ui.resultMessage.textContent = "잘했어요. 다음 단계로 넘어가 봅시다!";
+            } else {
+                 ui.resultMessage.textContent = "조금 더 노력이 필요해요. 다시 복습해 보세요.";
+            }
+            
+            if (currentStage < totalStages) {
+                ui.nextStageButton.classList.remove('hidden');
+                ui.restartButton.classList.add('hidden');
+                ui.captureButton.classList.add('hidden');
+            } else {
+                showFinalResult();
+            }
+        }
+        
+        function nextStage() {
+            currentStage++;
+            saveProgress();
+            ui.resultScreen.classList.add('hidden');
+            ui.quizScreen.classList.remove('hidden');
+            loadStage();
+        }
+        
+        function showFinalResult() {
+             ui.resultTitle.textContent = "최종 학습 결과";
+             const totalQuestions = quizData.length;
+             ui.finalScoreText.textContent = `${totalScore} / ${totalQuestions}`;
+             
+             const accuracy = (totalScore / totalQuestions) * 100;
+             if (accuracy > 80) {
+                 ui.resultMessage.textContent = "훌륭해요! 어휘를 완벽하게 이해하고 있네요.";
+             } else if (accuracy > 50) {
+                 ui.resultMessage.textContent = "잘했어요! 조금만 더 복습하면 완벽해질 거예요.";
+             } else {
+                 ui.resultMessage.textContent = "수고하셨습니다. 다시 한번 복습해 보는 건 어떨까요?";
+             }
+
+             ui.nextStageButton.classList.add('hidden');
+             ui.restartButton.classList.remove('hidden');
+             ui.captureButton.classList.remove('hidden');
+             resetProgress(); // 최종 결과를 본 후에는 기록 초기화
+        }
+
+        function restartQuiz() {
+            resetProgress();
+            ui.resultScreen.classList.add('hidden');
+            ui.startScreen.classList.remove('hidden');
+        }
+
+        function captureResult() {
+            // 캡쳐 전 버튼 숨기기
+            document.getElementById('result-buttons').style.visibility = 'hidden';
+            
+            html2canvas(document.getElementById('result-screen')).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'korean-vocab-result.png';
+                link.click();
+                
+                // 캡쳐 후 버튼 다시 보이기
+                document.getElementById('result-buttons').style.visibility = 'visible';
+            }).catch(err => {
+                console.error("캡쳐 기능에 오류가 발생했습니다:", err);
+                alert("결과를 캡쳐하는 데 실패했습니다.");
+                document.getElementById('result-buttons').style.visibility = 'visible';
+            });
+        }
+    </script>
+</body>
+</html>
+
