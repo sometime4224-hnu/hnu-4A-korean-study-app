@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 쓰기 학습 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <!-- Header: Title and Language Selector -->
+        <header class="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-md">
+            <h1 id="app-title" class="text-2xl md:text-3xl font-bold text-blue-600"></h1>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-globe text-gray-500"></i>
+                <select id="language-selector" class="p-2 border rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="flex justify-center mb-6 bg-white p-2 rounded-lg shadow-sm">
+            <button data-view="home" class="nav-btn px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600"></button>
+            <button data-view="my-writings" class="nav-btn px-4 py-2 font-semibold text-gray-500"></button>
+        </nav>
+
+        <main id="main-content" class="fade-in">
+            <!-- Home View: Step Selection -->
+            <div id="view-home">
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <h2 id="writing-topic-title" class="text-xl font-bold mb-4"></h2>
+                    <p id="writing-topic-desc" class="text-gray-600 leading-relaxed"></p>
+                </div>
+                <div>
+                    <h3 id="select-step-title" class="text-xl font-bold mb-4 text-center"></h3>
+                    <div id="step-options" class="space-y-4">
+                        <!-- Step options will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Detail View -->
+            <div id="view-step-detail" class="hidden">
+                 <button id="back-to-home" class="mb-4 text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-2"></i><span id="back-to-home-text"></span></button>
+                 <div id="step-detail-content" class="bg-white p-6 rounded-lg shadow-md"></div>
+            </div>
+            
+            <!-- Practice View -->
+            <div id="view-practice" class="hidden">
+                <button id="back-to-detail" class="mb-4 text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-2"></i><span id="back-to-detail-text"></span></button>
+                <div id="practice-content" class="bg-white p-6 rounded-lg shadow-md"></div>
+            </div>
+
+            <!-- My Writings View -->
+            <div id="view-my-writings" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 id="my-writings-title" class="text-2xl font-bold mb-4 border-b pb-2"></h2>
+                <div id="saved-writings-container" class="space-y-6"></div>
+                <div id="download-container" class="text-right mt-8"></div>
+            </div>
+        </main>
+
+        <!-- Modal for Grammar Examples -->
+        <div id="grammar-modal" class="modal-overlay hidden">
+            <div class="modal-content fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="modal-title" class="text-xl font-bold"></h3>
+                    <button id="close-modal" class="text-2xl text-gray-500 hover:text-gray-800">&times;</button>
+                </div>
+                <div id="modal-body" class="space-y-3"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = {
+            // STATE
+            state: {
+                currentView: 'home',
+                currentLanguage: 'ko',
+                currentStep: null,
+                currentPractice: null,
+                writings: {}
+            },
+
+            // TRANSLATIONS
+            translations: {
+                ko: {
+                    appTitle: "쓰기 학습 도우미",
+                    navHome: "학습 시작",
+                    navMyWritings: "내 글 보기",
+                    writingTopicTitle: "오늘의 쓰기 주제",
+                    writingTopicDesc: "한 실험에서 남성과 여성의 주차 시간을 확인했습니다. 남자는 43초, 여자는 3분 1초가 걸렸습니다. 이 결과를 보고 여러분의 생각을 글로 써 보세요.",
+                    selectStepTitle: "글쓰기 순서에 따라 학습해 보세요",
+                    backToHome: "뒤로 가기",
+                    backToDetail: "목록으로",
+                    myWritingsTitle: "내가 작성한 글",
+                    noSavedWritings: "아직 저장된 글이 없습니다. 학습을 시작해 보세요!",
+                    save: "저장하기",
+                    saved: "저장됨!",
+                    practiceGrammar: "추천 문법",
+                    practiceParagraph: "단락 쓰기",
+                    step1Title: "1단계: 실험 결과 설명하기",
+                    step1Desc: "실험 결과를 객관적으로 설명하는 방법을 배웁니다.",
+                    step2Title: "2단계: 결과 분석하기",
+                    step2Desc: "결과가 왜 그렇게 나왔는지 이유를 추측하고 분석하는 방법을 배웁니다.",
+                    step3Title: "3단계: 나의 생각 쓰기",
+                    step3Desc: "분석한 내용을 바탕으로 자신의 생각과 주장을 논리적으로 쓰는 방법을 배웁니다.",
+                    grammarExamples: "문법 예문",
+                    close: "닫기",
+                    paragraphPracticeTitle: (part) => `${part} 연습`,
+                    paragraphPracticePlaceholder: (part) => `${part} 부분에 들어갈 글을 여기에 써 보세요...`,
+                    downloadAsTxt: "텍스트 파일로 저장하기"
+                },
+                en: {
+                    appTitle: "Writing Helper",
+                    navHome: "Start Learning",
+                    navMyWritings: "My Writings",
+                    writingTopicTitle: "Today's Writing Topic",
+                    writingTopicDesc: "An experiment compared the parking times of a man and a woman. The man took 43 seconds, and the woman took 3 minutes and 1 second. Write an essay presenting your opinion based on this result.",
+                    selectStepTitle: "Follow the steps to practice your writing",
+                    backToHome: "Go Back",
+                    backToDetail: "Back to List",
+                    myWritingsTitle: "My Writings",
+                    noSavedWritings: "No saved writings yet. Let's start learning!",
+                    save: "Save",
+                    saved: "Saved!",
+                    practiceGrammar: "Recommended Grammar",
+                    practiceParagraph: "Paragraph Practice",
+                    step1Title: "Step 1: Describing the Results",
+                    step1Desc: "Learn how to objectively describe the experiment's results.",
+                    step2Title: "Step 2: Analyzing the Results",
+                    step2Desc: "Learn how to infer and analyze the reasons behind the results.",
+                    step3Title: "Step 3: Stating Your Opinion",
+                    step3Desc: "Learn how to logically write your own thoughts and arguments based on your analysis.",
+                    grammarExamples: "Grammar Examples",
+                    close: "Close",
+                    paragraphPracticeTitle: (part) => `Practice: ${part}`,
+                    paragraphPracticePlaceholder: (part) => `Write your text for the '${part}' section here...`,
+                    downloadAsTxt: "Download as .txt file"
+                },
+                vi: {
+                    appTitle: "Hỗ trợ Viết",
+                    navHome: "Bắt đầu học",
+                    navMyWritings: "Bài viết của tôi",
+                    writingTopicTitle: "Chủ đề Viết hôm nay",
+                    writingTopicDesc: "Một thí nghiệm đã so sánh thời gian đỗ xe của một người đàn ông và một người phụ nữ. Người đàn ông mất 43 giây và người phụ nữ mất 3 phút 1 giây. Dựa trên kết quả này, hãy viết một bài văn trình bày ý kiến của bạn.",
+                    selectStepTitle: "Luyện viết theo các bước sau",
+                    backToHome: "Quay lại",
+                    backToDetail: "Trở lại danh sách",
+                    myWritingsTitle: "Bài viết của tôi",
+                    noSavedWritings: "Chưa có bài viết nào được lưu. Hãy bắt đầu học!",
+                    save: "Lưu",
+                    saved: "Đã lưu!",
+                    practiceGrammar: "Ngữ pháp đề xuất",
+                    practiceParagraph: "Luyện tập Đoạn văn",
+                    step1Title: "Bước 1: Mô tả kết quả thí nghiệm",
+                    step1Desc: "Học cách mô tả kết quả thí nghiệm một cách khách quan.",
+                    step2Title: "Bước 2: Phân tích kết quả",
+                    step2Desc: "Học cách suy luận và phân tích lý do đằng sau kết quả.",
+                    step3Title: "Bước 3: Trình bày ý kiến của bạn",
+                    step3Desc: "Học cách viết những suy nghĩ và lập luận của riêng bạn một cách logic dựa trên phân tích của bạn.",
+                    grammarExamples: "Ví dụ Ngữ pháp",
+                    close: "Đóng",
+                    paragraphPracticeTitle: (part) => `Thực hành: ${part}`,
+                    paragraphPracticePlaceholder: (part) => `Viết nội dung cho phần '${part}' tại đây...`,
+                    downloadAsTxt: "Tải xuống dưới dạng tệp .txt"
+                },
+                ja: {
+                    appTitle: "作文ヘルパー",
+                    navHome: "学習開始",
+                    navMyWritings: "私の文章",
+                    writingTopicTitle: "今日の作文テーマ",
+                    writingTopicDesc: "ある実験で、男性と女性の駐車時間を比較しました。男性は43秒、女性は3分1秒かかりました。この結果に基づいて、自分の意見を提示する文章を書きましょう。",
+                    selectStepTitle: "作文の手順に従って学習しましょう",
+                    backToHome: "戻る",
+                    backToDetail: "一覧へ",
+                    myWritingsTitle: "私が書いた文章",
+                    noSavedWritings: "まだ保存された文章はありません。学習を始めましょう！",
+                    save: "保存",
+                    saved: "保存されました！",
+                    practiceGrammar: "おすすめの文法",
+                    practiceParagraph: "段落作成",
+                    step1Title: "ステップ1：実験結果を説明する",
+                    step1Desc: "実験の結果を客観的に説明する方法を学びます。",
+                    step2Title: "ステップ2：結果を分析する",
+                    step2Desc: "なぜそのような結果になったのか、理由を推測し分析する方法を学びます。",
+                    step3Title: "ステップ3：自分の考えを書く",
+                    step3Desc: "分析した内容に基づいて、自分の考えや主張を論理的に書く方法を学びます。",
+                    grammarExamples: "文法例文",
+                    close: "閉じる",
+                    paragraphPracticeTitle: (part) => `練習：${part}`,
+                    paragraphPracticePlaceholder: (part) => `「${part}」部分の文章をここに作成してください...`,
+                    downloadAsTxt: "テキストファイルで保存"
+                },
+                zh: {
+                    appTitle: "写作助手",
+                    navHome: "开始学习",
+                    navMyWritings: "我的作文",
+                    writingTopicTitle: "今日写作主题",
+                    writingTopicDesc: "一项实验比较了男女的停车时间。男性用时43秒，女性用时3分1秒。请根据此结果写一篇提出自己意见的文章。",
+                    selectStepTitle: "请按照写作步骤进行学习",
+                    backToHome: "返回",
+                    backToDetail: "返回列表",
+                    myWritingsTitle: "我写的作文",
+                    noSavedWritings: "尚无已保存的文章。开始学习吧！",
+                    save: "保存",
+                    saved: "已保存！",
+                    practiceGrammar: "推荐语法",
+                    practiceParagraph: "段落写作",
+                    step1Title: "第一步：描述实验结果",
+                    step1Desc: "学习如何客观地描述实验结果。",
+                    step2Title: "第二步：分析结果",
+                    step2Desc: "学习如何推断和分析结果背后的原因。",
+                    step3Title: "第三步：阐述我的观点",
+                    step3Desc: "学习如何根据你的分析，有逻辑地写出自己的想法和论点。",
+                    grammarExamples: "语法示例",
+                    close: "关闭",
+                    paragraphPracticeTitle: (part) => `练习：${part}`,
+                    paragraphPracticePlaceholder: (part) => `在此处撰写“${part}”部分的内容...`,
+                    downloadAsTxt: "下载为 .txt 文件"
+                },
+            },
+            
+            // CONTENT DATA
+            content: {
+                steps: [
+                    {
+                        id: 1,
+                        titleKey: "step1Title",
+                        descKey: "step1Desc",
+                        grammars: ["N(이)라는 N", "N에 비해(서)", "A/V-(으)ㄴ/는 반면에", "A/V-(으)ㄹ 정도로"] 
+                    },
+                    {
+                        id: 2,
+                        titleKey: "step2Title",
+                        descKey: "step2Desc",
+                        grammars: ["A/V-(으)ㄹ 뿐만 아니라", "V-다가는", "V-다 보면", "V-는 바람에"] 
+                    },
+                    {
+                        id: 3,
+                        titleKey: "step3Title",
+                        descKey: "step3Desc",
+                        grammars: ["A/V-(으)ㄹ 수밖에 없다", "N은/는 A-다는 것이다", "V-는 대로", "A/V-기는커녕"] 
+                    }
+                ],
+                grammarExamples: {
+                    "N(이)라는 N": [
+                        "저는 김민준이라는 사람입니다.",
+                        "이곳은 '행복'이라는 이름의 카페입니다.",
+                        "‘환경보호’라는 주제로 발표를 시작하겠습니다."
+                    ],
+                    "N에 비해(서)": [
+                        "작년에 비해 올해 물가가 많이 올랐어요.",
+                        "남성에 비해 여성이 주차하는 데 더 오랜 시간이 걸렸습니다.",
+                        "가격에 비해 품질이 아주 좋습니다."
+                    ],
+                    "A/V-(으)ㄴ/는 반면에": [
+                        "남성은 주차 시간이 짧았던 반면에, 여성은 주차 시간이 매우 길었습니다.",
+                        "오늘 날씨는 더운 반면에 바람은 시원하게 불었습니다.",
+                        "결과가 뚜렷한 반면에 그 원인은 불분명합니다."
+                    ],
+                     "A/V-(으)ㄹ 정도로": [
+                        "결과가 믿기지 않을 정도로 놀라웠습니다.",
+                        "두 사람의 실력 차이가 크다고 생각될 정도로 시간 차이가 많이 났습니다.",
+                        "주차장의 모든 차가 꽉 찰 정도로 사람이 많았습니다."
+                    ],
+                    "A/V-(으)ㄹ 뿐만 아니라": [
+                        "이 실험은 표본이 적을 뿐만 아니라 다른 변수를 통제하지 않았습니다.",
+                        "이 음식은 맛이 없을 뿐만 아니라 비싸기까지 합니다.",
+                        "비가 올 뿐만 아니라 바람도 심하게 불었습니다."
+                    ],
+                    "V-다가는": [
+                        "하나의 결과만 보고 일반화하다가는 편견이 생길 수 있습니다.",
+                        "계속 그렇게 과속하다가는 큰 사고가 날 수 있습니다.",
+                        "그런 식으로 결론을 내리다가는 큰 오류를 범할 수 있습니다."
+                    ],
+                    "V-다 보면": [
+                        "자료를 자세히 분석하다 보면 새로운 사실을 발견할 수 있습니다.",
+                        "이 문제를 여러 각도에서 생각하다 보면 더 좋은 해결책이 나올 것입니다.",
+                        "매일 꾸준히 연습하다 보면 실력이 늘게 됩니다."
+                    ],
+                    "V-는 바람에": [
+                        "실험 참가자가 한 명뿐인 바람에 결과의 신뢰도가 떨어졌습니다.",
+                        "갑자기 비가 오는 바람에 약속에 늦었습니다.",
+                        "늦잠을 자는 바람에 기차를 놓쳤습니다."
+                    ],
+                    "A/V-(으)ㄹ 수밖에 없다": [
+                        "다른 변수를 고려하면 결과는 달라질 수밖에 없습니다.",
+                        "증거가 명확해서 그 사실을 인정할 수밖에 없었습니다.",
+                        "문제가 복잡해서 신중하게 생각할 수밖에 없습니다."
+                    ],
+                    "N은/는 A-다는 것이다": [
+                        "가장 중요한 것은 섣부른 일반화를 피해야 한다는 것이다.",
+                        "결론은 성별보다 개인의 경험이 더 중요하다는 것이다.",
+                        "문제의 핵심은 표본의 크기가 너무 작다는 것이다."
+                    ],
+                    "V-는 대로": [
+                        "분석된 결과를 바탕으로, 있는 그대로 결론을 내려야 합니다.",
+                        "조사된 사실을 있는 대로 서술해야 합니다.",
+                        "계획한 대로 일이 잘 진행되고 있습니다."
+                    ],
+                    "A/V-기는커녕": [
+                        "이 결과는 남녀의 차이를 보여주기는커녕, 성급한 일반화의 위험성을 보여줍니다.",
+                        "도와주기는커녕 방해만 됐습니다.",
+                        "칭찬은커녕 야단만 맞았습니다."
+                    ]
+                }
+            },
+
+            // INITIALIZATION
+            init() {
+                this.loadData();
+                this.cacheDOMElements();
+                this.addEventListeners();
+                this.render();
+            },
+
+            cacheDOMElements() {
+                this.dom = {
+                    mainContent: document.getElementById('main-content'),
+                    languageSelector: document.getElementById('language-selector'),
+                    navButtons: document.querySelectorAll('.nav-btn'),
+                    views: {
+                        home: document.getElementById('view-home'),
+                        stepDetail: document.getElementById('view-step-detail'),
+                        practice: document.getElementById('view-practice'),
+                        myWritings: document.getElementById('view-my-writings'),
+                    },
+                    stepOptions: document.getElementById('step-options'),
+                    stepDetailContent: document.getElementById('step-detail-content'),
+                    practiceContent: document.getElementById('practice-content'),
+                    savedWritingsContainer: document.getElementById('saved-writings-container'),
+                    downloadContainer: document.getElementById('download-container'),
+                    modal: document.getElementById('grammar-modal'),
+                    modalTitle: document.getElementById('modal-title'),
+                    modalBody: document.getElementById('modal-body'),
+                    closeModalBtn: document.getElementById('close-modal'),
+                    backToHomeBtn: document.getElementById('back-to-home'),
+                    backToDetailBtn: document.getElementById('back-to-detail')
+                };
+            },
+
+            addEventListeners() {
+                this.dom.languageSelector.addEventListener('change', (e) => {
+                    this.state.currentLanguage = e.target.value;
+                    this.saveData();
+                    this.render();
+                });
+
+                this.dom.navButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.state.currentView = btn.dataset.view;
+                        this.render();
+                    });
+                });
+                
+                this.dom.backToHomeBtn.addEventListener('click', () => this.changeView('home'));
+                this.dom.backToDetailBtn.addEventListener('click', () => this.changeView('stepDetail'));
+                
+                this.dom.closeModalBtn.addEventListener('click', () => this.toggleModal(false));
+                this.dom.modal.addEventListener('click', (e) => {
+                     if (e.target === this.dom.modal) this.toggleModal(false);
+                });
+            },
+
+            // DATA HANDLING
+            saveData() {
+                localStorage.setItem('koreanWritingAppData', JSON.stringify(this.state));
+            },
+
+            loadData() {
+                const data = localStorage.getItem('koreanWritingAppData');
+                if (data) {
+                    this.state = JSON.parse(data);
+                }
+            },
+            
+            // RENDERING LOGIC
+            render() {
+                this.dom.languageSelector.value = this.state.currentLanguage;
+                const T = this.translations[this.state.currentLanguage];
+                
+                document.title = T.appTitle;
+                document.getElementById('app-title').textContent = T.appTitle;
+                document.querySelector('.nav-btn[data-view="home"]').textContent = T.navHome;
+                document.querySelector('.nav-btn[data-view="my-writings"]').textContent = T.navMyWritings;
+
+                this.dom.navButtons.forEach(btn => {
+                    if (btn.dataset.view === this.state.currentView) {
+                        btn.classList.add('text-blue-600', 'border-blue-600');
+                        btn.classList.remove('text-gray-500');
+                    } else {
+                        btn.classList.remove('text-blue-600', 'border-blue-600');
+                        btn.classList.add('text-gray-500');
+                    }
+                });
+
+                Object.values(this.dom.views).forEach(view => view.classList.add('hidden'));
+                if (this.dom.views[this.state.currentView]) {
+                     this.dom.views[this.state.currentView].classList.remove('hidden');
+                }
+
+                switch (this.state.currentView) {
+                    case 'home':
+                        this.renderHome();
+                        break;
+                    case 'stepDetail':
+                        this.renderStepDetail();
+                        break;
+                    case 'practice':
+                        this.renderPractice();
+                        break;
+                    case 'my-writings':
+                        this.renderMyWritings();
+                        break;
+                }
+            },
+
+            renderHome() {
+                const T = this.translations[this.state.currentLanguage];
+                document.getElementById('writing-topic-title').textContent = T.writingTopicTitle;
+                document.getElementById('writing-topic-desc').textContent = T.writingTopicDesc;
+                document.getElementById('select-step-title').textContent = T.selectStepTitle;
+
+                this.dom.stepOptions.innerHTML = this.content.steps.map(step => `
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl hover:border-blue-500 border-2 border-transparent transition cursor-pointer" data-id="${step.id}">
+                        <h4 class="text-lg font-bold text-blue-700 mb-2">${T[step.titleKey]}</h4>
+                        <p class="text-gray-600">${T[step.descKey]}</p>
+                    </div>
+                `).join('');
+                
+                this.dom.stepOptions.querySelectorAll('div[data-id]').forEach(el => {
+                    el.addEventListener('click', () => {
+                        this.state.currentStep = this.content.steps.find(s => s.id == el.dataset.id);
+                        this.changeView('stepDetail');
+                    });
+                });
+            },
+            
+            renderStepDetail() {
+                if (!this.state.currentStep) {
+                    this.changeView('home');
+                    return;
+                }
+                const T = this.translations[this.state.currentLanguage];
+                const step = this.state.currentStep;
+
+                document.getElementById('back-to-home-text').textContent = T.backToHome;
+
+                this.dom.stepDetailContent.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-2">${T[step.titleKey]}</h2>
+                    <p class="text-gray-600 mb-6">${T[step.descKey]}</p>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="pl-4">
+                                <h4 class="font-bold mb-2 text-gray-700">${T.practiceGrammar}:</h4>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${step.grammars.map(grammar => `
+                                        <button class="grammar-btn bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200" data-grammar="${grammar}">${grammar}</button>
+                                    `).join('')}
+                                </div>
+                                <button class="practice-paragraph-btn bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600" data-step-id="${step.id}">
+                                    <i class="fas fa-pen-alt mr-2"></i>${T.practiceParagraph}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                this.dom.stepDetailContent.querySelectorAll('.grammar-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.showGrammarModal(btn.dataset.grammar));
+                });
+                
+                this.dom.stepDetailContent.querySelectorAll('.practice-paragraph-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.state.currentPractice = {
+                            stepId: btn.dataset.stepId
+                        };
+                        this.changeView('practice');
+                    });
+                });
+            },
+
+            renderPractice() {
+                if (!this.state.currentPractice) {
+                    this.changeView('home');
+                    return;
+                }
+
+                const T = this.translations[this.state.currentLanguage];
+                document.getElementById('back-to-detail-text').textContent = T.backToHome;
+                const { stepId } = this.state.currentPractice;
+                const step = this.content.steps.find(s => s.id == stepId);
+
+                const stepTitle = T[step.titleKey];
+                const storageKey = `step_${stepId}`;
+                const savedText = this.state.writings[storageKey] || '';
+
+                this.dom.practiceContent.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-4">${T.paragraphPracticeTitle(stepTitle)}</h2>
+                    <textarea id="practice-textarea" class="w-full h-64 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="${T.paragraphPracticePlaceholder(stepTitle)}">${savedText}</textarea>
+                    <div class="text-right mt-4">
+                        <button id="save-practice-btn" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>${T.save}
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('save-practice-btn').addEventListener('click', (e) => {
+                    const text = document.getElementById('practice-textarea').value;
+                    if (!this.state.writings) this.state.writings = {};
+                    this.state.writings[storageKey] = text;
+                    this.saveData();
+                    
+                    const btn = e.currentTarget;
+                    btn.innerHTML = `<i class="fas fa-check mr-2"></i>${T.saved}`;
+                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    btn.classList.add('bg-green-600');
+                    setTimeout(() => {
+                        btn.innerHTML = `<i class="fas fa-save mr-2"></i>${T.save}`;
+                        btn.classList.remove('bg-green-600');
+                        btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    }, 2000);
+                });
+            },
+
+            renderMyWritings() {
+                const T = this.translations[this.state.currentLanguage];
+                this.dom.savedWritingsContainer.innerHTML = '';
+                this.dom.downloadContainer.innerHTML = '';
+                document.getElementById('my-writings-title').textContent = T.myWritingsTitle;
+                
+                const writings = this.state.writings;
+                const hasWritings = writings && Object.keys(writings).length > 0 && Object.values(writings).some(text => text);
+
+                if (!hasWritings) {
+                    this.dom.savedWritingsContainer.innerHTML = `<p class="text-gray-500">${T.noSavedWritings}</p>`;
+                    return;
+                }
+                
+                const writingsHTML = this.content.steps.map(step => {
+                    const key = `step_${step.id}`;
+                    const text = writings[key];
+                    if (text) {
+                        return `
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-2 text-blue-600">${T[step.titleKey]}</h3>
+                                <p class="bg-gray-50 p-3 rounded-md whitespace-pre-wrap">${this.escapeHTML(text)}</p>
+                            </div>
+                        `;
+                    }
+                    return '';
+                }).join('');
+
+                this.dom.savedWritingsContainer.innerHTML = writingsHTML;
+
+                const downloadButton = document.createElement('button');
+                downloadButton.className = "bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700";
+                downloadButton.innerHTML = `<i class="fas fa-download mr-2"></i>${T.downloadAsTxt}`;
+                downloadButton.addEventListener('click', () => this.downloadWritings());
+                this.dom.downloadContainer.appendChild(downloadButton);
+            },
+            
+            downloadWritings() {
+                const T = this.translations[this.state.currentLanguage];
+                const writings = this.state.writings;
+                if (!writings || Object.keys(writings).length === 0) return;
+
+                let content = `${T.writingTopicTitle}\n`;
+                content += `================================\n\n`;
+                content += `${T.writingTopicDesc}\n\n`;
+                content += `================================\n\n`;
+
+                this.content.steps.forEach(step => {
+                    const key = `step_${step.id}`;
+                    const text = writings[key];
+                    if (text) {
+                        content += `[ ${T[step.titleKey]} ]\n\n`;
+                        content += `${text}\n\n`;
+                        content += '--------------------------------\n\n';
+                    }
+                });
+                
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'korean_writing.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+
+            showGrammarModal(grammar) {
+                const T = this.translations[this.state.currentLanguage];
+                this.dom.modalTitle.textContent = `${T.grammarExamples}: ${grammar}`;
+                const examples = this.content.grammarExamples[grammar] || [];
+                this.dom.modalBody.innerHTML = `
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        ${examples.map(ex => `<li>${ex}</li>`).join('')}
+                    </ul>
+                `;
+                this.toggleModal(true);
+            },
+            
+            toggleModal(show) {
+                if (show) {
+                    this.dom.modal.classList.remove('hidden');
+                } else {
+                    this.dom.modal.classList.add('hidden');
+                }
+            },
+            
+            changeView(view) {
+                this.state.currentView = view;
+                this.dom.mainContent.classList.remove('fade-in');
+                void this.dom.mainContent.offsetWidth; // Trigger reflow
+                this.dom.mainContent.classList.add('fade-in');
+                this.render();
+            },
+
+            escapeHTML(str) {
+                if (typeof str !== 'string') return '';
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+        };
+
+        app.init();
+    });
+    </script>
+</body>
+</html>
+
