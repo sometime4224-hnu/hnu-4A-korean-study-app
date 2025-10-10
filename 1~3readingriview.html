@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기 연습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .vocab {
+            cursor: pointer;
+            font-weight: 700;
+            color: #1d4ed8; /* blue-700 */
+            border-bottom: 2px dotted #60a5fa; /* blue-400 */
+            transition: all 0.2s;
+        }
+        .vocab:hover {
+            background-color: #dbeafe; /* blue-100 */
+            color: #1e3a8a; /* blue-800 */
+        }
+        .correct-answer {
+            background-color: #dcfce7; /* green-100 */
+            border: 1px solid #22c55e; /* green-500 */
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* red-100 */
+            border: 1px solid #ef4444; /* red-500 */
+            text-decoration: line-through;
+        }
+        .question-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        .question-card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .passage {
+            background-color: #f9fafb; /* gray-50 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">1-3과 복습 읽기 (Reading) 문제</h1>
+            <p class="text-lg text-gray-600">중요한 어휘는 클릭하여 설명을 볼 수 있습니다.</p>
+            <div id="timer-container" class="mt-4 text-2xl font-semibold bg-blue-100 text-blue-700 rounded-full px-6 py-2 inline-block">
+                남은 시간: <span id="timer">20:00</span>
+            </div>
+        </header>
+
+        <!-- Quiz Container -->
+        <main id="quiz-container">
+            <!-- Question 1 -->
+            <div class="question-card" data-question="1">
+                <h2 class="text-xl font-bold mb-4">1. 다음은 무엇에 대한 글인지 고르십시오.</h2>
+                <div class="passage">
+                    <p>국내외 회사 <span class="vocab" data-term="신입 사원">신입 사원</span> 채용 시작. 나에게 맞는 일을 찾을 수 있다!</p>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q1" value="1" class="mr-3"> ① 취업</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q1" value="2" class="mr-3"> ② 건강</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q1" value="3" class="mr-3"> ③ 운동</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q1" value="4" class="mr-3"> ④ 전공</label>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-card" data-question="2">
+                <h2 class="text-xl font-bold mb-4">2. 다음 글의 내용과 같은 것을 고르십시오.</h2>
+                <div class="passage">
+                    <p class="text-lg font-semibold mb-2">마음의 병, 자연으로 치료!</p>
+                    학교나 직장에서 계속되는 경쟁과 과로로 힘드십니까? 저희 <strong class="text-green-600">'<span class="vocab" data-term="자연마을">자연마을</span>'</strong>로 오십시오. 바쁘고 복잡했던 생활에서 벗어나 아름다운 나무와 꽃을 보면서 다시 새로운 힘을 얻으실 수 있습니다. 하루 세 끼 자연에서 나온 재료로 만든 웰빙 식사가 제공되며 산책과 명상 등 마음의 건강을 위한 여러 가지 좋은 프로그램들도 준비되어 있습니다.
+                    <div class="mt-3 text-sm text-gray-600 border-t pt-2">
+                        <strong>(이용 가격 정보)</strong><br>
+                        1인실: 3만 원 | 2인실: 5만 원 | 가족실(3인 이상): 7만 원
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q2" value="1" class="mr-3"> ① '자연마을'은 과로로 힘든 직장인에게 좋은 곳이다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q2" value="2" class="mr-3"> ② '자연마을'에 가면 산책과 명상을 매일 꼭 해야 한다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q2" value="3" class="mr-3"> ③ '자연마을'에 가면 식사를 자기가 직접 준비해야 한다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q2" value="4" class="mr-3"> ④ 가족들은 '자연마을'에 가면 방이 작아서 불편할 것이다.</label>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-card" data-question="3">
+                <h2 class="text-xl font-bold mb-4">3. 다음은 신문 기사의 제목입니다. 가장 잘 설명한 것을 고르십시오.</h2>
+                <div class="passage">
+                    <p class="text-lg font-semibold">한국 여자 핸드볼, <span class="vocab" data-term="아슬아슬하게">아슬아슬하게</span> 이겨</p>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q3" value="1" class="mr-3"> ① 한국 여자 핸드볼 팀이 반칙 때문에 졌다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q3" value="2" class="mr-3"> ② 한국 여자 핸드볼 팀이 크게 지고 말았다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q3" value="3" class="mr-3"> ③ 한국 여자 핸드볼 팀이 질 뻔했지만 이겼다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q3" value="4" class="mr-3"> ④ 한국 여자 핸드볼 팀이 큰 점수 차이로 이겼다.</label>
+                </div>
+            </div>
+            
+            <!-- Question 4 -->
+            <div class="question-card" data-question="4">
+                <h2 class="text-xl font-bold mb-4">4. 다음을 순서대로 맞게 나열한 것을 고르십시오.</h2>
+                <div class="passage">
+                   <p>(가) 팔로 입을 가리고 재채기를 하면 침이 2.5미터를 날아간다고 한다.</p>
+                   <p>(나) 따라서 가장 좋은 재채기 방법은 바로 휴지로 입을 가리는 것이다.</p>
+                   <p>(다) 재채기를 할 때 팔꿈치나 손으로 입을 가리면 다른 사람에게 감기를 안 옮길 수 있을까?</p>
+                   <p>(라) 그에 비해 입을 가리면 침이 1미터 정도만 튀지만 손바닥에 바이러스가 잔뜩 묻는다.</p>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q4" value="1" class="mr-3"> ① (나)–(다)–(라)–(가)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q4" value="2" class="mr-3"> ② (다)–(라)–(나)–(가)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q4" value="3" class="mr-3"> ③ (나)–(다)–(가)–(라)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q4" value="4" class="mr-3"> ④ (다)–(가)–(라)–(나)</label>
+                </div>
+            </div>
+            
+            <!-- Question 5 -->
+            <div class="question-card" data-question="5">
+                <h2 class="text-xl font-bold mb-4">5. 다음을 읽고 ( )에 들어갈 내용으로 가장 알맞은 것을 고르십시오.</h2>
+                <div class="passage">
+                   <p>... 이들의 공통점은 나이를 생각하지 않고 자신의 꿈을 위해서 뜨거운 <span class="vocab" data-term="열정">열정</span>으로 열심히 노력했다는 점이다. 꿈을 이루는 데 중요한 것은 ( )이/가 아니라 ( )이라는 것을 기억하기 바란다.</p>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q5" value="1" class="mr-3"> ① 노력, 꿈</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q5" value="2" class="mr-3"> ② 나이, 열정</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q5" value="3" class="mr-3"> ③ 기회, 나이</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q5" value="4" class="mr-3"> ④ 적성, 새로운 일</label>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-card" data-question="6">
+                <h2 class="text-xl font-bold mb-4">6. 다음 글을 읽고 ( )에 들어갈 내용으로 가장 알맞은 것을 고르십시오.</h2>
+                <div class="passage">
+                    아침을 챙겨 먹지 않으면 건강에 안 좋다는 말을 많이 한다. 식사를 하지 않아서 배고프기 때문에 점심에 <span class="vocab" data-term="과식">과식</span>하기 쉬울 뿐만 아니라 장운동이 활발하지 않아 변비가 생기기 쉽다는 것이 그 이유이다. 그러나 원래 아침을 먹지 않았던 사람들은 아침을 거른다고 해서 <span class="vocab" data-term="과식">과식</span>을 하지는 않는다. 그리고 그동안 아침을 먹어 왔던 사람도 아침을 안 먹으면 금방 하루 두 끼만 먹는 식사에 적응을 하게 된다. 또한 아침을 먹지 않으면 오히려 장운동을 도와주는 호르몬이 많이 나와 변비를 없애는 데 효과가 있다고 한다. 그러므로 ( )
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q6" value="1" class="mr-3"> ① 아무리 바빠도 아침을 꼭 먹어야 한다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q6" value="2" class="mr-3"> ② 아침을 안 먹으면 변비가 생길 수 있다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q6" value="3" class="mr-3"> ③ 아침을 안 먹어도 건강을 해칠 필요가 없다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q6" value="4" class="mr-3"> ④ 아침에 배고플 때 과식하는 것을 조심해야 한다.</label>
+                </div>
+            </div>
+            
+            <!-- Question 7 -->
+            <div class="question-card" data-question="7">
+                <h2 class="text-xl font-bold mb-4">7. 다음 글에서 [보기]의 문장이 들어가기에 가장 알맞은 곳을 고르십시오.</h2>
+                <div class="passage">
+                    <p>(가) 마늘은 독특한 냄새와 매운 맛이 있는데 이는 마늘 안에 있는 <span class="vocab" data-term="알리신">알리신</span>이라는 성분 때문이다. (나) 알리신은 항암 효과가 있기 때문에 매일 마늘을 먹으면 암에 걸릴 확률을 50% 이상 줄일 수 있다. (다) 그뿐만 아니라 마늘에는 다른 채소에 비해 각종 비타민이 풍부하게 들어 있어서 피로를 푸는 데 효과적이고 우리 몸의 노화를 막아 준다. (라) 마늘의 알리신 성분은 위에 자극적이어서 위가 좋지 않은 사람이 먹을 경우 속이 쓰리거나 심한 통증을 느낄 수도 있기 때문에 조심해서 먹어야 한다.</p>
+                    <div class="mt-4 border-t border-gray-300 pt-4 font-semibold text-center">
+                        [보기] 그러나 마늘이 아무리 좋다고 해도 많이 먹을 경우 부작용이 생길 수 있다.
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q7" value="1" class="mr-3"> ① (가)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q7" value="2" class="mr-3"> ② (나)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q7" value="3" class="mr-3"> ③ (다)</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q7" value="4" class="mr-3"> ④ (라)</label>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-card" data-question="8">
+                <h2 class="text-xl font-bold mb-4">8. 다음 글의 주제로 가장 알맞은 것을 고르십시오.</h2>
+                <div class="passage">
+                    졸업 후 취업이 잘되고 돈을 많이 벌 수 있는 전공이 인기가 있다. 많은 학생들이 자신의 <span class="vocab" data-term="적성">적성</span>을 고려하지 않고 이런 전공을 선택하는 경우가 많다. 나도 마찬가지였다. 부모님과 선생님이 시키는 대로 정말 열심히 공부해서 가장 좋은 의과 대학에 진학했다. 처음 입학했을 때는 세상을 다 가진 것 같았다. 그러나 시간이 지날수록 공부가 힘들었고 나는 의학 공부에 소질이 없다는 것을 알게 되었다. 오랫동안 고민한 후에 대학을 그만두고 요리를 배우기 시작했다. 지금은 하루하루가 즐겁고 행복하다. 적성에 안 맞는 공부를 하고 있는 친구들에게 고민하지 말고 자기의 꿈을 찾으라고 말해 주고 싶다.
+                </div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q8" value="1" class="mr-3"> ① 자신의 <span class="vocab" data-term="소질과 적성">소질과 적성</span>에 맞는 일을 찾아야 한다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q8" value="2" class="mr-3"> ② 공부를 열심히 하면 자기의 꿈을 이룰 수 있다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q8" value="3" class="mr-3"> ③ 졸업한 후에 돈을 많이 버는 것이 가장 중요하다.</label>
+                    <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"><input type="radio" name="q8" value="4" class="mr-3"> ④ 부모님이 시키는 대로 전공을 선택하는 것이 좋다.</label>
+                </div>
+            </div>
+
+            <!-- Questions 9-10 -->
+            <div class="question-card bg-blue-50 border-l-4 border-blue-400">
+                 <div class="passage bg-white">
+                    항상 몸이 무겁고 아무리 자도 피곤이 풀리지 않는다면 <span class="vocab" data-term="만성피로증후군">만성피로증후군</span>을 의심해 봐야 한다. 조금만 쉬면 괜찮아질 거라고 가볍게 생각하다가는 문제가 생길 수 있다. 만성피로가 하루하루 심해지면 밤에 잠도 자지 못하게 되고 사회생활이나 일상생활이 불가능해질 수도 있기 때문이다. 만성피로증후군이 생기면 목이 뻣뻣하거나 목이 자주 붓고 눈이 침침하거나 잠을 자도 계속 피곤하고 얼굴을 자주 잊어버리거나 불안하고 우울할 때가 많다. 이러한 증상은 병 때문에 생길 수도 있지만 현대 사회에서는 불규칙한 생활 습관이나 스트레스 때문에 많이 생긴다고 한다. 만성피로증후군을 치료하려면 무엇보다 제대로 된 식사를 하는 것이 중요하다. 먼저 인스턴트 음식이나 카페인이 많이 들어간 음료를 먹지 말아야 한다. 그리고 칼로리가 높고 기름이 많이 들어간 음식보다는 채소와 과일을 선택해서 먹어야 한다. 만성 피로가 너무 심할 경우에는 의사를 만나서 상담해 보는 것도 좋다.
+                </div>
+
+                <!-- Question 9 -->
+                <div class="mt-6" data-question="9">
+                    <h2 class="text-xl font-bold mb-4">9. 이 글의 내용과 같은 것을 고르시오.</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q9" value="1" class="mr-3"> ① 만성피로증후군은 보통 조금만 쉬면 괜찮아진다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q9" value="2" class="mr-3"> ② 만성피로증후군이 심해지면 일상생활을 하기 힘들 수 있다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q9" value="3" class="mr-3"> ③ 만성피로증후군은 스트레스 때문이 아니라 병 때문에 생긴다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q9" value="4" class="mr-3"> ④ 영양이 풍부하고 칼로리가 높은 음식은 만성피로증후군에 효과적이다.</label>
+                    </div>
+                </div>
+
+                <!-- Question 10 -->
+                 <div class="mt-8" data-question="10">
+                    <h2 class="text-xl font-bold mb-4">10. 만성피로증후군의 증상으로 맞지 않는 것을 고르십시오.</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q10" value="1" class="mr-3"> ① 목이 뻣뻣하거나 붓는다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q10" value="2" class="mr-3"> ② 평소보다 눈이 침침하다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q10" value="3" class="mr-3"> ③ 피곤해서 밤에 잠이 잘 온다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q10" value="4" class="mr-3"> ④ 기억을 잘 못하고 자주 우울하다.</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions 11-12 -->
+            <div class="question-card bg-green-50 border-l-4 border-green-400">
+                <div class="passage bg-white">
+                    운동을 하는 것은 건강에 좋지만 자신의 몸에 맞는 운동을 찾아야 하는 것이 더 효과적이다. 자신에게 맞지 않거나 무리한 운동은 오히려 신체를 피로하게 만들고 질병을 유발할 수도 있다. 나이에 맞는 운동법은 무엇이 있는지 소개하도록 하겠다.
+                    <ul class="list-disc list-inside space-y-2 mt-2">
+                        <li>몸이 성장하는 <span class="vocab" data-term="청소년기">청소년기</span>에는 <span class="vocab" data-term="규칙적인 운동">규칙적인 운동</span>을 하면 키가 크는 데 큰 도움을 준다. 그리고 스트레칭을 하면 좋은 근육에 자극을 주어 바른 자세를 만드는 데 좋다.</li>
+                        <li>20·30대 <span class="vocab" data-term="직장인">직장인</span>들은 수업을 듣거나 사무실에서 일하는 등 청소년들에 비해서 앉아 있는 시간이 긴 편이다. 이럴 경우 하체가 부어 하체 비만이 생길 수 있다. 의자에 앉아서 발꿈치를 세웠다 발을 내렸다를 반복하면 다리가 붓고 하체 비만이 되는 것을 예방할 수 있다.</li>
+                        <li><span class="vocab" data-term="중년층">중년층</span>의 경우 조깅처럼 몸에 무리가 가지 않는 운동을 조금씩 꾸준히 하는 것이 좋다. 조깅은 뛰는 것보다 <span class="vocab" data-term="빠른 걸음">빠른 걸음</span>으로 30분 이상 꾸준히 걷는 것이 좋다.</li>
+                        <li>60대 이상 <span class="vocab" data-term="노년층">노년층</span>의 경우 운동 전에는 충분히 몸을 풀어 주고, 걷기나 수영 등 관절에 무리가 가지 않는 운동을 선택하는 것이 좋다.</li>
+                    </ul>
+                </div>
+
+                 <!-- Question 11 -->
+                 <div class="mt-6" data-question="11">
+                    <h2 class="text-xl font-bold mb-4">11. 위의 글의 내용과 같은 것을 고르십시오.</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q11" value="1" class="mr-3"> ① 청소년들은 스트레칭을 하면 근육이 쉽게 피로해진다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q11" value="2" class="mr-3"> ② 중년층은 무리가 안 가도록 30분 이내로 운동해야 한다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q11" value="3" class="mr-3"> ③ 노년층은 관절에 무리가 가니까 걷기나 수영 등을 피한다.</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q11" value="4" class="mr-3"> ④ 직장인들은 청소년들에 비해서 하체 비만이 생기기 쉽다.</label>
+                    </div>
+                </div>
+
+                <!-- Question 12 -->
+                <div class="mt-8" data-question="12">
+                    <h2 class="text-xl font-bold mb-4">12. 이 글의 제목으로 알맞은 것을 고르시오.</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q12" value="1" class="mr-3"> ① 여러 가지 운동과 효과</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q12" value="2" class="mr-3"> ② 나이에 맞는 좋은 운동법</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q12" value="3" class="mr-3"> ③ 키 크는 데 효과적인 운동</label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white"><input type="radio" name="q12" value="4" class="mr-3"> ④ 건강에 좋은 운동과 나쁜 운동</label>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+
+        <!-- Submission & Result -->
+        <footer class="mt-8 text-center">
+            <button id="submit-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-blue-700 transition-transform transform hover:scale-105 shadow-lg">
+                채점하기
+            </button>
+            <div id="result" class="mt-6 text-2xl font-bold p-6 bg-white rounded-xl shadow-md hidden"></div>
+        </footer>
+
+    </div>
+
+    <!-- Vocabulary Modal -->
+    <div id="vocab-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-6 max-w-sm w-full animate-fade-in">
+            <h3 id="modal-term" class="text-2xl font-bold mb-3 text-blue-700"></h3>
+            <p id="modal-definition" class="text-lg text-gray-700"></p>
+            <button id="modal-close-btn" class="mt-6 w-full bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">
+                닫기
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 어휘 데이터
+            const vocabDefs = {
+                "신입 사원": "회사에 새로 들어온 직원.",
+                "자연마을": "이 글에 나오는 휴식을 위한 장소의 이름입니다. '자연 속의 마을'이라는 뜻을 가집니다.",
+                "아슬아슬하게": "거의 질 뻔했지만 아주 작은 차이로 간신히 이기는 모양.",
+                "열정": "어떤 일에 대하여 뜨겁고 강하게 타오르는 마음.",
+                "과식": "음식을 필요 이상으로 너무 많이 먹는 것.",
+                "알리신": "마늘의 독특한 냄새와 매운 맛을 내는 성분으로, 항암 효과 등 건강에 좋은 역할을 합니다.",
+                "적성": "어떤 일에 알맞은 사람의 성질이나 능력.",
+                "소질과 적성": "태어날 때부터 가지고 있는 능력과 어떤 일에 알맞은 성질.",
+                "만성피로증후군": "특별한 병이 없는데도 6개월 이상 계속되는 심한 피로감과 여러 증상이 나타나는 상태.",
+                "청소년기": "어린이에서 어른으로 성장하는 시기. 보통 10대 시절을 말합니다.",
+                "규칙적인 운동": "정해진 시간에 꾸준히 하는 운동.",
+                "직장인": "회사나 사무실에서 일하는 사람.",
+                "중년층": "보통 40대에서 50대 사이의 나이대.",
+                "빠른 걸음": "뛰는 것과 보통 걷기의 중간 속도로, 조금 서둘러서 걷는 것.",
+                "노년층": "나이가 많아 늙은 세대. 보통 60대 이상을 말합니다.",
+            };
+
+            // 정답 데이터
+            const correctAnswers = { q1: '1', q2: '1', q3: '3', q4: '4', q5: '2', q6: '3', q7: '4', q8: '1', q9: '2', q10: '3', q11: '4', q12: '2' };
+            const totalQuestions = 12;
+            let timerInterval;
+
+            // 타이머 설정
+            function startTimer() {
+                let time = 20 * 60; // 20분
+                const timerEl = document.getElementById('timer');
+                timerInterval = setInterval(() => {
+                    const minutes = Math.floor(time / 60);
+                    let seconds = time % 60;
+                    seconds = seconds < 10 ? '0' + seconds : seconds;
+                    timerEl.textContent = `${minutes}:${seconds}`;
+                    time--;
+                    if (time < 0) {
+                        clearInterval(timerInterval);
+                        alert('시간이 종료되었습니다! 자동으로 채점합니다.');
+                        gradeQuiz();
+                    }
+                }, 1000);
+            }
+
+            // 어휘 팝업 모달 설정
+            const modal = document.getElementById('vocab-modal');
+            const modalTerm = document.getElementById('modal-term');
+            const modalDefinition = document.getElementById('modal-definition');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            document.querySelectorAll('.vocab').forEach(span => {
+                span.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const term = e.target.dataset.term;
+                    modalTerm.textContent = term;
+                    modalDefinition.textContent = vocabDefs[term] || '설명을 찾을 수 없습니다.';
+                    modal.classList.remove('hidden');
+                });
+            });
+
+            function closeModal() {
+                 modal.classList.add('hidden');
+            }
+            modalCloseBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    closeModal();
+                }
+            });
+
+
+            // 채점 기능
+            const submitBtn = document.getElementById('submit-btn');
+            const resultEl = document.getElementById('result');
+
+            function gradeQuiz() {
+                clearInterval(timerInterval);
+                let score = 0;
+
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const questionSelector = `[data-question="${i}"]`;
+                    const questionDiv = document.querySelector(questionSelector);
+                    const radios = document.querySelectorAll(`input[name="q${i}"]`);
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    
+                    const correctAnswerValue = correctAnswers[`q${i}`];
+
+                    radios.forEach(radio => {
+                        radio.disabled = true;
+                        const label = radio.closest('label');
+                        if (radio.value === correctAnswerValue) {
+                           label.classList.add('correct-answer');
+                        }
+                    });
+
+                    if (selected) {
+                        if (selected.value === correctAnswerValue) {
+                            score++;
+                        } else {
+                            const selectedLabel = selected.closest('label');
+                            selectedLabel.classList.add('wrong-answer');
+                        }
+                    }
+                }
+                
+                resultEl.innerHTML = `총 ${totalQuestions}문제 중 <span class="text-blue-600">${score}</span>개를 맞았습니다!`;
+                resultEl.classList.remove('hidden');
+                submitBtn.style.display = 'none';
+                document.getElementById('timer-container').textContent = "퀴즈 종료";
+            }
+
+            submitBtn.addEventListener('click', gradeQuiz);
+            
+            // 타이머 시작
+            startTimer();
+        });
+    </script>
+</body>
+</html>
+
