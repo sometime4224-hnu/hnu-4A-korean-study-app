@@ -14,9 +14,39 @@
         .quiz-card {
             background-color: white;
             border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .quiz-title {
+            cursor: pointer;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .quiz-title:hover {
+            background-color: #f9fafb;
+        }
+        .quiz-title.active {
+             border-bottom: 1px solid #e5e7eb;
+        }
+        .title-arrow {
+            transition: transform 0.3s ease-in-out;
+        }
+        .quiz-title.active .title-arrow {
+            transform: rotate(180deg);
+        }
+        .quiz-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            padding: 0 28px;
+        }
+        .quiz-content.active {
+            max-height: 1000px; /* A large enough value to show all content */
             padding: 24px 28px;
-            margin-bottom: 24px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
         }
         .blank-space {
             cursor: pointer;
@@ -66,7 +96,7 @@
     <div id="app" class="w-full max-w-4xl mx-auto">
         <header class="text-center mb-10">
             <h1 class="text-4xl font-bold text-gray-800">문장 추론 연습</h1>
-            <p class="text-gray-600 mt-3">글의 흐름을 읽고, 빈칸을 클릭하여 알맞은 표현을 선택하세요.</p>
+            <p class="text-gray-600 mt-3">지문 제목을 클릭하여 문제를 풀어보세요. 진행 상황은 자동으로 저장됩니다.</p>
         </header>
 
         <main id="quiz-container">
@@ -84,7 +114,10 @@
     </div>
 
     <script type="module">
+        const LOCAL_STORAGE_KEY = 'korean-inference-progress';
+
         const quizData = [
+            // ... (quiz data from previous version) ...
             {
                 title: "1번 지문 (질문)",
                 content: [
@@ -209,11 +242,18 @@
         const optionsContent = document.getElementById('options-content');
 
         function renderQuiz() {
-            quizData.forEach(quiz => {
+            quizData.forEach((quiz, index) => {
                 const card = document.createElement('div');
                 card.className = 'quiz-card';
 
-                let contentHTML = `<h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">${quiz.title}</h2><p class="text-lg leading-loose">`;
+                let contentHTML = `
+                    <div class="quiz-title" data-target="quiz-content-${index}">
+                        <h2 class="text-2xl font-bold text-gray-800">${quiz.title}</h2>
+                        <svg class="title-arrow w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="quiz-content" id="quiz-content-${index}">
+                        <p class="text-lg leading-loose">
+                `;
 
                 quiz.content.forEach(item => {
                     if (item.type === 'text') {
@@ -222,11 +262,32 @@
                         contentHTML += `<span class="blank-space" data-blank-id="${item.id}">( 빈칸 )</span>`;
                     }
                 });
-                contentHTML += `</p>`;
+                contentHTML += `</p></div>`;
                 card.innerHTML = contentHTML;
                 quizContainer.appendChild(card);
             });
-            addEventListeners();
+        }
+        
+        function saveProgress(solvedId) {
+            const savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            if (!savedData.includes(solvedId)) {
+                savedData.push(solvedId);
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(savedData));
+            }
+        }
+
+        function loadProgress() {
+            const savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            savedData.forEach(solvedId => {
+                const blankEl = document.querySelector(`.blank-space[data-blank-id='${solvedId}']`);
+                const blankData = quizData.flatMap(q => q.content).find(c => c.id == solvedId);
+                if (blankEl && blankData) {
+                    const filledEl = document.createElement('span');
+                    filledEl.className = 'filled-blank';
+                    filledEl.textContent = blankData.answer;
+                    blankEl.replaceWith(filledEl);
+                }
+            });
         }
 
         function shuffleArray(array) {
@@ -238,6 +299,14 @@
         }
 
         function addEventListeners() {
+            document.querySelectorAll('.quiz-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    title.classList.toggle('active');
+                    const content = document.getElementById(title.dataset.target);
+                    content.classList.toggle('active');
+                });
+            });
+
             document.querySelectorAll('.blank-space').forEach(blank => {
                 blank.addEventListener('click', (e) => {
                     const blankId = e.target.dataset.blankId;
@@ -247,7 +316,7 @@
 
                     const shuffledOptions = shuffleArray([...blankData.options]);
                     
-                    optionsContent.innerHTML = ''; // Clear previous options
+                    optionsContent.innerHTML = '';
                     shuffledOptions.forEach(optionText => {
                         const optionEl = document.createElement('div');
                         optionEl.className = 'option-item';
@@ -260,7 +329,6 @@
                 });
             });
             
-            // Close modal when clicking outside the content
             optionsModal.addEventListener('click', (e) => {
                 if (e.target === optionsModal) {
                     optionsModal.style.display = 'none';
@@ -274,6 +342,7 @@
 
             if (isCorrect) {
                 selectedOptionEl.classList.add('correct-feedback');
+                saveProgress(blankData.id);
                 setTimeout(() => {
                     const filledEl = document.createElement('span');
                     filledEl.className = 'filled-blank';
@@ -289,7 +358,13 @@
             }
         }
 
-        renderQuiz();
+        function init() {
+            renderQuiz();
+            loadProgress();
+            addEventListeners();
+        }
+
+        init();
     </script>
 </body>
 </html>
