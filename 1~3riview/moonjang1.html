@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 추론 학습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .quiz-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+        .blank-space {
+            cursor: pointer;
+            color: #4f46e5;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: background-color 0.2s;
+        }
+        .blank-space:hover {
+            background-color: #e0e7ff;
+        }
+        .filled-blank {
+            color: #1e40af;
+            font-weight: 700;
+            background-color: #e0e7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        #options-modal {
+            display: none;
+        }
+        .option-item {
+            padding: 14px 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: white;
+        }
+        .option-item:hover {
+            background-color: #f3f4f6;
+            border-color: #6366f1;
+        }
+        .option-item.correct-feedback {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+        }
+        .option-item.incorrect-feedback {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="w-full max-w-4xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800">문장 추론 연습</h1>
+            <p class="text-gray-600 mt-3">글의 흐름을 읽고, 빈칸을 클릭하여 알맞은 표현을 선택하세요.</p>
+        </header>
+
+        <main id="quiz-container">
+            <!-- Quiz content will be dynamically inserted here -->
+        </main>
+    </div>
+    
+    <!-- Options Modal -->
+    <div id="options-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+            <div id="options-content" class="p-6 space-y-3">
+                <!-- Options will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const quizData = [
+            {
+                title: "1번 지문 (질문)",
+                content: [
+                    { type: 'text', value: '저는 중국어를 전공하고 있는 학생입니다. 이제 곧 졸업을 앞두고 있는데 어떤 직업을 선택하는 것이 ' },
+                    { 
+                        type: 'blank', id: 1, answer: '좋을지 몰라서',
+                        options: ['좋을지 몰라서', '너무 쉬워서', '이미 정해서', '관심이 없어서']
+                    },
+                    { type: 'text', value: ' 질문을 드립니다. 저는 여행하는 것을 좋아하고 ' },
+                    { 
+                        type: 'blank', id: 2, answer: '성격이 활발하고 사교적이라서',
+                        options: ['조용하고 내성적이지만', '성격이 활발하고 사교적이라서', '혼자 있는 것을 좋아해서', '가끔 화를 내는 편이라서']
+                    },
+                    { type: 'text', value: ' 처음 보는 사람과도 잘 어울리는 편입니다. 또 다른 사람을 도와주는 일을 할 때 ' },
+                    { 
+                        type: 'blank', id: 3, answer: '보람을 느낍니다',
+                        options: ['보람을 느낍니다', '스트레스를 받습니다', '큰 감흥이 없습니다', '돈을 벌 수 있습니다']
+                    },
+                    { type: 'text', value: '. 제 전공도 살리면서 적성에 맞는 직업이 없을까요?' }
+                ]
+            },
+            {
+                title: "2번 지문 (답변)",
+                content: [
+                    { type: 'text', value: '답변 학생에게는 여행 상품을 기획하는 여행사 직원이나 직접 여행객을 도와주는 ' },
+                    { type: 'blank', id: 4, answer: '여행 가이드', options: ['컴퓨터 프로그래머', '회계사', '여행 가이드', '연구원'] },
+                    { type: 'text', value: '와 같은 직업이 잘 어울릴 것 같습니다. 여행 관련 직업은 서비스업이기 때문에 밝고 ' },
+                    { type: 'blank', id: 5, answer: '적극적인 성격', options: ['신중한 성격', '예민한 성격', '적극적인 성격', '무뚝뚝한 성격'] },
+                    { type: 'text', value: '의 사람에게 잘 맞습니다. 여행사 업무에서는 외국어 능력도 꼭 필요하니까 지금 하는 전공 공부를 ' },
+                    { type: 'blank', id: 6, answer: '열심히 하다 보면', options: ['그만두게 되면', '열심히 하다 보면', '조금만 해보면', '포기하게 되면'] },
+                    { type: 'text', value: ' 나중에 좋은 여행사에서 일할 수 있을 것입니다. 또는 항공사에서 근무하는 것도 좋을 것 같습니다. 비행기 안에서 ' },
+                    { type: 'blank', id: 7, answer: '승객을 도와주는', options: ['비행기를 조종하는', '음식을 판매하는', '공항을 설계하는', '승객을 도와주는'] },
+                    { type: 'text', value: ' 승무원이나 공항에서 일을 하는 항공사 직원에 대해서도 생각해보시길 바랍니다. 항공사에서 근무할 때 좋은 점 중의 하나는 외국 여행을 할 기회가 많다는 것입니다. 학생은 외국어 실력도 있고 여행을 좋아하니까 '},
+                    { type: 'blank', id: 8, answer: '적성에 잘 맞을', options: ['조금 힘들', '다소 지루할', '적성에 잘 맞을', '연봉이 높을'] },
+                    { type: 'text', value: ' 것 같습니다.' }
+                ]
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const optionsModal = document.getElementById('options-modal');
+        const optionsContent = document.getElementById('options-content');
+
+        function renderQuiz() {
+            quizData.forEach(quiz => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+
+                let contentHTML = `<h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">${quiz.title}</h2><p class="text-lg leading-loose">`;
+
+                quiz.content.forEach(item => {
+                    if (item.type === 'text') {
+                        contentHTML += item.value;
+                    } else if (item.type === 'blank') {
+                        contentHTML += `<span class="blank-space" data-blank-id="${item.id}">( 빈칸 )</span>`;
+                    }
+                });
+                contentHTML += `</p>`;
+                card.innerHTML = contentHTML;
+                quizContainer.appendChild(card);
+            });
+            addEventListeners();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function addEventListeners() {
+            document.querySelectorAll('.blank-space').forEach(blank => {
+                blank.addEventListener('click', (e) => {
+                    const blankId = e.target.dataset.blankId;
+                    const blankData = quizData.flatMap(q => q.content).find(c => c.id == blankId);
+                    
+                    if (!blankData) return;
+
+                    const shuffledOptions = shuffleArray([...blankData.options]);
+                    
+                    optionsContent.innerHTML = ''; // Clear previous options
+                    shuffledOptions.forEach(optionText => {
+                        const optionEl = document.createElement('div');
+                        optionEl.className = 'option-item';
+                        optionEl.textContent = optionText;
+                        optionEl.addEventListener('click', () => handleOptionSelect(optionText, blankData, e.target));
+                        optionsContent.appendChild(optionEl);
+                    });
+                    
+                    optionsModal.style.display = 'flex';
+                });
+            });
+            
+            // Close modal when clicking outside the content
+            optionsModal.addEventListener('click', (e) => {
+                if (e.target === optionsModal) {
+                    optionsModal.style.display = 'none';
+                }
+            });
+        }
+
+        function handleOptionSelect(selectedText, blankData, blankEl) {
+            const isCorrect = selectedText === blankData.answer;
+            const selectedOptionEl = Array.from(optionsContent.children).find(child => child.textContent === selectedText);
+
+            if (isCorrect) {
+                selectedOptionEl.classList.add('correct-feedback');
+                setTimeout(() => {
+                    const filledEl = document.createElement('span');
+                    filledEl.className = 'filled-blank';
+                    filledEl.textContent = blankData.answer;
+                    blankEl.replaceWith(filledEl);
+                    optionsModal.style.display = 'none';
+                }, 800);
+            } else {
+                selectedOptionEl.classList.add('incorrect-feedback');
+                setTimeout(() => {
+                     selectedOptionEl.classList.remove('incorrect-feedback');
+                }, 800);
+            }
+        }
+
+        renderQuiz();
+    </script>
+</body>
+</html>
+
