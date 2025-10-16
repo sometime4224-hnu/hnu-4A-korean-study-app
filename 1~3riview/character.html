@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 성격 어휘 학습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 폰트를 Noto Sans KR로 설정 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* 베트남어 선택 시 폰트 변경 */
+        body.lang-vi {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        /* 일본어 선택 시 폰트 변경 */
+        body.lang-ja {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .vocab-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <!-- 헤더 및 언어 선택 -->
+        <header class="text-center mb-8">
+            <h1 id="main-title" class="text-3xl md:text-4xl font-bold text-cyan-400">한국어 성격 관련 어휘 학습</h1>
+            <p id="main-subtitle" class="mt-2 text-slate-400">다양한 성격 표현을 배워보세요.</p>
+            <div class="mt-6 max-w-xs mx-auto">
+                <label for="language-select" id="lang-select-label" class="sr-only">언어 선택</label>
+                <select id="language-select" class="w-full bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2.5">
+                    <option value="ko">한국어</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="ja">日本語</option>
+                </select>
+            </div>
+        </header>
+
+        <main>
+            <!-- 1. 적극성/대범함 관련 어휘 -->
+            <section class="mb-12">
+                <h2 id="category-1-title" class="text-2xl font-bold mb-4 border-b-2 border-slate-700 pb-2 text-cyan-300">1. 적극성/대범함 관련 어휘</h2>
+                <div id="category-1-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 어휘 카드는 JavaScript로 생성됩니다 -->
+                </div>
+            </section>
+
+            <!-- 2. 감정 및 태도 관련 어휘 -->
+            <section class="mb-12">
+                <h2 id="category-2-title" class="text-2xl font-bold mb-4 border-b-2 border-slate-700 pb-2 text-cyan-300">2. 감정 및 태도 관련 어휘</h2>
+                <div id="category-2-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                     <!-- 어휘 카드는 JavaScript로 생성됩니다 -->
+                </div>
+            </section>
+
+            <!-- 3. 관계 및 일 처리 관련 어휘 -->
+            <section class="mb-12">
+                <h2 id="category-3-title" class="text-2xl font-bold mb-4 border-b-2 border-slate-700 pb-2 text-cyan-300">3. 관계 및 일 처리 관련 어휘</h2>
+                <div id="category-3-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 어휘 카드는 JavaScript로 생성됩니다 -->
+                </div>
+            </section>
+
+            <!-- 표현 정리 -->
+            <section>
+                <h2 id="expressions-title" class="text-2xl font-bold mb-4 border-b-2 border-slate-700 pb-2 text-cyan-300">표현 정리</h2>
+                <div class="bg-slate-800 rounded-lg p-6 space-y-4">
+                    <div>
+                        <h3 id="expression-1-title" class="text-lg font-semibold text-cyan-400">'~(으)ㄴ/는 경향이 있다'</h3>
+                        <p id="expression-1-desc" class="mt-1 text-slate-300">성격의 일반적인 특징을 나타낼 때 사용합니다.</p>
+                        <p id="expression-1-ex" class="mt-2 text-slate-400 italic bg-slate-700 p-3 rounded-md">예: "남자는 대체로 단순한 경향이 있는 것 같아요."</p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-700">
+                        <h3 id="expression-2-title" class="text-lg font-semibold text-cyan-400">'~에 비해서 ~ 편이다'</h3>
+                        <p id="expression-2-desc" class="mt-1 text-slate-300">비교를 통해 특징을 설명할 때 사용합니다.</p>
+                        <p id="expression-2-ex" class="mt-2 text-slate-400 italic bg-slate-700 p-3 rounded-md">예: "제 언니는 동생에 비해서 감정적으로 예민한 편이에요."</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-12 py-4 border-t border-slate-700">
+            <p id="footer-text" class="text-sm text-slate-500">한국어 학습을 응원합니다!</p>
+        </footer>
+    </div>
+
+    <script>
+        // 어휘 데이터 및 번역
+        const vocabData = {
+            categories: [
+                {
+                    id: 1,
+                    title: {
+                        ko: "1. 적극성/대범함 관련 어휘",
+                        vi: "1. Từ vựng liên quan đến tính tích cực/hào phóng",
+                        ja: "1. 積極性・大胆さに関する語彙"
+                    },
+                    words: [
+                        { term: "외향적이다", hanja: "外向的이다", ko: "생각을 밖으로 표현하는 성격 (주로 활발한 사람을 묘사)", vi: "Tính cách thể hiện suy nghĩ ra bên ngoài (chủ yếu mô tả người hoạt bát)", ja: "考えを外に表現する性格（主に活発な人を描写）" },
+                        { term: "내성적이다", hanja: "內省的이다", ko: "속으로 생각하는 성격 (주로 조용한 사람을 묘사)", vi: "Tính cách suy nghĩ nội tâm (chủ yếu mô tả người trầm lặng)", ja: "心の中で考える性格（主に静かな人を描写）" },
+                        { term: "활발하다", hanja: "活潑하다", ko: "생기 있고 기운차다.", vi: "Sôi nổi và đầy năng lượng.", ja: "生き生きとして元気だ。" },
+                        { term: "소극적이다", hanja: "消極的이다", ko: "스스로 나서지 않고 시키는 일만 하는 경향", vi: "Xu hướng không tự giác và chỉ làm những việc được giao", ja: "自ら進んでやらず、言われたことだけをやる傾向" },
+                        { term: "적극적이다", hanja: "積極的이다", ko: "스스로 찾아서 열심히 하는 경향", vi: "Xu hướng tự tìm tòi và làm việc chăm chỉ", ja: "自ら探して熱心に取り組む傾向" },
+                        { term: "대범하다", hanja: "大凡하다", ko: "도량이 넓어 사소한 일에 신경 쓰지 않는다.", vi: "Rộng lượng, không để tâm đến những chuyện nhỏ nhặt.", ja: "度量が広く、些細なことにこだわらない。" },
+                        { term: "소심하다", hanja: "小心하다", ko: "마음이 좁고 작은 일에도 신경 쓰거나 겁이 많다.", vi: "Hẹp hòi, hay để ý những chuyện nhỏ nhặt hoặc nhút nhát.", ja: "気が小さく、些細なことにも気にしたり、臆病である。" }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: {
+                        ko: "2. 감정 및 태도 관련 어휘",
+                        vi: "2. Từ vựng liên quan đến cảm xúc và thái độ",
+                        ja: "2. 感情及び態度に関する語彙"
+                    },
+                    words: [
+                        { term: "솔직하다", hanja: "率直하다", ko: "생각이나 감정을 숨기지 않고 그대로 말하다.", vi: "Nói thẳng suy nghĩ hay cảm xúc mà không che giấu.", ja: "考えや感情を隠さず、ありのままを話す。" },
+                        { term: "진지하다", hanja: "眞摯하다", ko: "말이나 태도가 참되고 신중하다.", vi: "Lời nói hay thái độ chân thành và thận trọng.", ja: "言葉や態度が真実で慎重だ。" },
+                        { term: "예민하다", hanja: "銳敏하다", ko: "반응이 빠르고 작은 변화에도 민감하다.", vi: "Phản ứng nhanh và nhạy cảm với những thay đổi nhỏ.", ja: "反応が速く、小さな変化にも敏感だ。" },
+                        { term: "무뚝뚝하다", hanja: "", ko: "말이나 표정이 부드럽지 않고 딱딱하다.", vi: "Lời nói hay biểu cảm không mềm mại, cứng nhắc.", ja: "言葉や表情が柔らかくなく、ぶっきらぼうだ。" },
+                        { term: "다정하다", hanja: "多情하다", ko: "인정이 많고 친절하다.", vi: "Giàu tình cảm và tử tế.", ja: "情が厚く親切だ。" },
+                        { term: "냉정하다", hanja: "冷靜하다", ko: "감정에 좌우되지 않고 침착하고 이성적이다.", vi: "Bình tĩnh và lý trí, không bị cảm xúc chi phối.", ja: "感情に左右されず、冷静で理性的だ。" },
+                        { term: "변덕스럽다", hanja: "變德스럽다", ko: "태도나 성질이 자주 변하다.", vi: "Thái độ hoặc tính cách thường xuyên thay đổi.", ja: "態度や性質が頻繁に変わる。" }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: {
+                        ko: "3. 관계 및 일 처리 관련 어휘",
+                        vi: "3. Từ vựng liên quan đến quan hệ và xử lý công việc",
+                        ja: "3. 関係及び仕事の処理に関する語彙"
+                    },
+                    words: [
+                        { term: "책임감이 강하다", hanja: "責任感이 强하다", ko: "맡은 일에 대한 의무를 중요하게 생각하다.", vi: "Coi trọng nghĩa vụ đối với công việc được giao.", ja: "任された仕事に対する義務を重要に考える。" },
+                        { term: "고집이 세다", hanja: "", ko: "자기 의견을 바꾸거나 고치지 않고 주장하는 힘이 강하다.", vi: "Khăng khăng giữ ý kiến của mình, không thay đổi hay sửa chữa.", ja: "自分の意見を変えたり直したりせず、主張する力が強い。" },
+                        { term: "자상하다", hanja: "仔詳하다", ko: "마음을 써서 자세하고 부드럽게 대하다.", vi: "Đối xử một cách chi tiết và dịu dàng, bằng cả tấm lòng.", ja: "心を込めて、細やかで優しく接する。" },
+                        { term: "꼼꼼하다", hanja: "", ko: "빈틈이 없이 자세하고 치밀하다.", vi: "Chi tiết và tỉ mỉ, không có kẽ hở.", ja: "隙がなく、詳細で緻密だ。" },
+                        { term: "원만하다", hanja: "圓滿하다", ko: "성격이 모나지 않고 두루 잘 지낸다. (사람들과의 관계에 잘 사용)", vi: "Tính cách không góc cạnh, hòa đồng với mọi người. (thường dùng trong quan hệ với người khác)", ja: "性格が円満で、誰とでもうまく付き合う。（人との関係によく使われる）" },
+                        { term: "신중하다", hanja: "愼重하다", ko: "말이나 행동에 매우 조심스럽다.", vi: "Rất cẩn thận trong lời nói hay hành động.", ja: "言葉や行動に非常に注意深い。" }
+                    ]
+                }
+            ]
+        };
+        
+        const staticTranslations = {
+            ko: {
+                mainTitle: "한국어 성격 관련 어휘 학습",
+                mainSubtitle: "다양한 성격 표현을 배워보세요.",
+                langSelectLabel: "언어 선택",
+                expressionsTitle: "표현 정리",
+                exp1Title: "'~(으)ㄴ/는 경향이 있다'",
+                exp1Desc: "성격의 일반적인 특징을 나타낼 때 사용합니다.",
+                exp1Ex: '예: "남자는 대체로 단순한 경향이 있는 것 같아요."',
+                exp2Title: "'~에 비해서 ~ 편이다'",
+                exp2Desc: "비교를 통해 특징을 설명할 때 사용합니다.",
+                exp2Ex: '예: "제 언니는 동생에 비해서 감정적으로 예민한 편이에요."',
+                footerText: "한국어 학습을 응원합니다!"
+            },
+            vi: {
+                mainTitle: "Học từ vựng tiếng Hàn về tính cách",
+                mainSubtitle: "Hãy cùng học các biểu hiện tính cách đa dạng.",
+                langSelectLabel: "Chọn ngôn ngữ",
+                expressionsTitle: "Tổng hợp biểu hiện",
+                exp1Title: "'~(으)ㄴ/는 경향이 있다' (Có xu hướng...)",
+                exp1Desc: "Sử dụng khi diễn tả đặc điểm chung của một tính cách.",
+                exp1Ex: 'Ví dụ: "Con trai nói chung có vẻ có xu hướng đơn giản hơn."',
+                exp2Title: "'~에 비해서 ~ 편이다' (So với... thì thuộc dạng...)",
+                exp2Desc: "Sử dụng khi giải thích đặc điểm thông qua sự so sánh.",
+                exp2Ex: 'Ví dụ: "Chị tôi so với em thì thuộc dạng nhạy cảm hơn về mặt tình cảm."',
+                footerText: "Chúc bạn học tốt tiếng Hàn!"
+            },
+            ja: {
+                mainTitle: "韓国語の性格に関する語彙学習",
+                mainSubtitle: "様々な性格表現を学びましょう。",
+                langSelectLabel: "言語選択",
+                expressionsTitle: "表現のまとめ",
+                exp1Title: "'~(으)ㄴ/는 경향이 있다' (〜傾向がある)",
+                exp1Desc: "性格の一般的な特徴を表すときに使います。",
+                exp1Ex: '例：「男性は概して単純な傾向があるようです。」',
+                exp2Title: "'~에 비해서 ~ 편이다' (〜に比べて〜な方だ)",
+                exp2Desc: "比較を通じて特徴を説明する際に使います。",
+                exp2Ex: '例：「私の姉は妹に比べて感情的に敏感な方です。」',
+                footerText: "韓国語の学習を応援します！"
+            }
+        };
+
+        const languageSelect = document.getElementById('language-select');
+
+        function createVocabCard(word, lang) {
+            const definition = word[lang] || word['ko'];
+            const hanjaPart = word.hanja ? `<span class="text-sm text-slate-400 ml-2">${word.hanja}</span>` : '';
+
+            return `
+                <div class="vocab-card bg-slate-800 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg text-white">${word.term}${hanjaPart}</h3>
+                    <p class="text-slate-300 mt-2 text-sm">${definition}</p>
+                </div>
+            `;
+        }
+
+        function renderContent(lang) {
+            // 폰트 클래스 변경
+            document.body.className = document.body.className.replace(/lang-\w+/, '');
+            document.body.classList.add(`lang-${lang}`);
+            
+            // 정적 텍스트 업데이트
+            const trans = staticTranslations[lang];
+            document.getElementById('main-title').textContent = trans.mainTitle;
+            document.getElementById('main-subtitle').textContent = trans.mainSubtitle;
+            document.getElementById('lang-select-label').textContent = trans.langSelectLabel;
+            document.getElementById('expressions-title').textContent = trans.expressionsTitle;
+            document.getElementById('expression-1-title').innerHTML = trans.exp1Title;
+            document.getElementById('expression-1-desc').textContent = trans.exp1Desc;
+            document.getElementById('expression-1-ex').textContent = trans.exp1Ex;
+            document.getElementById('expression-2-title').innerHTML = trans.exp2Title;
+            document.getElementById('expression-2-desc').textContent = trans.exp2Desc;
+            document.getElementById('expression-2-ex').textContent = trans.exp2Ex;
+            document.getElementById('footer-text').textContent = trans.footerText;
+            
+            // 동적 어휘 카드 업데이트
+            vocabData.categories.forEach(category => {
+                const titleEl = document.getElementById(`category-${category.id}-title`);
+                const cardsContainer = document.getElementById(`category-${category.id}-cards`);
+                
+                titleEl.textContent = category.title[lang];
+                cardsContainer.innerHTML = category.words.map(word => createVocabCard(word, lang)).join('');
+            });
+        }
+
+        languageSelect.addEventListener('change', (event) => {
+            renderContent(event.target.value);
+        });
+
+        // 초기 로드 시 한국어로 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            renderContent('ko');
+        });
+    </script>
+</body>
+</html>
+
