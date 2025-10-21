@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팬에게 쓰는 편지: 한국어 학습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .lang-ja body { font-family: 'Noto Sans JP', sans-serif; }
+        .lang-vi body { font-family: 'Be Vietnam Pro', sans-serif; }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-face-back {
+            transform: rotateY(180deg);
+        }
+        .main-button, .lang-button, .view-toggle-button {
+            transition: all 0.3s ease;
+        }
+        .main-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .quiz-option:hover {
+            background-color: #e0f2fe; /* light blue hover */
+        }
+        .lang-button.active {
+            background-color: #1e40af;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+        
+        <div class="flex justify-end mb-4 space-x-1">
+            <button onclick="setLanguage('ko')" class="lang-button active font-semibold py-1 px-3 border border-blue-800 text-blue-800 rounded-full text-sm">KO</button>
+            <button onclick="setLanguage('vi')" class="lang-button font-semibold py-1 px-3 border border-blue-800 text-blue-800 rounded-full text-sm">VI</button>
+            <button onclick="setLanguage('ja')" class="lang-button font-semibold py-1 px-3 border border-blue-800 text-blue-800 rounded-full text-sm">JA</button>
+        </div>
+
+        <!-- Main Menu Screen -->
+        <div id="main-menu">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2" data-translate-key="mainTitle">팬에게 쓰는 편지</h1>
+                <p class="text-lg text-gray-500 mb-8" data-translate-key="mainSubtitle">한국어 학습</p>
+            </div>
+            <div class="space-y-4">
+                <button onclick="showScreen('vocab-app')" class="main-button w-full bg-sky-500 text-white font-bold py-4 px-6 rounded-xl text-xl">
+                    <span data-translate-key="vocabTitle">어휘 학습</span> 📚
+                </button>
+                <button onclick="showScreen('expression-app')" class="main-button w-full bg-indigo-500 text-white font-bold py-4 px-6 rounded-xl text-xl">
+                    <span data-translate-key="expressionTitle">표현 학습</span> 💬
+                </button>
+                <button onclick="showScreen('grammar-app')" class="main-button w-full bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl text-xl">
+                    <span data-translate-key="grammarTitle">문법 학습</span> ✍️
+                </button>
+            </div>
+        </div>
+
+        <!-- Vocabulary App Screen -->
+        <div id="vocab-app" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="showScreen('main-menu')" class="text-sky-600 hover:text-sky-800 font-semibold" data-translate-key="goBack">&larr; 처음으로</button>
+                <h2 class="text-2xl font-bold text-sky-800" data-translate-key="vocabTitle">어휘 학습</h2>
+                <div id="vocab-counter" class="text-sm text-gray-500 font-medium"></div>
+            </div>
+
+            <div class="flex justify-center my-4 bg-gray-200 p-1 rounded-lg">
+                <button id="card-view-btn" onclick="setVocabView('card')" class="view-toggle-button w-1/2 py-2 text-sm font-bold bg-white text-sky-800 rounded-md shadow-sm" data-translate-key="cardView">카드 보기</button>
+                <button id="grid-view-btn" onclick="setVocabView('grid')" class="view-toggle-button w-1/2 py-2 text-sm font-bold text-gray-600 rounded-md" data-translate-key="gridView">전체 보기</button>
+            </div>
+            
+            <div id="vocab-card-view">
+                <div id="flashcard-container" class="perspective-1000">
+                    <div id="flashcard" class="card relative w-full h-64 rounded-xl shadow-lg cursor-pointer">
+                        <div class="card-face absolute w-full h-full bg-sky-100 rounded-xl flex flex-col items-center justify-center p-4">
+                            <span id="vocab-category" class="text-sm bg-sky-500 text-white font-semibold px-3 py-1 rounded-full mb-4"></span>
+                            <p id="vocab-korean" class="text-5xl font-bold text-sky-900"></p>
+                        </div>
+                        <div class="card-face card-face-back absolute w-full h-full bg-sky-200 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+                            <p id="vocab-translation" class="text-3xl font-bold text-sky-900 mb-4"></p>
+                            <p class="text-lg text-gray-700" data-translate-key="examplePrefix">예문)</p>
+                            <p id="vocab-example" class="text-lg text-gray-700"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-6">
+                    <button id="prev-vocab" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg" data-translate-key="prevBtn">&larr; 이전</button>
+                    <button id="next-vocab" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg" data-translate-key="nextBtn">다음 &rarr;</button>
+                </div>
+            </div>
+
+            <div id="vocab-grid-view" class="hidden h-96 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
+                <!-- Grid items will be injected here -->
+            </div>
+        </div>
+
+        <!-- Other apps remain largely unchanged in HTML structure but their content will be translated -->
+        <div id="expression-app" class="hidden">
+             <div class="flex justify-between items-center mb-6">
+                 <button onclick="showScreen('main-menu')" class="text-indigo-600 hover:text-indigo-800 font-semibold" data-translate-key="goBack">&larr; 처음으로</button>
+                <h2 class="text-2xl font-bold text-indigo-800" data-translate-key="expressionTitle">표현 학습</h2>
+                <div id="exp-counter" class="text-sm text-gray-500 font-medium"></div>
+            </div>
+            <div class="bg-indigo-50 p-6 rounded-xl mb-4">
+                <p id="exp-question" class="text-xl text-center text-indigo-900 font-medium"></p>
+            </div>
+            <div id="exp-options" class="space-y-3"></div>
+            <div id="exp-feedback" class="mt-4 text-center"></div>
+             <div class="flex justify-end mt-6">
+                <button id="next-exp" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hidden" data-translate-key="nextQuestionBtn">다음 문제 &rarr;</button>
+            </div>
+        </div>
+
+        <div id="grammar-app" class="hidden">
+             <div class="flex justify-between items-center mb-4">
+                 <button onclick="showScreen('main-menu')" class="text-emerald-600 hover:text-emerald-800 font-semibold" data-translate-key="goBack">&larr; 처음으로</button>
+                <h2 class="text-2xl font-bold text-emerald-800" data-translate-key="grammarTitle">문법 학습</h2>
+                <div id="grammar-counter" class="text-sm text-gray-500 font-medium"></div>
+            </div>
+            <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-200">
+                <h3 id="grammar-rule" class="text-xl font-bold text-emerald-900 mb-2"></h3>
+                <p id="grammar-explanation" class="text-gray-700 mb-3"></p>
+                <div id="grammar-examples" class="text-gray-600 italic"></div>
+            </div>
+            <div class="mt-6">
+                <p class="font-semibold mb-2 text-center" data-translate-key="quiz">연습 문제</p>
+                <div class="bg-gray-100 p-4 rounded-lg mb-3">
+                    <p id="grammar-question" class="text-lg text-center text-gray-800"></p>
+                </div>
+                <div id="grammar-options" class="space-y-2"></div>
+                <div id="grammar-feedback" class="mt-3 text-center"></div>
+            </div>
+             <div class="flex justify-between mt-6">
+                <button id="prev-grammar" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg" data-translate-key="prevBtn">&larr; 이전</button>
+                <button id="next-grammar" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-6 rounded-lg" data-translate-key="nextBtn">다음 &rarr;</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- TRANSLATION DATA ---
+        const uiStrings = {
+            mainTitle: { ko: '팬에게 쓰는 편지', vi: 'Thư gửi người hâm mộ', ja: 'ファンへの手紙' },
+            mainSubtitle: { ko: '한국어 학습', vi: 'Học tiếng Hàn', ja: '韓国語学習' },
+            vocabTitle: { ko: '어휘 학습', vi: 'Học từ vựng', ja: '語彙学習' },
+            expressionTitle: { ko: '표현 학습', vi: 'Học biểu hiện', ja: '表現学習' },
+            grammarTitle: { ko: '문법 학습', vi: 'Học ngữ pháp', ja: '文法学習' },
+            goBack: { ko: '처음으로', vi: 'Trở về', ja: '最初へ' },
+            examplePrefix: { ko: '예문)', vi: 'Ví dụ)', ja: '例文)' },
+            prevBtn: { ko: '이전', vi: 'Trước', ja: '前へ' },
+            nextBtn: { ko: '다음', vi: 'Sau', ja: '次へ' },
+            cardView: { ko: '카드 보기', vi: 'Xem thẻ', ja: 'カード表示' },
+            gridView: { ko: '전체 보기', vi: 'Xem tất cả', ja: '一覧表示' },
+            nextQuestionBtn: { ko: '다음 문제', vi: 'Câu tiếp theo', ja: '次の問題' },
+            quiz: { ko: '연습 문제', vi: 'Bài tập', ja: '練習問題' },
+            correct: { ko: '정답입니다!', vi: 'Đúng rồi!', ja: '正解です！' },
+            incorrect: { ko: '틀렸습니다.', vi: 'Sai rồi.', ja: '間違いです。' },
+            incorrect_answer: { ko: '틀렸습니다. 정답은', vi: 'Sai rồi. Đáp án đúng là', ja: '間違いです。正解は' },
+            is: { ko: '입니다.', vi: 'là.', ja: 'です。' }
+        };
+
+        const vocabularyData = [
+            { korean: '팬', vi: 'Người hâm mộ', ja: 'ファン', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '저는 그 가수의 오랜 팬이에요.', vi: 'Tôi là fan lâu năm của ca sĩ đó.', ja: '私はその歌手の長年のファンです。' } },
+            { korean: '스타', vi: 'Ngôi sao', ja: 'スター', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '그는 세계적인 스타가 되었다.', vi: 'Anh ấy đã trở thành một ngôi sao thế giới.', ja: '彼は世界的なスターになった。' } },
+            { korean: '데뷔', vi: 'Ra mắt', ja: 'デビュー', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '데뷔 10주년을 축하합니다.', vi: 'Chúc mừng kỷ niệm 10 năm ra mắt.', ja: 'デビュー10周年おめでとうございます。' } },
+            { korean: '해체', vi: 'Tan rã', ja: '解散', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '그룹이 해체된다는 소식에 슬펐다.', vi: 'Tôi đã buồn khi nghe tin nhóm tan rã.', ja: 'グループが解散するというニュースに悲しかった。' } },
+            { korean: '입대', vi: 'Nhập ngũ', ja: '入隊', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '그는 다음 달에 군대에 입대한다.', vi: 'Anh ấy sẽ nhập ngũ vào tháng tới.', ja: '彼は来月軍隊に入隊する。' } },
+            { korean: '전역', vi: 'Xuất ngũ', ja: '除隊', category: { ko: '주제 관련', vi: 'Chủ đề liên quan', ja: 'テーマ関連' }, example: { ko: '전역할 때까지 기다려 주세요.', vi: 'Hãy đợi cho đến khi tôi xuất ngũ nhé.', ja: '除隊するまで待ってください。' } },
+            { korean: '응원하다', vi: 'Cổ vũ, ủng hộ', ja: '応援する', category: { ko: '응원 관련', vi: 'Cổ vũ', ja: '応援関連' }, example: { ko: '팬들의 응원 덕분에 힘이 났어요.', vi: 'Nhờ sự cổ vũ của người hâm mộ mà tôi đã có thêm sức mạnh.', ja: 'ファンの応援のおかげで元気が出ました。' } },
+            { korean: '성원', vi: 'Sự ủng hộ', ja: '声援', category: { ko: '응원 관련', vi: 'Cổ vũ', ja: '応援関連' }, example: { ko: '여러분의 성원에 진심으로 감사합니다.', vi: 'Chân thành cảm ơn sự ủng hộ của các bạn.', ja: '皆様の声援に心から感謝します。' } },
+            { korean: '지지하다', vi: 'Ủng hộ', ja: '支持する', category: { ko: '응원 관련', vi: 'Cổ vũ', ja: '応援関連' }, example: { ko: '어떤 결정을 하든 항상 지지할게요.', vi: 'Dù bạn quyết định thế nào, tôi cũng sẽ luôn ủng hộ.', ja: 'どんな決定をしても常に支持します。' } },
+            { korean: '감동적이다', vi: 'Cảm động', ja: '感動的だ', category: { ko: '감정 표현', vi: 'Biểu hiện cảm xúc', ja: '感情表現' }, example: { ko: '팬의 편지는 정말 감동적이었어요.', vi: 'Bức thư của fan thật sự rất cảm động.', ja: 'ファンの手紙は本当に感動的でした。' } },
+            { korean: '아쉽다', vi: 'Tiếc nuối', ja: '残念だ', category: { ko: '감정 표현', vi: 'Biểu hiện cảm xúc', ja: '感情表現' }, example: { ko: '직접 만나지 못해서 아쉬워요.', vi: 'Tôi rất tiếc vì không thể gặp trực tiếp.', ja: '直接会えなくて残念です。' } },
+            { korean: '섭섭하다', vi: 'Buồn, thất vọng', ja: '名残惜しい', category: { ko: '감정 표현', vi: 'Biểu hiện cảm xúc', ja: '感情表現' }, example: { ko: '갑자기 떠난다고 하니 섭섭해요.', vi: 'Nghe nói bạn đột ngột rời đi, tôi cảm thấy rất buồn.', ja: '急に去ると聞いて名残惜しいです。' } },
+            { korean: '뜻깊다', vi: 'Có ý nghĩa', ja: '意義深い', category: { ko: '감정 표현', vi: 'Biểu hiện cảm xúc', ja: '感情表現' }, example: { ko: '여러분과 함께한 시간은 정말 뜻깊었어요.', vi: 'Thời gian bên các bạn thật sự rất ý nghĩa.', ja: '皆さんと一緒に過ごした時間は本当に意義深かったです。' } },
+            { korean: '보답하다', vi: 'Đền đáp', ja: '応える', category: { ko: '감정 표현', vi: 'Biểu hiện cảm xúc', ja: '感情表現' }, example: { ko: '받은 사랑에 보답하기 위해 노력할게요.', vi: 'Tôi sẽ nỗ lực để đền đáp tình yêu thương đã nhận được.', ja: '受けた愛に応えるために努力します。' } },
+            { korean: '추억', vi: 'Kỷ niệm', ja: '思い出', category: { ko: '과거 회상', vi: 'Hồi tưởng', ja: '過去回想' }, example: { ko: '우리의 소중한 추억을 잊지 마세요.', vi: 'Xin đừng quên những kỷ niệm quý giá của chúng ta.', ja: '私たちの大切な思い出を忘れないでください。' } },
+            { korean: '초심', vi: 'Tâm nguyện ban đầu', ja: '初心', category: { ko: '과거 회상', vi: 'Hồi tưởng', ja: '過去回想' }, example: { ko: '초심을 잃지 않는 가수가 되겠습니다.', vi: 'Tôi sẽ trở thành một ca sĩ không bao giờ đánh mất tâm nguyện ban đầu.', ja: '初心を忘れない歌手になります。' } },
+            { korean: '동반자', vi: 'Bạn đồng hành', ja: '伴侶', category: { ko: '상황별 어휘', vi: 'Từ vựng theo tình huống', ja: '状況別語彙' }, example: { ko: '평생의 동반자를 만나 결혼하게 됐어요.', vi: 'Tôi đã gặp được bạn đồng hành của đời mình và kết hôn.', ja: '生涯の伴侶に出会い、結婚することになりました。' } },
+            { korean: '국방의 의무', vi: 'Nghĩa vụ quân sự', ja: '国防の義務', category: { ko: '상황별 어휘', vi: 'Từ vựng theo tình huống', ja: '状況別語彙' }, example: { ko: '국방의 의무를 다하고 돌아오겠습니다.', vi: 'Tôi sẽ trở về sau khi hoàn thành nghĩa vụ quân sự.', ja: '国防の義務を果たして戻ってきます。' } },
+        ];
+        // More data...
+        const expressionData = [
+            {
+                question: { ko: '갑작스러운 소식을 ___ 마음이 무겁습니다.', vi: '___ tin tức đột ngột này, lòng tôi nặng trĩu.', ja: '突然の知らせを___、心が重いです。' },
+                options: { ko: ['전하게 되어', '보게 되어', '듣게 되어'], vi: ['Vì phải thông báo', 'Vì phải thấy', 'Vì phải nghe'], ja: ['お伝えすることになり', '見ることになり', '聞くことになり'] },
+                answer: '전하게 되어',
+                explanation: { ko: "'소식을 전하다'는 'to deliver news'라는 뜻입니다. '-(으)ㄴ/게 되다'는 어떤 상황이 되었음을 나타냅니다.", vi: "'소식을 전하다' có nghĩa là 'truyền tin'. '-(으)ㄴ/게 되다' thể hiện một tình huống nào đó đã xảy ra.", ja: "「소식을 전하다」は「知らせを伝える」という意味です。「-(으)ㄴ/게 되다」はある状況になったことを表します。" }
+            },
+            {
+                question: { ko: '여러분의 아낌없는 사랑 ___ 힘든 시간을 이겨 낼 수 있었습니다.', vi: '___ tình yêu thương vô bờ bến của các bạn, tôi đã có thể vượt qua khoảng thời gian khó khăn.', ja: '皆様の惜しみない愛の___、大変な時期を乗り越えることができました。' },
+                options: { ko: ['때문에', '덕분에', '대신에'], vi: ['Vì (tiêu cực)', 'Nhờ có', 'Thay vì'], ja: ['せいで', 'おかげで', '代わりに'] },
+                answer: '덕분에',
+                explanation: { ko: "'덕분에'는 긍정적인 원인이나 이유를 나타낼 때 사용합니다. 'Thanks to...'", vi: "'덕분에' được sử dụng để chỉ nguyên nhân hoặc lý do tích cực. 'Nhờ có...'", ja: "「덕분에」は肯定的な原因や理由を表すときに使います。「～のおかげで」" }
+            },
+            {
+                question: { ko: '처음 무대에 섰던 때가 ___.', vi: 'Lần đầu tiên đứng trên sân khấu cứ như thể ___.', ja: '初めてステージに立った時が___ようです。' },
+                options: { ko: ['내일 같아요', '어제 같아요', '엊그제 같아요'], vi: ['ngày mai', 'hôm qua', 'hôm kia'], ja: ['明日のよう', '昨日のよう', '一昨日のよう'] },
+                answer: '엊그제 같아요',
+                explanation: { ko: "'엊그제 같다'는 시간이 매우 빨리 흘렀음을 비유적으로 표현하는 말입니다.", vi: "'엊그제 같다' là một biểu hiện ví von cho thấy thời gian trôi qua rất nhanh.", ja: "「엊그제 같다」は時間が非常に早く過ぎたことを比喩的に表現する言葉です。" }
+            },
+        ];
+        const grammarData = [
+            {
+                rule: '-고 -아서',
+                explanation: { ko: '두 가지 이상의 이유나 원인을 나열할 때 사용합니다. 감정의 이유를 말할 때 자주 쓰입니다.', vi: 'Được sử dụng khi liệt kê hai hoặc nhiều lý do hoặc nguyên nhân. Thường được dùng để nói về lý do của cảm xúc.', ja: '二つ以上の理由や原因を並べるときに使います。感情の理由を述べるときによく使われます。' },
+                examples: {
+                    ko: ['함께 웃고 울어 줘서 정말 고마웠어요.', '항상 응원해 주시고 사랑해 주셔서 행복했습니다.'],
+                    vi: ['Cảm ơn bạn rất nhiều vì đã cùng cười cùng khóc.', 'Tôi đã rất hạnh phúc vì các bạn đã luôn ủng hộ và yêu thương tôi.'],
+                    ja: ['一緒に笑って泣いてくれて本当にありがとうございました。', 'いつも応援して愛してくださって幸せでした。']
+                },
+                quiz: {
+                    question: { ko: '노래를 들어 주시고 ___ 정말 감사합니다.', vi: 'Cảm ơn bạn rất nhiều vì đã lắng nghe bài hát và ___.', ja: '歌を聴いてくださり、___本当にありがとうございます。' },
+                    options: { ko: ['힘이 되어 주셔서', '힘이 되어 주려고', '힘이 되어 주지만'], vi: ['vì đã là sức mạnh của tôi', 'để trở thành sức mạnh', 'tuy là sức mạnh'], ja: ['力になってくださって', '力になろうと', '力になりますが'] },
+                    answer: '힘이 되어 주셔서'
+                }
+            },
+            {
+                rule: '-(으)ㄹ 테니(까)',
+                explanation: { ko: '말하는 사람의 강한 의지나 추측을 나타내며, 듣는 사람에게 무언가를 제안하거나 권유할 때 사용합니다.', vi: 'Thể hiện ý chí mạnh mẽ hoặc sự phỏng đoán của người nói, và được sử dụng khi đề nghị hoặc khuyên nhủ người nghe điều gì đó.', ja: '話し手の強い意志や推測を表し、聞き手に何かを提案したり勧めたりするときに使います。' },
+                examples: {
+                    ko: ['저는 잘 다녀올 테니 걱정하지 마세요.', '더 멋진 모습으로 돌아올 테니 조금만 기다려 주세요.'],
+                    vi: ['Tôi sẽ đi rồi về bình an nên đừng lo lắng.', 'Tôi sẽ trở lại với hình ảnh tuyệt vời hơn nên hãy đợi một chút nhé.'],
+                    ja: ['私は無事に行ってきますから、心配しないでください。', 'もっと素敵な姿で戻ってきますから、少しだけ待っていてください。']
+                },
+                quiz: {
+                    question: { ko: '제가 곧 돌아올 ___ 너무 슬퍼하지 마세요.', vi: 'Tôi sẽ sớm trở lại ___ đừng quá đau buồn.', ja: '私がすぐ戻ってくる___、あまり悲しまないでください。' },
+                    options: { ko: ['테니', '텐데', '테도'], vi: ['nên', 'chắc là', 'dù'], ja: ['から', 'はずなのに', 'ても'] },
+                    answer: '테니'
+                }
+            },
+        ];
+
+        // --- GLOBAL STATE ---
+        let currentLang = 'ko';
+        let currentVocabView = 'card';
+        // ... (rest of the state variables)
+        let currentScreen = 'main-menu';
+        let currentVocabIndex = 0;
+        let currentExpIndex = 0;
+        let currentGrammarIndex = 0;
+
+        // --- DOM ELEMENTS ---
+        const allScreens = document.querySelectorAll('#app-container > div[id]');
+        const screens = {
+            'main-menu': document.getElementById('main-menu'),
+            'vocab-app': document.getElementById('vocab-app'),
+            'expression-app': document.getElementById('expression-app'),
+            'grammar-app': document.getElementById('grammar-app')
+        };
+        const vocabCardView = document.getElementById('vocab-card-view');
+        const vocabGridView = document.getElementById('vocab-grid-view');
+        const cardViewBtn = document.getElementById('card-view-btn');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        // ... (rest of the DOM elements)
+        const flashcard = document.getElementById('flashcard');
+        const vocabCategory = document.getElementById('vocab-category');
+        const vocabKorean = document.getElementById('vocab-korean');
+        const vocabTranslation = document.getElementById('vocab-translation');
+        const vocabExample = document.getElementById('vocab-example');
+        const prevVocabBtn = document.getElementById('prev-vocab');
+        const nextVocabBtn = document.getElementById('next-vocab');
+        const vocabCounter = document.getElementById('vocab-counter');
+        const expQuestion = document.getElementById('exp-question');
+        const expOptionsContainer = document.getElementById('exp-options');
+        const expFeedback = document.getElementById('exp-feedback');
+        const nextExpBtn = document.getElementById('next-exp');
+        const expCounter = document.getElementById('exp-counter');
+        const grammarRule = document.getElementById('grammar-rule');
+        const grammarExplanation = document.getElementById('grammar-explanation');
+        const grammarExamples = document.getElementById('grammar-examples');
+        const grammarQuestion = document.getElementById('grammar-question');
+        const grammarOptionsContainer = document.getElementById('grammar-options');
+        const grammarFeedback = document.getElementById('grammar-feedback');
+        const prevGrammarBtn = document.getElementById('prev-grammar');
+        const nextGrammarBtn = document.getElementById('next-grammar');
+        const grammarCounter = document.getElementById('grammar-counter');
+
+        // --- FUNCTIONS ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.className = `lang-${lang}`;
+            
+            // Update active button
+            document.querySelectorAll('.lang-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.lang-button:nth-child(${['ko', 'vi', 'ja'].indexOf(lang) + 1})`).classList.add('active');
+
+            // Translate all static UI text
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (uiStrings[key] && uiStrings[key][currentLang]) {
+                    el.textContent = uiStrings[key][currentLang];
+                }
+            });
+
+            // Re-render current screen with new language
+            switch (currentScreen) {
+                case 'vocab-app':
+                    renderVocabApp();
+                    break;
+                case 'expression-app':
+                    loadExpression(currentExpIndex);
+                    break;
+                case 'grammar-app':
+                    loadGrammar(currentGrammarIndex);
+                    break;
+            }
+        }
+        
+        function showScreen(screenId) {
+            allScreens.forEach(screen => screen.classList.add('hidden'));
+            screens[screenId].classList.remove('hidden');
+            currentScreen = screenId;
+
+            if (screenId === 'vocab-app') initVocabApp();
+            if (screenId === 'expression-app') initExpressionApp();
+            if (screenId === 'grammar-app') initGrammarApp();
+        }
+
+        // --- Vocabulary App Logic ---
+        function initVocabApp() {
+            currentVocabIndex = 0;
+            setVocabView('card');
+        }
+
+        function setVocabView(view) {
+            currentVocabView = view;
+            if (view === 'card') {
+                vocabCardView.classList.remove('hidden');
+                vocabGridView.classList.add('hidden');
+                cardViewBtn.classList.add('bg-white', 'text-sky-800', 'shadow-sm');
+                cardViewBtn.classList.remove('text-gray-600');
+                gridViewBtn.classList.add('text-gray-600');
+                gridViewBtn.classList.remove('bg-white', 'text-sky-800', 'shadow-sm');
+                loadCardView(currentVocabIndex);
+            } else {
+                vocabCardView.classList.add('hidden');
+                vocabGridView.classList.remove('hidden');
+                gridViewBtn.classList.add('bg-white', 'text-sky-800', 'shadow-sm');
+                gridViewBtn.classList.remove('text-gray-600');
+                cardViewBtn.classList.add('text-gray-600');
+                cardViewBtn.classList.remove('bg-white', 'text-sky-800', 'shadow-sm');
+                loadGridView();
+            }
+        }
+        
+        function renderVocabApp() {
+             if (currentVocabView === 'card') {
+                 loadCardView(currentVocabIndex);
+             } else {
+                 loadGridView();
+             }
+        }
+
+        function loadCardView(index) {
+            flashcard.classList.remove('is-flipped');
+            const vocab = vocabularyData[index];
+            vocabCategory.textContent = vocab.category[currentLang];
+            vocabKorean.textContent = vocab.korean;
+            vocabTranslation.textContent = vocab[currentLang];
+            vocabExample.textContent = vocab.example[currentLang];
+            vocabCounter.textContent = `${index + 1} / ${vocabularyData.length}`;
+            prevVocabBtn.disabled = index === 0;
+            nextVocabBtn.disabled = index === vocabularyData.length - 1;
+        }
+
+        function loadGridView() {
+            vocabGridView.innerHTML = '';
+            vocabularyData.forEach(vocab => {
+                const card = document.createElement('div');
+                card.className = "bg-sky-50 border border-sky-200 rounded-lg p-3 text-center";
+                card.innerHTML = `
+                    <p class="font-bold text-sky-900">${vocab.korean}</p>
+                    <p class="text-sm text-gray-700">${vocab[currentLang]}</p>
+                `;
+                vocabGridView.appendChild(card);
+            });
+        }
+        
+        flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
+        prevVocabBtn.addEventListener('click', () => { if (currentVocabIndex > 0) loadCardView(--currentVocabIndex); });
+        nextVocabBtn.addEventListener('click', () => { if (currentVocabIndex < vocabularyData.length - 1) loadCardView(++currentVocabIndex); });
+
+
+        // --- Expression App Logic ---
+        function initExpressionApp() {
+            currentExpIndex = 0;
+            loadExpression(currentExpIndex);
+        }
+
+        function loadExpression(index) {
+            const exp = expressionData[index];
+            expQuestion.textContent = exp.question[currentLang];
+            expOptionsContainer.innerHTML = '';
+            
+            exp.options.ko.forEach((opt_ko, i) => {
+                const button = document.createElement('button');
+                button.className = "quiz-option w-full text-left p-4 rounded-lg border-2 border-indigo-200 bg-white text-indigo-800 font-semibold";
+                button.textContent = exp.options[currentLang][i];
+                button.dataset.answerKey = opt_ko; // Store Korean answer as the key
+                button.onclick = () => checkExpressionAnswer(button, exp.answer, exp.explanation);
+                expOptionsContainer.appendChild(button);
+            });
+
+            expFeedback.innerHTML = '';
+            nextExpBtn.classList.add('hidden');
+            expCounter.textContent = `${index + 1} / ${expressionData.length}`;
+        }
+        
+        function checkExpressionAnswer(selectedButton, correct, explanation) {
+            const selected = selectedButton.dataset.answerKey;
+            const options = expOptionsContainer.querySelectorAll('button');
+            options.forEach(option => {
+                option.disabled = true;
+                if (option.dataset.answerKey === correct) {
+                    option.classList.remove('border-indigo-200', 'bg-white');
+                    option.classList.add('border-green-500', 'bg-green-100');
+                }
+            });
+
+            if (selected === correct) {
+                expFeedback.innerHTML = `<p class="text-green-600 font-bold">${uiStrings.correct[currentLang]}</p>`;
+            } else {
+                selectedButton.classList.remove('border-indigo-200', 'bg-white');
+                selectedButton.classList.add('border-red-500', 'bg-red-100');
+                expFeedback.innerHTML = `<p class="text-red-600 font-bold">${uiStrings.incorrect[currentLang]}</p><p class="text-sm text-gray-600 mt-1">${explanation[currentLang]}</p>`;
+            }
+            if (currentExpIndex < expressionData.length - 1) {
+                nextExpBtn.classList.remove('hidden');
+            }
+        }
+
+        nextExpBtn.addEventListener('click', () => loadExpression(++currentExpIndex));
+
+        // --- Grammar App Logic ---
+        function initGrammarApp() {
+            currentGrammarIndex = 0;
+            loadGrammar(currentGrammarIndex);
+        }
+
+        function loadGrammar(index) {
+            const grammar = grammarData[index];
+            grammarRule.textContent = grammar.rule;
+            grammarExplanation.textContent = grammar.explanation[currentLang];
+            grammarExamples.innerHTML = grammar.examples[currentLang].map(ex => `<p>예) ${ex}</p>`).join('');
+            
+            const quiz = grammar.quiz;
+            grammarQuestion.textContent = quiz.question[currentLang];
+            grammarOptionsContainer.innerHTML = '';
+
+            quiz.options.ko.forEach((opt_ko, i) => {
+                 const button = document.createElement('button');
+                button.className = "quiz-option w-full text-left p-3 rounded-lg border-2 border-emerald-200 bg-white text-emerald-800";
+                button.textContent = quiz.options[currentLang][i];
+                button.dataset.answerKey = opt_ko;
+                button.onclick = () => checkGrammarAnswer(button, quiz.answer);
+                grammarOptionsContainer.appendChild(button);
+            });
+
+            grammarFeedback.innerHTML = '';
+            grammarCounter.textContent = `${index + 1} / ${grammarData.length}`;
+            prevGrammarBtn.disabled = index === 0;
+            nextGrammarBtn.disabled = index === grammarData.length - 1;
+        }
+        
+        function checkGrammarAnswer(selectedButton, correct) {
+            const selected = selectedButton.dataset.answerKey;
+            const options = grammarOptionsContainer.querySelectorAll('button');
+            options.forEach(option => {
+                 option.disabled = true;
+                if (option.dataset.answerKey === correct) {
+                    option.classList.remove('border-emerald-200', 'bg-white');
+                    option.classList.add('border-green-500', 'bg-green-100');
+                }
+            });
+
+            if (selected === correct) {
+                grammarFeedback.innerHTML = `<p class="text-green-600 font-bold">${uiStrings.correct[currentLang]}</p>`;
+            } else {
+                selectedButton.classList.remove('border-emerald-200', 'bg-white');
+                selectedButton.classList.add('border-red-500', 'bg-red-100');
+                const correctOptionText = options.find(opt => opt.dataset.answerKey === correct).textContent;
+                grammarFeedback.innerHTML = `<p class="text-red-600 font-bold">${uiStrings.incorrect_answer[currentLang]} '${correctOptionText}'${uiStrings.is[currentLang]}</p>`;
+            }
+        }
+
+        prevGrammarBtn.addEventListener('click', () => { if (currentGrammarIndex > 0) loadGrammar(--currentGrammarIndex); });
+        nextGrammarBtn.addEventListener('click', () => { if (currentGrammarIndex < grammarData.length - 1) loadGrammar(++currentGrammarIndex); });
+
+        // Initialize with default language
+        setLanguage('ko');
+
+    </script>
+</body>
+</html>
+
