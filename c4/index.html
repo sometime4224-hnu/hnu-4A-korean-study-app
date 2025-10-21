@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습 단계 선택</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .step-button {
+            transition: all 0.3s ease;
+        }
+        .step-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-8 sm:p-10 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">팬에게 쓰는 편지</h1>
+        <p class="text-lg text-gray-500 mb-10">한국어 학습</p>
+        
+        <div class="space-y-6">
+            <a href="step1.html" class="step-button block w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold py-5 px-6 rounded-xl text-xl">
+                <span class="text-2xl font-bold">기초 학습 (Step 1)</span>
+                <p class="font-normal text-sm mt-1">교재 기반 핵심 어휘 및 문법 학습</p>
+            </a>
+            <a href="step2.html" class="step-button block w-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-bold py-5 px-6 rounded-xl text-xl">
+                <span class="text-2xl font-bold">심화 학습 (Step 2)</span>
+                <p class="font-normal text-sm mt-1">추가 제안 어휘 및 심화 문법 학습</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
