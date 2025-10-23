@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>읽고 문제 풀기 - 재즈 콘서트와 아리랑</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 'Inter' 폰트 또는 시스템 기본 sans-serif 폰트 적용 */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        }
+        /* 정답/오답 피드백 스타일 */
+        .feedback {
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-left: 1rem;
+        }
+        .correct {
+            color: #22c55e; /* green-500 */
+        }
+        .incorrect {
+            color: #ef4444; /* red-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        
+        <!-- 헤더 -->
+        <header class="bg-blue-600 text-white p-6">
+            <h1 class="text-2xl sm:text-3xl font-bold">읽고 쓰기: 재즈 콘서트와 아리랑</h1>
+            <p class="mt-1 text-blue-100">지문을 읽고 문제에 답해 보세요.</p>
+        </header>
+
+        <!-- 메인 컨텐츠: 2단 레이아웃 -->
+        <div class="flex flex-col md:flex-row">
+            
+            <!-- 왼쪽: 지문 (읽기) -->
+            <div class="w-full md:w-1/2 p-6 md:p-8 border-b md:border-b-0 md:border-r border-gray-200">
+                <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-blue-800">읽기</h2>
+                
+                <!-- 지문 -->
+                <article class="space-y-4 text-gray-800 leading-relaxed">
+                    <h3 class="text-lg sm:text-xl font-semibold">재즈 콘서트에서 들은 아리랑</h3>
+                    <p>
+                        얼마 전에 재즈 콘서트를 보러 갔다 왔다. 전부터 재즈에 관심이 많아서 한국에서의 재즈는 어떨지 기대가 많이 되었다. 콘서트가 시작되기를 기다리면서 공연이 기대만 못할까 봐 은근히 걱정됐다. 하지만 공연이 진행될수록 수준 높은 재즈곡들을 들을 수 있어서 정말 기쁘고 신이 났다.
+                    </p>
+                    <p>
+                        드디어 그날 공연의 마지막 곡 순서가 되었다. 가수가 천천히 무대를 걸어 나오면서 노래를 부르기 시작했다.
+                    </p>
+                    
+                    <!-- 노래 가사 -->
+                    <div class="bg-gray-100 p-4 rounded-lg italic border-l-4 border-blue-500">
+                        <p>아리랑 아리랑 아라리요</p>
+                        <p>아리랑 고개로 넘어간다</p>
+                        <p>나를 버리고 가시는 임은</p>
+                        <p>십 리도 못 가서 발병 난다</p>
+                    </div>
+
+                    <p>
+                        왠지 모르게 가슴이 찡해지고 아름다우면서도 슬픈 느낌이 드는 곡이었다. 다른 사람들이 조용히 노래를 따라 부르는 모습이 여간 감동적이지 않았다.
+                    </p>
+                    <p>
+                        공연이 끝나고 집에 돌아와서도 마지막 곡이 계속 생각이 나서 그 곡에 대해 찾아보았다. 그 곡은 아리랑이라는 곡인데 한국 사람이면 누구나 알고 있는 전통 민요라는 것을 알게 되었다. 국내에서든지 해외에서든지 한국 사람들이 하나라는 것을 느끼게 해 주는 노래라고 했다.
+                    </p>
+                    <p>
+                        아리랑은 지역마다 종류가 다른데 가장 대표적인 아리랑으로는 '경기 아리랑', '밀양 아리랑', '진도 아리랑', '정선 아리랑'이 있으며 그중에 내가 들었던 아리랑은 가장 널리 알려진 '경기 아리랑'이었다.
+                    </p>
+                    <p>
+                        전통 민요를 재즈로 바꾸어 부른 공연 방식이 신선하고 새로웠다. 아리랑이 유네스코 인류 무형 유산으로 정해졌다는 기사를 읽고 콘서트의 마지막 곡으로 아리랑을 왜 선택했는지 이해할 수 있었다. 아리랑이야말로 한국을 대표하는 민요라는 생각이 들었다.
+                    </p>
+                </article>
+            </div>
+
+            <!-- 오른쪽: 문제 풀기 -->
+            <div class="w-full md:w-1/2 p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-green-800">문제 풀기</h2>
+                
+                <form id="quiz-form" class="space-y-8">
+                    
+                    <!-- 문제 1 -->
+                    <div>
+                        <label class="block text-md sm:text-lg font-medium text-gray-900 mb-2">1. 이 글의 중심 내용으로 가장 알맞은 것은 무엇입니까?</label>
+                        <div class="space-y-2" id="q1">
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q1" value="1" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">① 재즈 콘서트 관람 후기와 '아리랑'에 대한 감상</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q1" value="2" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">② '아리랑'의 종류와 음악적 특징 비교</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q1" value="3" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">③ 유네스코 인류 무형 유산 등재 과정</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q1" value="4" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">④ 한국 전통 민요를 부르는 방법</span>
+                            </label>
+                        </div>
+                        <span id="feedback-q1" class="feedback"></span>
+                    </div>
+                    
+                    <!-- 문제 2 -->
+                    <div>
+                        <label class="block text-md sm:text-lg font-medium text-gray-900 mb-2">2. 글쓴이가 콘서트 시작 전에 걱정한 이유는 무엇입니까?</label>
+                        <div class="space-y-2" id="q2">
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q2" value="1" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">① 재즈에 대해 잘 몰라서</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q2" value="2" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">② 공연이 기대했던 것보다 못할까 봐</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q2" value="3" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">③ '아리랑'을 부를 것을 미리 알아서</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q2" value="4" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">④ 가수가 노래를 잘 못할까 봐</span>
+                            </label>
+                        </div>
+                        <span id="feedback-q2" class="feedback"></span>
+                    </div>
+
+                    <!-- 문제 3 -->
+                    <div>
+                        <label class="block text-md sm:text-lg font-medium text-gray-900 mb-2">3. 글쓴이가 콘서트에서 들었던 아리랑의 종류는 무엇입니까?</label>
+                        <div class="space-y-3" id="q3">
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <label for="q3-1" class="w-full sm:w-40 text-gray-700 mb-1 sm:mb-0">답:</label>
+                                <input type="text" id="q3-1" name="q3-1" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="답 입력">
+                                <span id="feedback-q3-1" class="feedback"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 문제 4 -->
+                    <div>
+                        <label class="block text-md sm:text-lg font-medium text-gray-900 mb-2">4. 글쓴이가 마지막 곡으로 '아리랑'을 선택한 것을 이해하게 된 이유는 무엇입니까?</label>
+                        <div class="space-y-2" id="q4">
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q4" value="1" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">① 관객들이 따라 불렀기 때문에</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q4" value="2" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">② 재즈로 부르니 신선하고 새로웠기 때문에</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q4" value="3" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">③ 유네스코 유산이며 한국을 대표하는 민요라서</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 border border-gray-200">
+                                <input type="radio" name="q4" value="4" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-3 text-gray-700">④ 슬픈 느낌이 드는 곡이었기 때문에</span>
+                            </label>
+                        </div>
+                        <span id="feedback-q4" class="feedback"></span>
+                    </div>
+                    
+                    <!-- 채점 버튼 -->
+                    <button type="button" id="grade-button" class="w-full px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                        채점하기
+                    </button>
+                </form>
+
+                <!-- 쓰기 -->
+                <div class="mt-12 pt-8 border-t border-gray-200">
+                    <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-purple-800">쓰기</h2>
+                    <form id="writing-form" class="space-y-4">
+                        <label class="block text-md sm:text-lg font-medium text-gray-900 mb-2">감동적이었던 공연을 소개해 줄 글을 써 보세요.</label>
+                        
+                        <div>
+                            <label for="write-title" class="block text-sm font-medium text-gray-700">제목</label>
+                            <input type="text" id="write-title" name="write-title" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="write-where" class="block text-sm font-medium text-gray-700">어디</label>
+                            <input type="text" id="write-where" name="write-where" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="write-who" class="block text-sm font-medium text-gray-700">누구</label>
+                            <input type="text" id="write-who" name="write-who" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="write-content" class="block text-sm font-medium text-gray-700">내용</label>
+                            <textarea id="write-content" name="write-content" rows="6" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="공연 내용이나 느낀 점을 써 보세요..."></textarea>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('grade-button').addEventListener('click', function() {
+            // 정답 정의
+            const answers = {
+                q1: '1', // ① 재즈 콘서트 관람 후기와 '아리랑'에 대한 감상
+                q2: '2', // ② 공연이 기대했던 것보다 못할까 봐
+                q3_1: ['경기', '경기 아리랑'], // 경기 아리랑
+                q4: '3'  // ③ 유네스코 유산이며 한국을 대표하는 민요라서
+            };
+
+            // 피드백 메시지
+            const correctMsg = '정답입니다!';
+            const incorrectMsg = '틀렸습니다.';
+
+            // 피드백 표시 함수
+            function showFeedback(elementId, isCorrect) {
+                const el = document.getElementById(elementId);
+                el.textContent = isCorrect ? correctMsg : incorrectMsg;
+                el.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+            }
+            
+            // --- 문제 1 채점 ---
+            const q1Value = document.querySelector('input[name="q1"]:checked');
+            showFeedback('feedback-q1', q1Value && q1Value.value === answers.q1);
+
+            // --- 문제 2 채점 ---
+            const q2Value = document.querySelector('input[name="q2"]:checked');
+            showFeedback('feedback-q2', q2Value && q2Value.value === answers.q2);
+
+            // --- 문제 3 채점 ---
+            // 답안에서 공백 제거
+            const q3_1_value = document.getElementById('q3-1').value.trim().replace(/\s*아리랑$/, '');
+            
+            // '아리랑'을 붙이거나 안 붙여도 정답 처리
+            showFeedback('feedback-q3-1', answers.q3_1.includes(q3_1_value));
+            
+            // --- 문제 4 채점 ---
+            const q4Value = document.querySelector('input[name="q4"]:checked');
+            showFeedback('feedback-q4', q4Value && q4Value.value === answers.q4);
+        });
+    </script>
+
+</body>
+</html>
+
