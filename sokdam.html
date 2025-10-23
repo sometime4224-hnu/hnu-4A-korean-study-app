@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 관용 표현 30 (다국어)</title>
+    <!-- Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- 폰트어썸 아이콘 CDN (화살표 아이콘용) --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Tailwind CSS 기본 폰트인 Inter 사용 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 버튼 비활성화 스타일 */
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        /* 슬라이드 전환 효과 (간단한 페이드인) */
+        .slide-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 언어 버튼 활성화 시 스타일 */
+        .lang-button.active {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            border-color: #1d4ed8; /* blue-700 */
+        }
+
+        /* 모바일 최적화를 위한 추가 스타일 */
+        @media (max-width: 640px) {
+            .slide-card {
+                padding: 1.5rem; /* 모바일에서 패딩 줄이기 */
+            }
+            .idiom-text {
+                font-size: 2.25rem; /* 모바일에서 관용 표현 글자 크기 줄이기 */
+            }
+            .meaning-text, .example-text {
+                font-size: 1rem; /* 모바일에서 의미/예시 글자 크기 줄이기 */
+            }
+            .nav-button {
+                padding: 0.5rem; /* 모바일에서 네비게이션 버튼 패딩 줄이기 */
+                font-size: 0.875rem; /* 모바일에서 네비게이션 버튼 글자 크기 줄이기 */
+            }
+            .lang-button {
+                padding: 0.5rem 0.75rem; /* 모바일에서 언어 버튼 패딩 줄이기 */
+                font-size: 0.75rem; /* 모바일에서 언어 버튼 글자 크기 줄이기 */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-3xl">
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-700 mb-6 px-2">
+            필수 한국어 관용 표현 30
+        </h1>
+        
+        <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+            <!-- 이전 버튼 (모바일에서는 작게) --><button id="prev-button" class="nav-button bg-white p-2 sm:p-3 rounded-full shadow-lg text-blue-500 hover:bg-blue-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <i class="fas fa-chevron-left fa-lg w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+
+            <!-- 슬라이드 카드 --><div id="slide-card" class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl w-full slide-card">
+                <!-- 프로그레스 바 --><div class="w-full bg-gray-200 rounded-full h-2.5 mb-5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                
+                <!-- 슬라이드 내용 (JS로 채워짐) --><div id="slide-content-container" class="slide-content text-center min-h-[300px] flex flex-col justify-between">
+                    <div>
+                        <h2 id="idiom" class="text-3xl sm:text-4xl font-extrabold text-blue-800 mb-6 idiom-text"></h2>
+                        <div class="text-left space-y-4">
+                            <p class="text-base sm:text-lg">
+                                <strong class="text-gray-800">🤔 의미:</strong>
+                                <span id="meaning" class="text-gray-600 meaning-text"></span>
+                            </p>
+                            <p class="text-base sm:text-lg italic bg-gray-50 p-3 sm:p-4 rounded-lg border-l-4 border-blue-300">
+                                <strong class="text-gray-800 not-italic">💬 예시:</strong>
+                                <span id="example" class="text-gray-600 example-text"></span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 언어 선택 버튼 --><div class="mt-8 pt-4 border-t border-gray-200 flex flex-wrap justify-center gap-2 sm:gap-3">
+                        <button class="lang-button active bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-semibold border border-blue-200 transition duration-200" data-lang="ko">한국어</button>
+                        <button class="lang-button bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-semibold border border-blue-200 transition duration-200" data-lang="en">English</button>
+                        <button class="lang-button bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-semibold border border-blue-200 transition duration-200" data-lang="vi">Tiếng Việt</button>
+                        <button class="lang-button bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 sm:py-2 sm:px-4 rounded-md text-sm font-semibold border border-blue-200 transition duration-200" data-lang="ja">日本語</button>
+                    </div>
+                </div>
+
+                <!-- 페이지 번호 --><p id="slide-counter" class="text-center text-gray-500 font-semibold mt-6"></p>
+            </div>
+
+            <!-- 다음 버튼 (모바일에서는 작게) --><button id="next-button" class="nav-button bg-white p-2 sm:p-3 rounded-full shadow-lg text-blue-500 hover:bg-blue-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <i class="fas fa-chevron-right fa-lg w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 30개의 관용 표현 데이터 (한국어, 영어, 베트남어, 일본어 번역 포함)
+        const idiomsData = [
+            {
+                idiom: "눈이 높다",
+                meaning: {
+                    ko: "이상형이나 원하는 것의 기준이 높다.",
+                    en: "To have high standards (for an ideal type or desired things).",
+                    vi: "Có tiêu chuẩn cao (về mẫu người lý tưởng hoặc điều mong muốn).",
+                    ja: "理想や望むものの基準が高い。"
+                },
+                example: {
+                    ko: "제 친구는 눈이 높아서 아직 애인이 없어요.",
+                    en: "My friend has high standards, so they don't have a partner yet.",
+                    vi: "Bạn tôi có tiêu chuẩn cao nên vẫn chưa có người yêu.",
+                    ja: "私の友達は理想が高いので、まだ恋人がいません。"
+                }
+            },
+            {
+                idiom: "발이 넓다",
+                meaning: {
+                    ko: "아는 사람이 많고 인맥이 넓다.",
+                    en: "To have a wide network of acquaintances; to know many people.",
+                    vi: "Có nhiều người quen, có mối quan hệ rộng.",
+                    ja: "知り合いが多く、人脈が広い。"
+                },
+                example: {
+                    ko: "민수 씨는 발이 넓어서 모르는 사람이 없는 것 같아요.",
+                    en: "Minsu seems to know everyone because he has a wide network.",
+                    vi: "Minsu có vẻ quen biết rộng, không ai là anh ấy không biết.",
+                    ja: "ミンスさんは顔が広いので、知らない人がいないようです。"
+                }
+            },
+            {
+                idiom: "입이 무겁다",
+                meaning: {
+                    ko: "비밀을 잘 지킨다.",
+                    en: "To be good at keeping secrets; to be tight-lipped.",
+                    vi: "Giữ bí mật tốt, kín miệng.",
+                    ja: "秘密をよく守る。"
+                },
+                example: {
+                    ko: "저는 입이 무거우니까 걱정 말고 말해봐요.",
+                    en: "I'm good at keeping secrets, so don't worry and tell me.",
+                    vi: "Tôi kín miệng lắm nên đừng lo lắng mà cứ nói đi.",
+                    ja: "私は口が堅いので、心配しないで話してみてください。"
+                }
+            },
+            {
+                idiom: "귀가 얇다",
+                meaning: {
+                    ko: "다른 사람의 말을 쉽게 믿는다.",
+                    en: "To be easily swayed by others' words; to be gullible.",
+                    vi: "Dễ dàng tin lời người khác, cả tin.",
+                    ja: "他人の言葉を簡単に信じる。"
+                },
+                example: {
+                    ko: "저는 귀가 얇아서 광고만 보면 물건을 사고 싶어져요.",
+                    en: "I'm gullible, so I want to buy things whenever I see an advertisement.",
+                    vi: "Tôi cả tin nên cứ thấy quảng cáo là muốn mua đồ.",
+                    ja: "私は耳が薄いので、広告を見るたびに物を買いたくなります。"
+                }
+            },
+            {
+                idiom: "손이 크다",
+                meaning: {
+                    ko: "씀씀이가 크거나, 무엇이든 푸짐하게 많이 한다.",
+                    en: "To be generous with spending or to prepare things (especially food) lavishly.",
+                    vi: "Tiêu xài rộng rãi, hoặc làm mọi thứ (đặc biệt là thức ăn) rất nhiều.",
+                    ja: "金遣いが荒い、または何でも気前よくたくさんする（特に料理）。"
+                } ,
+                example: {
+                    ko: "어머니는 손이 크셔서 항상 음식을 너무 많이 하세요.",
+                    en: "My mother is so generous that she always makes too much food.",
+                    vi: "Mẹ tôi phóng khoáng lắm nên lúc nào cũng nấu rất nhiều đồ ăn.",
+                    ja: "母は手が大きいので、いつも料理をたくさん作ります。"
+                }
+            },
+            {
+                idiom: "배가 아프다",
+                meaning: {
+                    ko: "남이 잘되는 것을 보고 질투가 난다.",
+                    en: "To be jealous of someone else's success.",
+                    vi: "Ghen tị khi thấy người khác thành công.",
+                    ja: "他人の成功を見て嫉妬する。"
+                },
+                example: {
+                    ko: "친구가 장학금을 받아서 솔직히 조금 배가 아팠어요.",
+                    en: "My friend received a scholarship, and honestly, I was a little jealous.",
+                    vi: "Bạn tôi nhận được học bổng nên nói thật là tôi hơi ghen tị.",
+                    ja: "友達が奨学金をもらったので、正直少し羨ましかったです。"
+                }
+            },
+            {
+                idiom: "식은 죽 먹기",
+                meaning: {
+                    ko: "어떤 일이 아주 쉽다.",
+                    en: "Something is very easy (a piece of cake).",
+                    vi: "Một việc gì đó rất dễ dàng.",
+                    ja: "とても簡単なこと。（朝飯前）"
+                },
+                example: {
+                    ko: "이번 시험은 식은 죽 먹기였어요.",
+                    en: "This test was a piece of cake.",
+                    vi: "Bài kiểm tra lần này dễ ợt.",
+                    ja: "今回の試験は朝飯前でした。"
+                }
+            },
+            {
+                idiom: "그림의 떡",
+                meaning: {
+                    ko: "마음에 들지만 가질 수 없거나 실현 불가능한 것.",
+                    en: "Something desirable but unattainable or impossible to achieve (like a pie in the sky).",
+                    vi: "Thứ gì đó mong muốn nhưng không thể có được hoặc không thể thực hiện được.",
+                    ja: "心惹かれるが手に入れられない、または実現不可能なもの。（高嶺の花、絵に描いた餅）"
+                } ,
+                example: {
+                    ko: "저 비싼 차는 저에게 그림의 떡이에요.",
+                    en: "That expensive car is just a pipe dream for me.",
+                    vi: "Chiếc xe đắt tiền đó chỉ là bánh vẽ đối với tôi.",
+                    ja: "あの高価な車は私には高嶺の花です。"
+                }
+            },
+            {
+                idiom: "꿩 먹고 알 먹기",
+                meaning: {
+                    ko: "한 가지 일을 해서 두 가지 이상의 이익을 얻는다.",
+                    en: "To kill two birds with one stone; to gain multiple benefits from one action.",
+                    vi: "Làm một việc mà được hai lợi (một công đôi việc).",
+                    ja: "一つのことをして二つ以上の利益を得る。（一石二鳥）"
+                } ,
+                example: {
+                    ko: "운동 삼아 걸어서 출근하면 건강도 챙기고 교통비도 아끼죠.",
+                    en: "Walking to work for exercise allows me to take care of my health and save on transportation costs – two birds with one stone.",
+                    vi: "Đi bộ đi làm vừa để tập thể dục, vừa giữ gìn sức khỏe lại vừa tiết kiệm chi phí đi lại.",
+                    ja: "運動がてら歩いて出勤すれば、健康も保てるし交通費も節約できるし、一石二鳥だ。"
+                }
+            },
+            {
+                idiom: "입에 맞다",
+                meaning: {
+                    ko: "음식이 맛있다. (입맛에 맞다)",
+                    en: "Food tastes good; to suit one's taste.",
+                    vi: "Thức ăn ngon; hợp khẩu vị.",
+                    ja: "食べ物が美味しい。（口に合う）"
+                },
+                example: {
+                    ko: "불고기가 입에 맞으세요?",
+                    en: "Does the bulgogi suit your taste?",
+                    vi: "Món bulgogi có hợp khẩu vị của bạn không?",
+                    ja: "プルコギはお口に合いますか？"
+                }
+            },
+            {
+                idiom: "꼬리가 길다",
+                meaning: {
+                    ko: "나쁜 짓을 오래 하다 결국 들키다.",
+                    en: "To have a long tail; to continue doing bad things and eventually get caught.",
+                    vi: "Làm điều xấu trong thời gian dài rồi cuối cùng bị phát hiện.",
+                    ja: "悪事を長く続けて結局ばれる。"
+                },
+                example: {
+                    ko: "범인은 꼬리가 길어서 결국 경찰에게 잡혔다.",
+                    en: "The culprit kept committing crimes and eventually got caught by the police.",
+                    vi: "Kẻ phạm tội cứ tiếp tục làm điều xấu nên cuối cùng đã bị cảnh sát bắt giữ.",
+                    ja: "犯人は尻尾が長くて、結局警察に捕まった。"
+                }
+            },
+            {
+                idiom: "눈 감아 주다",
+                meaning: {
+                    ko: "잘못을 알면서도 모른 척 넘어가다.",
+                    en: "To turn a blind eye; to overlook a mistake despite knowing about it.",
+                    vi: "Làm ngơ, bỏ qua lỗi lầm dù biết.",
+                    ja: "間違いを知っていながら見て見ぬふりをする。"
+                } ,
+                example: {
+                    ko: "이번 한 번만 눈 감아 줄 테니 다음부터는 그러지 마세요.",
+                    en: "I'll turn a blind eye just this once, but don't do it again.",
+                    vi: "Lần này tôi sẽ bỏ qua, nhưng lần sau đừng làm vậy nữa nhé.",
+                    ja: "今回だけは見逃してあげるから、次からはそうしないでください。"
+                }
+            },
+            {
+                idiom: "낯이 두껍다",
+                meaning: {
+                    ko: "부끄러움을 모르고 뻔뻔하다.",
+                    en: "To be shameless; to be brazen-faced.",
+                    vi: "Trơ trẽn, không biết xấu hổ.",
+                    ja: "恥知らずで厚かましい。"
+                } ,
+                example: {
+                    ko: "그렇게 큰 실수를 하고도 웃다니, 정말 낯이 두꺼운 것 같아요.",
+                    en: "To laugh after making such a big mistake, he really has a thick skin.",
+                    vi: "Phạm lỗi lớn như vậy mà vẫn cười, thật là trơ trẽn.",
+                    ja: "あんなに大きな間違いをして笑うなんて、本当に厚顔無恥な人だ。"
+                }
+            },
+            {
+                idiom: "뜸을 들이다",
+                meaning: {
+                    ko: "즉시 말이나 행동을 하지 않고 시간을 끌다.",
+                    en: "To stall; to take one's time before speaking or acting.",
+                    vi: "Chần chừ, trì hoãn, không nói hay làm ngay.",
+                    ja: "すぐに話したり行動したりせず、時間を稼ぐ。"
+                } ,
+                example: {
+                    ko: "뜸 들이지 말고 하고 싶은 말을 바로 하세요.",
+                    en: "Don't stall, just say what you want to say directly.",
+                    vi: "Đừng chần chừ nữa, hãy nói thẳng điều bạn muốn nói đi.",
+                    ja: "もったいぶらないで、言いたいことをすぐに言ってください。"
+                }
+            },
+            {
+                idiom: "발등에 불이 떨어지다",
+                meaning: {
+                    ko: "일이 매우 절박하게 닥치다.",
+                    en: "A matter becomes urgent; to be in a desperate situation.",
+                    vi: "Việc trở nên cực kỳ cấp bách, nước đến chân mới nhảy.",
+                    ja: "事が差し迫った状況になる。"
+                } ,
+                example: {
+                    ko: "시험이 내일이라 발등에 불이 떨어졌어요.",
+                    en: "The exam is tomorrow, so it's a desperate situation for me.",
+                    vi: "Mai thi rồi nên nước đến chân mới nhảy.",
+                    ja: "試験が明日なので、切羽詰まっています。"
+                }
+            },
+            {
+                idiom: "어깨가 무겁다",
+                meaning: {
+                    ko: "큰 책임감을 느낀다.",
+                    en: "To feel a heavy responsibility.",
+                    vi: "Cảm thấy trách nhiệm nặng nề.",
+                    ja: "大きな責任を感じる。"
+                },
+                example: {
+                    ko: "팀장이 되고 나니 어깨가 무거워요.",
+                    en: "Now that I'm the team leader, I feel a heavy responsibility.",
+                    vi: "Sau khi trở thành trưởng nhóm, tôi cảm thấy gánh nặng trên vai.",
+                    ja: "チーム長になって、肩が重いです。"
+                }
+            },
+            {
+                idiom: "가슴이 찢어지다",
+                meaning: {
+                    ko: "매우 슬프고 마음이 아프다.",
+                    en: "To be heartbroken; to feel extremely sad and pained.",
+                    vi: "Đau lòng, đau khổ tột cùng.",
+                    ja: "非常に悲しく、心が痛む。（胸が張り裂けそうだ）"
+                } ,
+                example: {
+                    ko: "아이들이 굶주린다는 소식에 가슴이 찢어지는 것 같았다.",
+                    en: "The news that children were starving made my heart break.",
+                    vi: "Nghe tin trẻ em đói khổ mà lòng tôi đau như cắt.",
+                    ja: "子供たちが飢えているという知らせに、胸が張り裂けそうだった。"
+                }
+            },
+            {
+                idiom: "싼 게 비지떡",
+                meaning: {
+                    ko: "값이 싼 물건은 품질도 나쁘다.",
+                    en: "You get what you pay for; cheap things are often of poor quality.",
+                    vi: "Của rẻ là của ôi; đồ rẻ thường kém chất lượng.",
+                    ja: "安物買いの銭失い。（安いものは品質も悪い）"
+                },
+                example: {
+                    ko: "인터넷에서 산 신발이 하루 만에 망가졌어요. 싼 게 비지떡이라더니.",
+                    en: "The shoes I bought online broke in just one day. It's true that you get what you pay for.",
+                    vi: "Đôi giày tôi mua trên mạng hỏng chỉ sau một ngày. Đúng là của rẻ là của ôi.",
+                    ja: "ネットで買った靴が一日で壊れました。安物買いの銭失いですね。"
+                }
+            },
+            {
+                idiom: "날개가 돋치다",
+                meaning: {
+                    ko: "상품이 매우 잘 팔리다.",
+                    en: "For a product to sell extremely well; to sell like hotcakes.",
+                    vi: "Sản phẩm bán rất chạy, đắt như tôm tươi.",
+                    ja: "商品が飛ぶように売れる。（翼が生えたように）"
+                } ,
+                example: {
+                    ko: "새로 나온 아이돌 앨범이 날개가 돋친 듯 팔리고 있다.",
+                    en: "The new idol album is selling like hotcakes.",
+                    vi: "Album mới của nhóm nhạc thần tượng đang bán đắt như tôm tươi.",
+                    ja: "新しく出たアイドルのアルバムが飛ぶように売れている。"
+                }
+            },
+            {
+                idiom: "무소식이 희소식",
+                meaning: {
+                    ko: "소식이 없는 것은 곧 잘 지내고 있다는 뜻이다.",
+                    en: "No news is good news; absence of news means things are well.",
+                    vi: "Không có tin tức là tin tốt (im lặng là vàng).",
+                    ja: "便りがないのは良い便り。（連絡がないのは無事の知らせ）"
+                } ,
+                example: {
+                    ko: "유학 간 아들에게서 연락이 없지만, 무소식이 희소식이겠죠.",
+                    en: "I haven't heard from my son who went to study abroad, but no news is good news, right?",
+                    vi: "Không có tin tức gì từ con trai đi du học, nhưng không tin tức là tin tốt mà.",
+                    ja: "留学中の息子から連絡がないけど、便りがないのは良い便りでしょう。"
+                }
+            },
+            {
+                idiom: "울며 겨자 먹기",
+                meaning: {
+                    ko: "싫은 일을 마지못해 억지로 하다.",
+                    en: "To do something reluctantly or against one's will.",
+                    vi: "Miễn cưỡng làm việc mình không thích (như khóc mà ăn mù tạt).",
+                    ja: "嫌なことを仕方なく無理やりする。（泣く泣くマスタードを食べる）"
+                } ,
+                example: {
+                    ko: "하기 싫은 숙제지만 울며 겨자 먹기로 하고 있어요.",
+                    en: "It's homework I don't want to do, but I'm doing it reluctantly.",
+                    vi: "Tuy là bài tập tôi không muốn làm, nhưng tôi vẫn phải miễn cưỡng làm.",
+                    ja: "やりたくない宿題だけど、泣く泣くやっています。"
+                }
+            },
+            {
+                idiom: "혀를 내두르다",
+                meaning: {
+                    ko: "매우 놀라거나 어이가 없다.",
+                    en: "To be greatly surprised or dumbfounded; to be speechless.",
+                    vi: "Rất ngạc nhiên hoặc không nói nên lời.",
+                    ja: "非常に驚いたり、あきれたりする。"
+                } ,
+                example: {
+                    ko: "그 사람의 뻔뻔함에 혀를 내둘렀어요.",
+                    en: "I was dumbfounded by his shamelessness.",
+                    vi: "Tôi đã không nói nên lời trước sự trơ trẽn của người đó.",
+                    ja: "その人の厚かましさに舌を巻いた。"
+                }
+            },
+            {
+                idiom: "찬물을 끼얹다",
+                meaning: {
+                    ko: "잘 되어가던 일이나 분위기를 망치다.",
+                    en: "To throw cold water on; to spoil a good atmosphere or a well-going plan.",
+                    vi: "Dội gáo nước lạnh; phá hỏng việc đang suôn sẻ hoặc không khí tốt.",
+                    ja: "うまくいっていたことや雰囲気を台無しにする。（水を差す）"
+                } ,
+                example: {
+                    ko: "즐겁게 이야기하는데 그가 갑자기 찬물을 끼얹는 소리를 했다.",
+                    en: "We were having a pleasant conversation, but he suddenly said something that threw cold water on the atmosphere.",
+                    vi: "Chúng tôi đang nói chuyện vui vẻ thì anh ấy bất ngờ nói một câu dội gáo nước lạnh.",
+                    ja: "楽しく話していたのに、彼が突然水を差すようなことを言った。"
+                }
+            },
+            {
+                idiom: "코가 높다",
+                meaning: {
+                    ko: "잘난 체하고 거만하다.",
+                    en: "To be arrogant or conceited; to be stuck-up.",
+                    vi: "Kiêu ngạo, hợm hĩnh.",
+                    ja: "偉ぶって傲慢である。（鼻が高い）"
+                } ,
+                example: {
+                    ko: "그녀는 예쁘지만 코가 높아서 친구가 별로 없어요.",
+                    en: "She's pretty, but she's conceited, so she doesn't have many friends.",
+                    vi: "Cô ấy xinh đẹp nhưng kiêu ngạo nên không có nhiều bạn bè.",
+                    ja: "彼女は綺麗だけど鼻が高いので、友達があまりいません。"
+                }
+            },
+            {
+                idiom: "파김치가 되다",
+                meaning: {
+                    ko: "매우 지치고 피곤하다.",
+                    en: "To be utterly exhausted; to be worn out.",
+                    vi: "Mệt mỏi, kiệt sức (như kim chi hành lá).",
+                    ja: "非常に疲れてへとへとになる。（ネギキムチになる）"
+                } ,
+                example: {
+                    ko: "하루 종일 이사했더니 온몸이 파김치가 되었어요.",
+                    en: "I moved all day, so I'm utterly exhausted.",
+                    vi: "Tôi chuyển nhà cả ngày nên toàn thân mệt lả rồi.",
+                    ja: "一日中引っ越しをしたら、体がクタクタになった。"
+                }
+            },
+            {
+                idiom: "피땀 흘리다",
+                meaning: {
+                    ko: "매우 힘들게 노력하다.",
+                    en: "To put in blood, sweat, and tears; to work extremely hard.",
+                    vi: "Đổ mồ hôi sôi nước mắt; nỗ lực cực kỳ vất vả.",
+                    ja: "血と汗を流して、非常に苦労して努力する。"
+                } ,
+                example: {
+                    ko: "그는 피땀 흘려 번 돈으로 가족을 부양했다.",
+                    en: "He supported his family with money earned through blood, sweat, and tears.",
+                    vi: "Anh ấy đã nuôi sống gia đình bằng số tiền kiếm được bằng mồ hôi và nước mắt.",
+                    ja: "彼は血と汗を流して稼いだお金で家族を養った。"
+                }
+            },
+            {
+                idiom: "하늘의 별 따기",
+                meaning: {
+                    ko: "어떤 것을 얻기가 매우 어렵다.",
+                    en: "To be as difficult as picking stars from the sky; to be extremely difficult.",
+                    vi: "Khó như hái sao trên trời; cực kỳ khó khăn.",
+                    ja: "何かを得ることが非常に難しい。（空の星を掴むよう）"
+                } ,
+                example: {
+                    ko: "요즘 서울에서 집 구하기는 하늘의 별 따기예요.",
+                    en: "Finding a house in Seoul these days is as difficult as picking stars from the sky.",
+                    vi: "Dạo này tìm nhà ở Seoul khó như hái sao trên trời vậy.",
+                    ja: "最近ソウルで家を探すのは、空の星を掴むくらい難しいです。"
+                }
+            },
+            {
+                idiom: "한솥밥을 먹다",
+                meaning: {
+                    ko: "같은 집이나 같은 직장에서 함께 지내다.",
+                    en: "To share a meal from the same pot; to live or work together in the same place.",
+                    vi: "Ăn chung một nồi cơm; sống hoặc làm việc cùng một nơi.",
+                    ja: "同じ釜の飯を食う。（同じ家や職場で一緒に過ごす）"
+                } ,
+                example: {
+                    ko: "우리는 대학 시절부터 한솥밥을 먹던 사이입니다.",
+                    en: "We've been sharing meals since our university days (meaning we were very close).",
+                    vi: "Chúng tôi đã cùng ăn chung một nồi cơm từ thời đại học.",
+                    ja: "私たちは大学時代から同じ釜の飯を食っていた仲です。"
+                }
+            },
+            {
+                idiom: "애를 먹다",
+                meaning: {
+                    ko: "어떤 일로 속이 상하고 어려움을 겪다.",
+                    en: "To have a hard time; to suffer difficulties or trouble.",
+                    vi: "Gặp khó khăn, vất vả; đau đầu vì một việc gì đó.",
+                    ja: "あることで心を痛め、苦労する。（手間取る、困る）"
+                } ,
+                example: {
+                    ko: "아이 때문에 애를 먹은 적이 한두 번이 아니에요.",
+                    en: "I've had a hard time because of my child countless times.",
+                    vi: "Tôi đã không ít lần vất vả vì con cái.",
+                    ja: "子供のことで苦労したことが一度や二度ではありません。"
+                }
+            },
+            {
+                idiom: "시치미를 떼다",
+                meaning: {
+                    ko: "알고 있으면서도 모르는 척하다.",
+                    en: "To feign ignorance; to pretend not to know.",
+                    vi: "Giả vờ không biết dù đã biết.",
+                    ja: "知っていながら知らないふりをする。"
+                } ,
+                example: {
+                    ko: "자기가 잘못해 놓고 시치미를 떼고 있어요.",
+                    en: "He made a mistake himself, but he's pretending not to know.",
+                    vi: "Tự mình gây lỗi rồi lại giả vờ không biết.",
+                    ja: "自分が間違えたのに、しらばっくれています。"
+                }
+            }
+        ];
+
+        // HTML 요소 가져오기
+        const idiomEl = document.getElementById('idiom');
+        const meaningEl = document.getElementById('meaning');
+        const exampleEl = document.getElementById('example');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const slideCounter = document.getElementById('slide-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const slideContainer = document.getElementById('slide-content-container');
+        const langButtons = document.querySelectorAll('.lang-button');
+
+        let currentSlideIndex = 0;
+        let currentLang = 'ko'; // 현재 선택된 언어 (기본은 한국어)
+
+        // 슬라이드를 렌더링하는 함수
+        function renderSlide() {
+            // 페이드인 애니메이션을 위해 클래스 추가/제거
+            slideContainer.classList.remove('slide-content');
+            void slideContainer.offsetWidth; // Force reflow
+            slideContainer.classList.add('slide-content');
+
+            const currentIdiomData = idiomsData[currentSlideIndex];
+            idiomEl.textContent = currentIdiomData.idiom; // 관용 표현은 항상 한국어로 유지
+
+            meaningEl.textContent = currentIdiomData.meaning[currentLang];
+            exampleEl.textContent = currentIdiomData.example[currentLang];
+
+            // 페이지 카운터 업데이트
+            slideCounter.textContent = `${currentSlideIndex + 1} / ${idiomsData.length}`;
+
+            // 프로그레스 바 업데이트
+            const progressPercentage = ((currentSlideIndex + 1) / idiomsData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // 버튼 활성화/비활성화
+            prevButton.disabled = currentSlideIndex === 0;
+            nextButton.disabled = currentSlideIndex === idiomsData.length - 1;
+        }
+
+        // 언어 버튼 클릭 이벤트 핸들러
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 모든 버튼에서 active 클래스 제거
+                langButtons.forEach(btn => btn.classList.remove('active'));
+                // 클릭된 버튼에 active 클래스 추가
+                button.classList.add('active');
+
+                currentLang = button.dataset.lang; // 선택된 언어 업데이트
+                renderSlide(); // 현재 슬라이드를 선택된 언어로 다시 렌더링
+            });
+        });
+
+        // '다음' 버튼 클릭 이벤트
+        nextButton.addEventListener('click', () => {
+            if (currentSlideIndex < idiomsData.length - 1) {
+                currentSlideIndex++;
+                renderSlide();
+            }
+        });
+
+        // '이전' 버튼 클릭 이벤트
+        prevButton.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide();
+            }
+        });
+
+        // 키보드 화살표 키로 네비게이션
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextButton.click();
+            } else if (e.key === 'ArrowLeft') {
+                prevButton.click();
+            }
+        });
+
+        // 앱 로드 시 첫 번째 슬라이드 렌더링
+        document.addEventListener('DOMContentLoaded', renderSlide);
+    </script>
+</body>
+</html>
+
