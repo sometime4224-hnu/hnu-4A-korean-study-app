@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 듣기 퀴즈 (복습 2)</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 선택된 라디오 버튼의 라벨 스타일 */
+        input[type="radio"]:checked + label {
+            background-color: #DBEAFE; /* bg-blue-100 */
+            border-color: #2563EB; /* border-blue-600 */
+            color: #1E40AF; /* text-blue-900 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
+
+    <!-- 퀴즈 컨테이너 -->
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden m-4">
+        
+        <!-- 헤더 -->
+        <header class="bg-gray-800 text-white p-5">
+            <h1 class="text-2xl font-bold text-center">서울대 한국어 - 듣기 퀴즈 (복습 2)</h1>
+        </header>
+
+        <!-- 퀴즈 영역 -->
+        <div class="p-6 md:p-8">
+            <!-- 문제 번호 및 지시문 -->
+            <div class="mb-5">
+                <h2 id="questionNumber" class="text-xl font-semibold text-gray-800">문제 1</h2>
+                <p id="questionInstruction" class="text-gray-600 mt-1">다음 대화를 잘 듣고 이어질 수 있는 말을 고르십시오.</p>
+            </div>
+
+            <!-- 선택지 -->
+            <div id="optionsContainer" class="space-y-3">
+                <!-- 선택지가 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="flex justify-between items-center mt-8 pt-5 border-t border-gray-200">
+                <button id="scriptButton" class="bg-yellow-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-yellow-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+                    대본 보기
+                </button>
+                <div class="space-x-3">
+                    <button id="prevButton" class="bg-gray-300 text-gray-700 font-semibold py-2 px-5 rounded-lg hover:bg-gray-400 transition duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                        이전
+                    </button>
+                    <button id="nextButton" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none">
+                        다음
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 대본 팝업 모달 -->
+    <div id="scriptModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
+            <!-- 모달 헤더 -->
+            <div class="flex justify-between items-center p-5 bg-gray-100 border-b border-gray-300">
+                <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">대본 보기</h3>
+                <button id="closeModalButton" class="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+            </div>
+            <!-- 모달 본문 -->
+            <div id="modalScriptContent" class="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                <!-- 대본 내용이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // --- 퀴즈 데이터 ---
+        // PDF 파일의 '복습 2' (p.118 ~ p.120) 내용을 기반으로 작성되었습니다.
+        const quizData = [
+            {
+                number: 1,
+                instruction: '[1-2] 다음 대화를 잘 듣고 이어질 수 있는 말을 고르십시오.',
+                question: '', // 1번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 당연히 재미있었을 게 뻔하지.',
+                    '② 재미있기는커녕 싸우고 집에 왔어.',
+                    '③ 축구를 보든지 농구를 보든지 상관없어.',
+                    '④ 축구를 잘하기는, 아직 좀 더 연습해야 돼.'
+                ],
+                script: [
+                    { speaker: '남', text: '어제 여자 친구하고 같이 축구 경기를 보고 왔어.' },
+                    { speaker: '여', text: '축구장에서 데이트했구나. 재미있었겠다.' }
+                ]
+            },
+            {
+                number: 2,
+                instruction: '[1-2] 다음 대화를 잘 듣고 이어질 수 있는 말을 고르십시오.',
+                question: '', // 2번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 친구들을 만날 수밖에 없거든.',
+                    '② 오늘 모임에 안 가면 다행이지.',
+                    '③ 친구들이 많이 온다더니 정말 많이 왔네.',
+                    '④ 오늘은 몸도 피곤하고 해서 집에서 쉬려고.'
+                ],
+                script: [
+                    { speaker: '남', text: '미안해, 오늘 동창회에 못 갈 것 같아.' },
+                    { speaker: '여', text: '왜? 오랜만에 동창들이 다 모이는데 같이 가자.' }
+                ]
+            },
+            {
+                number: 3,
+                instruction: '[3] 다음 대화를 잘 듣고 여자가 이어서 할 행동으로 알맞은 것을 고르십시오.',
+                question: '', // 3번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 콘서트에 대해 알려 준다.',
+                    '② 콘서트 표를 다시 예매한다.',
+                    '③ 재즈에 대해서 자세히 알아본다.',
+                    '④ 재즈 공연을 하기 위해 준비한다.'
+                ],
+                script: [
+                    { speaker: '남', text: '어제 재즈 콘서트를 보러 갔다면서요? 어땠어요?' },
+                    { speaker: '여', text: '수준 높은 곡들을 많이 들을 수 있어서 좋았어요. 특히 마지막 곡을 부를 때 정말 감동적이었어요.' },
+                    { speaker: '남', text: '정말 멋있었겠어요. 저도 재즈를 좋아하는데 한번 가 보고 싶어요.' },
+                    { speaker: '여', text: '그래요? 제가 콘서트 정보를 알려 줄까요?' },
+                    { speaker: '남', text: '와, 고마워요.' }
+                ]
+            },
+            {
+                number: 4,
+                instruction: '[4-5] 다음을 듣고 내용과 일치하는 것을 고르십시오.',
+                question: '', // 4번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 여자는 말하기 대회에 참가해 본 적이 없다.',
+                    '② 여자는 말할 내용을 잊어버리지 않는 편이다.',
+                    '③ 남자는 다음 달 말하기 대회에 참가할 것이다.',
+                    '④ 남자는 여자가 대회에서 일 등 할 거라고 생각한다.'
+                ],
+                script: [
+                    { speaker: '여', text: '다음 달에 한국대학교에서 말하기 대회가 열린대요.' },
+                    { speaker: '남', text: '그래요? 히엔 씨도 한번 참가해 보세요. 우리 반에서 한국어를 제일 잘하잖아요.' },
+                    { speaker: '여', text: '잘하기는요. 전에 말하기 대회에 나가 본 적이 있는데 중간에 말할 내용을 잊어버리는 바람에 많이 당황했었어요. 그래서 다시는 하고 싶지 않아요.' },
+                    { speaker: '남', text: '그래요? 전 히엔 씨가 대회에 나가면 틀림없이 일 등할 것 같은데 다시 한번 나가 보면 어때요?' },
+                    { speaker: '여', text: '일 등요? 일 등은커녕 잊어버리지 않고 끝까지 말할 수 있을 지도 걱정이에요.' }
+                ]
+            },
+            {
+                number: 5,
+                instruction: '[4-5] 다음을 듣고 내용과 일치하는 것을 고르십시오.',
+                question: '', // 5번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 여자는 남자에게 유명한 가수를 소개해 줬다.',
+                    '② 여자는 소개해 준 친구가 예쁘다고 생각한다.',
+                    '③ 남자는 자신이 눈이 높은 편이라고 생각한다.',
+                    '④ 남자는 어제 소개받은 사람이 마음에 들었다.'
+                ],
+                script: [
+                    { speaker: '여', text: '어제 소개팅 잘했어? 내가 소개해 준 친구 괜찮지?' },
+                    { speaker: '남', text: '글쎄, 생각한 거하고 좀 달랐어. 아주 예쁘다더니 그냥 평범하던데.' },
+                    { speaker: '여', text: '그 친구가 별로 안 예쁘다고? 다른 친구들은 다들 예쁘다는데 네가 눈이 너무 높은 거 아니야?' },
+                    { speaker: '남', text: '눈이 높긴, 내 룸메이트도 사진을 보더니 별로라고 했어. 아. 저기 텔레비전에 나오는 가수야말로 정말 예쁘지.' },
+                    { speaker: '여', text: '뭐? 저 가수가 예쁘다고? 남자들은 왜 저런 사람을 예쁘다고 하는지 이해가 안 돼.' }
+                ]
+            },
+            {
+                number: 6,
+                instruction: '[6] 다음을 듣고 남자의 중심 생각을 고르십시오.',
+                question: '', // 6번 문제는 지시문 자체가 질문임
+                options: [
+                    '① 하루에 30분씩 꼭 운동해야 한다.',
+                    '② 학교까지 걸어오는 것은 대단한 일이다.',
+                    '③ 적은 돈도 모으다 보면 큰돈이 될 것이다.',
+                    '④ 천 원은 무시할 수 있을 정도로 적은 돈이다.'
+                ],
+                script: [
+                    { speaker: '여', text: '오늘도 학교까지 걸어왔어요? 매일 30분씩 걸어오다니 대단해요' },
+                    { speaker: '남', text: '대단하기는요. 걸어서 오면 교통비를 아낄 수 있어서 정말 좋아요.' },
+                    { speaker: '여', text: '교통비요? 학교까지 천 원 정도면 올 수 있는데 그렇게 적은 돈을 아껴서 뭐 해요?' },
+                    { speaker: '남', text: '적은 돈이라니요? 티끌 모아 태산이라고 천 원을 무시하지 마세요.' }
+                ]
+            },
+            {
+                number: 7,
+                instruction: '[7-8] 다음을 듣고 물음에 답하십시오.',
+                question: '들은 내용으로 맞는 것을 고르십시오.', // 7번은 별도 질문이 있음
+                options: [
+                    '① 여자는 표를 예매하러 갔다.',
+                    '② 여자는 대학교에 다니고 있다.',
+                    '③ 여자는 공연을 보기로 약속을 했다.',
+                    '④ 여자는 약속 장소로 가다가 공연을 봤다.'
+                ],
+                script: [
+                    { speaker: '발표자', text: '얼마 전에 한 대학교 앞에 놀러 간 적이 있습니다. 약속 장소로 가는 길에 사람들이 많이 모여 있는 것을 보고 궁금해서 저도 가 봤습니다. 그곳에서는 한 여학생이 기타를 치면서 노래를 부르고 있었습니다. 맑은 목소리로 노래를 부르는 모습이 참 아름답고 감동적이었습니다. 그렇게 좋은 공연을 비싼 표를 사지 않고도 들을 수 있어서 행복했습니다. 아직은 길거리 공연이 많지 하지만 그런 공연이 더 많아져서 수준 높은 음악을 많이 들을 수 있었으면 좋겠습니다.' }
+                ]
+            },
+            {
+                number: 8,
+                instruction: '[7-8] 다음을 듣고 물음에 답하십시오.',
+                question: '공연에 대한 설명으로 맞는 것을 고르십시오.', // 8번은 별도 질문이 있음
+                options: [
+                    '① 요즘 대학교 앞에 가면 자주 볼 수 있다.',
+                    '② 많은 사람들이 모여 기타를 치고 있었다.',
+                    '③ 노래 부르는 목소리가 맑고 감동적이었다.',
+                    '④ 무료 공연이라서 수준이 별로 높지 않았다.'
+                ],
+                script: [ // 7번과 동일한 대본 사용
+                    { speaker: '발표자', text: '얼마 전에 한 대학교 앞에 놀러 간 적이 있습니다. 약속 장소로 가는 길에 사람들이 많이 모여 있는 것을 보고 궁금해서 저도 가 봤습니다. 그곳에서는 한 여학생이 기타를 치면서 노래를 부르고 있었습니다. 맑은 목소리로 노래를 부르는 모습이 참 아름답고 감동적이었습니다. 그렇게 좋은 공연을 비싼 표를 사지 않고도 들을 수 있어서 행복했습니다. 아직은 길거리 공연이 많지 하지만 그런 공연이 더 많아져서 수준 높은 음악을 많이 들을 수 있었으면 좋겠습니다.' }
+                ]
+            },
+            {
+                number: 9,
+                instruction: '[9-10] 다음을 듣고 물음에 답하십시오.',
+                question: '들은 내용으로 맞는 것을 고르십시오.', // 9번은 별도 질문이 있음
+                options: [
+                    '① 인턴십 프로그램에 참가하면 대학교 학점을 받을 수 있다.',
+                    '② 요즘 대학생들은 인턴십 프로그램에 대해 잘 알지 못한다.',
+                    '③ 졸업을 하기 위해서 인턴십 프로그램에 꼭 참가해야 한다.',
+                    '④ 최근에는 모든 대학생들이 인턴십 프로그램에 참가하고 있다.'
+                ],
+                script: [
+                    { speaker: '여', text: '최근에 인턴십 프로그램에 관심을 갖는 대학생들이 많아 졌다고 합니다. 인턴십 프로그램에 대해 더 자세히 설명해 주세요.' },
+                    { speaker: '남', text: '인턴십 프로그램은 대학을 졸업하기 전에 짧은 기간 동안 회사에서 일을 해 보는 프로그램입니다. 전공 공부와 회사 생활 모두 열심히 해야 하는 것이 부담스러울 수도 있지만 젊어서 고생은 사서도 한다는 말이 있지 않습니까? 자신이 원하는 직장에 들어가기 위해 필요한 전문 지식도 쌓을 수 있을 뿐만 아니라 대학교 학점도 받을 수 있다는 것이 이 프로그램의 장점입니다.' }
+                ]
+            },
+            {
+                number: 10,
+                instruction: '[9-10] 다음을 듣고 물음에 답하십시오.',
+                question: '인턴십 프로그램에 대한 남자의 생각으로 맞는 것을 고르십시오.', // 10번은 별도 질문이 있음
+                options: [
+                    '① 전공 공부에 도움이 된다.',
+                    '② 짧은 기간만 참가해야 한다.',
+                    '③ 힘들어도 좋은 경험이 될 것이다.',
+                    '④ 대학생들에게 전혀 부담스럽지 않다.'
+                ],
+                script: [ // 9번과 동일한 대본 사용
+                    { speaker: '여', text: '최근에 인턴십 프로그램에 관심을 갖는 대학생들이 많아 졌다고 합니다. 인턴십 프로그램에 대해 더 자세히 설명해 주세요.' },
+                    { speaker: '남', text: '인턴십 프로그램은 대학을 졸업하기 전에 짧은 기간 동안 회사에서 일을 해 보는 프로그램입니다. 전공 공부와 회사 생활 모두 열심히 해야 하는 것이 부담스러울 수도 있지만 젊어서 고생은 사서도 한다는 말이 있지 않습니까? 자신이 원하는 직장에 들어가기 위해 필요한 전문 지식도 쌓을 수 있을 뿐만 아니라 대학교 학점도 받을 수 있다는 것이 이 프로그램의 장점입니다.' }
+                ]
+            },
+            {
+                number: 11,
+                instruction: '[11-12] 다음을 듣고 물음에 답하십시오.',
+                question: '뉴스의 중심 생각으로 맞는 것을 고르십시오.', // 11번은 별도 질문이 있음
+                options: [
+                    '① 성공적인 축제를 위해 쓰레기를 버리지 말아야 한다.',
+                    '② 세계 불꽃 축제에 더 많은 사람들이 참가하면 좋겠다.',
+                    '③ 세계 불꽃 축제는 화려하고 볼거리가 많아서 추천할 만하다.',
+                    '④ 고생하는 환경미화원들을 위해 평소 쓰레기양을 줄여야 한다.'
+                ],
+                script: [
+                    { speaker: '기자', text: '지난 주말부터 한강 공원에서 세계 불꽃 축제가 열리고 있습니다. 매일 수많은 사람들이 아름다운 불꽃놀이를 즐기기 위해 한강 공원을 찾고 있습니다. 그런데 불꽃 놀이가 끝나고 사람들이 떠난 자리에는 수많은 쓰레기 가 남아 청소를 하시는 환경미화원들이 고생을 하고 계 십니다. 축제 기간 동안 쓰레기양은 평소의 쓰레기양보 다 5배 이상 많다고 합니다. 축제 관계자들은 구경 오는 사람들에게 자기가 앉은 자리의 쓰레기는 귀가할 때가 져가 달라고 당부하고 있지만 여전히 많은 쓰레기가 버 려지고 있습니다. 깨끗하고 질서 있는 모습을 보여 주는 것이야말로 축제를 즐기는 문화인의 모습을 보여 주는 것입니다. 즐겁게 축제를 구경하고 뒷자리를 잘 정리하 여 더 이상은 쓰레기 문제 없이 세계 불꽃 축제를 성공 적으로 마치기를 바랍니다. 이상 KBC 뉴스 이은주였습 니다.' }
+                ]
+            },
+            {
+                number: 12,
+                instruction: '[11-12] 다음을 듣고 물음에 답하십시오.',
+                question: '들은 내용으로 맞는 것을 고르십시오.', // 12번은 별도 질문이 있음
+                options: [
+                    '① 축제는 이번 주말부터 열흘 동안 열린다.',
+                    '② 한강 공원에 가면 불꽃놀이를 볼 수 있다.',
+                    '③ 축제 기간 동안 쓰레기양은 평소와 비슷하다.',
+                    '④ 축제 관계자들 덕분에 축제를 구경한 자리가 깨끗해졌다.'
+                ],
+                script: [ // 11번과 동일한 대본 사용
+                    { speaker: '기자', text: '지난 주말부터 한강 공원에서 세계 불꽃 축제가 열리고 있습니다. 매일 수많은 사람들이 아름다운 불꽃놀이를 즐기기 위해 한강 공원을 찾고 있습니다. 그런데 불꽃 놀이가 끝나고 사람들이 떠난 자리에는 수많은 쓰레기 가 남아 청소를 하시는 환경미화원들이 고생을 하고 계 십니다. 축제 기간 동안 쓰레기양은 평소의 쓰레기양보 다 5배 이상 많다고 합니다. 축제 관계자들은 구경 오는 사람들에게 자기가 앉은 자리의 쓰레기는 귀가할 때가 져가 달라고 당부하고 있지만 여전히 많은 쓰레기가 버 려지고 있습니다. 깨끗하고 질서 있는 모습을 보여 주는 것이야말로 축제를 즐기는 문화인의 모습을 보여 주는 것입니다. 즐겁게 축제를 구경하고 뒷자리를 잘 정리하 여 더 이상은 쓰레기 문제 없이 세계 불꽃 축제를 성공 적으로 마치기를 바랍니다. 이상 KBC 뉴스 이은주였습 니다.' }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        // --- UI 요소 가져오기 ---
+        const questionNumberEl = document.getElementById('questionNumber');
+        const questionInstructionEl = document.getElementById('questionInstruction');
+        const optionsContainerEl = document.getElementById('optionsContainer');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        
+        // 모달 관련 요소
+        const scriptButton = document.getElementById('scriptButton');
+        const scriptModal = document.getElementById('scriptModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalScriptContent = document.getElementById('modalScriptContent');
+        const closeModalButton = document.getElementById('closeModalButton');
+
+        /**
+         * 특정 번호의 퀴즈를 화면에 표시합니다.
+         * @param {number} index - 표시할 퀴즈의 인덱스 (quizData 기준)
+         */
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const questionData = quizData[index];
+
+            // 질문 번호 및 지시문 업데이트
+            questionNumberEl.textContent = `문제 ${questionData.number}`;
+            // 7번, 9번, 11번 문제는 지시문과 별도 질문이 함께 표시됨
+            if (questionData.question) {
+                questionInstructionEl.innerHTML = `${questionData.instruction}<br><strong class="text-gray-700 mt-2 block">${questionData.number}. ${questionData.question}</strong>`;
+            } else {
+                questionInstructionEl.textContent = questionData.instruction;
+            }
+
+            // 선택지 업데이트
+            optionsContainerEl.innerHTML = ''; // 기존 선택지 초기화
+            questionData.options.forEach((option, i) => {
+                const optionId = `option${i}`;
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'relative'; // 라벨 스타일링을 위해 relative 추가
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.id = optionId;
+                input.name = `question${questionData.number}`;
+                input.className = 'absolute opacity-0 w-0 h-0'; // 라디오 버튼 숨기기
+                
+                const label = document.createElement('label');
+                label.htmlFor = optionId;
+                label.textContent = option;
+                label.className = 'block w-full p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition duration-200';
+                
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+                optionsContainerEl.appendChild(optionDiv);
+            });
+
+            // 네비게이션 버튼 상태 업데이트
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === quizData.length - 1;
+        }
+
+        /**
+         * 대본 팝업(모달)을 엽니다.
+         */
+        function openScriptModal() {
+            const questionData = quizData[currentQuestionIndex];
+            
+            // 모달 제목 업데이트
+            modalTitle.textContent = `문제 ${questionData.number} 대본`;
+            
+            // 모달 내용 채우기
+            modalScriptContent.innerHTML = ''; // 기존 내용 초기화
+            questionData.script.forEach(line => {
+                const p = document.createElement('p');
+                p.innerHTML = `<strong class="text-gray-900">${line.speaker}:</strong> ${line.text}`;
+                modalScriptContent.appendChild(p);
+            });
+
+            // 모달 표시
+            scriptModal.classList.remove('hidden');
+        }
+
+        /**
+         * 대본 팝업(모달)을 닫습니다.
+         */
+        function closeScriptModal() {
+            scriptModal.classList.add('hidden');
+        }
+
+        // --- 이벤트 리스너 연결 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 첫 번째 문제 로드
+            loadQuestion(0);
+
+            // 2. 네비게이션 버튼
+            prevButton.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    loadQuestion(currentQuestionIndex - 1);
+                }
+            });
+            nextButton.addEventListener('click', () => {
+                if (currentQuestionIndex < quizData.length - 1) {
+                    loadQuestion(currentQuestionIndex + 1);
+                }
+            });
+
+            // 3. 모달 버튼
+            scriptButton.addEventListener('click', openScriptModal);
+            closeModalButton.addEventListener('click', closeScriptModal);
+            
+            // 모달 배경 클릭 시 닫기
+            scriptModal.addEventListener('click', (event) => {
+                if (event.target === scriptModal) {
+                    closeScriptModal();
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
+
