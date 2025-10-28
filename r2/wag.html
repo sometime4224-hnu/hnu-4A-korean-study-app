@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 유형별 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f3f4f6; /* gray-100 */
+        }
+
+        /* 라디오 버튼 숨기기 */
+        .option-radio {
+            display: none;
+        }
+
+        /* 커스텀 옵션 버튼 */
+        .option-label {
+            display: block;
+            padding: 1rem;
+            border: 2px solid #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.2s;
+            cursor: pointer;
+            background-color: #ffffff; /* white */
+        }
+        .option-label:hover {
+            background-color: #f9fafb; /* gray-50 */
+        }
+
+        /* 선택된 옵션 */
+        .option-radio:checked + .option-label {
+            background-color: #e0f2fe; /* sky-100 */
+            border-color: #0284c7; /* sky-600 */
+            color: #0369a1; /* sky-800 */
+            font-weight: 600;
+        }
+
+        /* 채점 후: 정답 */
+        .option-label.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #16a34a; /* green-600 */
+            color: #15803d; /* green-700 */
+            font-weight: 600;
+        }
+
+        /* 채점 후: 오답 */
+        .option-label.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #dc2626; /* red-600 */
+            color: #b91c1c; /* red-700 */
+        }
+
+        /* 채점 후: 오답일 때 정답 표시 */
+        .option-label.correct-answer {
+            box-shadow: 0 0 10px rgba(22, 163, 74, 0.7);
+            border-color: #16a34a; /* green-600 */
+        }
+
+        /* 버튼 비활성화 */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <!-- 퀴즈 컨테이너 -->
+        <div id="quiz-container">
+            <header class="mb-6">
+                <!-- 페이지 제목 (유형) -->
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800 mb-2"></h1>
+                <!-- 전체 진행 상황 -->
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-500">전체 진행도</span>
+                    <span id="progress-text" class="text-sm font-semibold text-gray-600"></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </header>
+
+            <!-- 문제들이 표시될 영역 -->
+            <div id="questions-wrapper" class="space-y-8">
+                <!-- JS로 문제 동적 생성 -->
+            </div>
+
+            <!-- 페이지 하단 네비게이션 -->
+            <footer class="mt-10 pt-6 border-t border-gray-200 flex justify-between items-center">
+                <button id="prev-page-btn" onclick="goToPrevPage()" class="bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-lg hover:bg-gray-300 transition">
+                    이전 유형
+                </button>
+                <div id="page-feedback" class="text-lg font-semibold text-blue-600"></div>
+                <button id="next-page-btn" onclick="goToNextPage()" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition">
+                    다음 유형
+                </button>
+                <button id="grade-page-btn" onclick="gradeCurrentPage()" class="bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700 transition">
+                    채점하기
+                </button>
+            </footer>
+        </div>
+
+        <!-- 결과 컨테이너 (숨김) -->
+        <div id="result-container" class="hidden text-center">
+             <h1 class="text-3xl font-bold text-gray-800 mb-4">전체 퀴즈 완료!</h1>
+            <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-6">
+                <p class="text-lg text-gray-700">총 <span id="total-questions" class="font-bold"></span>문제 중</p>
+                <p class="text-6xl font-extrabold text-blue-600 my-2"><span id="total-score"></span></p>
+                <p class="text-xl font-semibold text-gray-800"><span id="total-percentage"></span>%</p>
+            </div>
+            <p id="result-message" class="text-lg text-gray-600 mb-8"></p>
+            <button onclick="restartQuiz()" class="w-full max-w-xs mx-auto bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition">
+                처음으로
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 퀴즈 데이터 ---
+        const quizData = [
+            {
+                title: "유형 1: 빈칸에 알맞은 것 고르기 (1-3)",
+                questions: [
+                    {
+                        id: 1,
+                        text: "1. 친구가 계획성 없이 일을 하는 편이라서 조언을 해 줬더니 ( ... ) 자기 일에 간섭하지 말라고 화를 낸다.",
+                        options: ["지루하다고", "지적한 대로", "자랑스럽다고", "발끈하면서"],
+                        answer: "발끈하면서"
+                    },
+                    {
+                        id: 2,
+                        text: "2. 방송에서 이번 국제 영화제는 불만한 영화가 많다고 했지만 직접 가 보니 ( ... ).",
+                        options: ["기대만 못했다", "인상적이었다", "볼거리가 많았다", "수준이 높았다"],
+                        answer: "인상적이었다"
+                    },
+                    {
+                        id: 3,
+                        text: "3. 내 직장 동료는 ( ... ) 다른 사람의 말을 들으면 금방 자기의 생각을 바꾼다.",
+                        options: ["귀가 얇아서", "눈이 높아서", "입이 가벼워서", "발이 넓어서"],
+                        answer: "귀가 얇아서"
+                    }
+                ]
+            },
+            {
+                title: "유형 2: 의미가 비슷한 것 고르기 (4-6)",
+                questions: [
+                    {
+                        id: 4,
+                        text: "4. <u>컴퓨터야말로</u> 현대인의 생활에서 없어서는 안 되는 물건이다.",
+                        options: ["컴퓨터는", "컴퓨터까지", "컴퓨터조차", "컴퓨터라는"],
+                        answer: "컴퓨터조차"
+                    },
+                    {
+                        id: 5,
+                        text: "5. 좋은 재료로 음식을 만들었으니까 <u>맛있을 수밖에 없다.</u>",
+                        options: ["여간 맛있지 않다", "맛있는 것 같다", "맛있는 게 당연하다", "맛있는 것이다"],
+                        answer: "맛있는 게 당연하다"
+                    },
+                    {
+                        id: 6,
+                        text: "6. 그 친구는 항상 약속 시간을 안 지키니까 오늘도 <u>늦을 게 뻔하다.</u>",
+                        options: ["늦을 계획이다", "늦을 수도 있다", "늦을 줄 알았다", "틀림없이 늦을 것이다"],
+                        answer: "틀림없이 늦을 것이다"
+                    }
+                ]
+            },
+            {
+                title: "유형 3: 알맞은 것 고르기 (7-10)",
+                questions: [
+                    {
+                        id: 7,
+                        text: "7. 어제 고등학교 동창을 만났다. 오랜만에 만나서 할 말이 많을 줄 알았는데 오히려 ( ... )가 없어서 어색하게 웃기만 했다.",
+                        options: ["볼거리", "걱정거리", "웃음거리", "이야깃거리"],
+                        answer: "이야깃거리"
+                    },
+                    {
+                        id: 8,
+                        text: "8. 다음 달에 열리는 학교 축제에서 우리 반이 무슨 공연을 할지 정하는 회의에서 모두 노래를 하자고 했다. 그런데 진우는 노래가 싫다면서 계속 춤을 추자고 주장해서 정말 힘들었다. 진우는 너무 ( ... ) 것 같다.",
+                        options: ["입이 무거운", "고집이 센", "자존심이 강한", "눈치가 빠른"],
+                        answer: "고집이 센" // 이미지 재확인: '고집이 센'이 문맥상 맞습니다. '눈치가 빠른'은 반대 의미.
+                    },
+                    {
+                        id: 9,
+                        text: "9. 오늘 입사 시험 면접 결과가 나왔는데 또 떨어져서 정말 괴롭다. ( ... ) 오늘 저녁 모임도 취소하고 집에서 조용히 쉴까 한다.",
+                        options: ["기분이 안 좋은지", "기분이 안 좋고 해서", "기분이 안 좋을 정도로", "기분이 안 좋을 뿐만 아니라"],
+                        answer: "기분이 안 좋고 해서"
+                    },
+                    {
+                        id: 10,
+                        text: "10. 실수를 했다고 너무 힘들어하거나 포기할 필요는 없다. 사람은 누구나 살다 보면 실수를 ( ... ) 때문이다.",
+                        options: ["할 뻔했기", "할 수 없기", "하기 마련이기", "여간 하지 않기"],
+                        answer: "하기 마련이기"
+                    }
+                ]
+            },
+            {
+                title: "유형 4: 광고 및 사설 (11-12)",
+                questions: [
+                    {
+                        id: 11,
+                        text: "11. [광고] 특별한 날에 가족이나 연인과 어디에 갈지 정하는 것은 ( ... ). 그럴 때는 재미있는 볼거리로 가득한 서울월드로 오십시오.",
+                        options: ["매우 어려울 정도입니다", "아주 어렵게 되었습니다", "여간 어려운 일이 아닙니다", "굉장히 어렵다는 점입니다"],
+                        answer: "여간 어려운 일이 아닙니다"
+                    },
+                    {
+                        id: 12,
+                        text: "12. [사설] 요즘 부모들은 아이를 야단치지 않아... 아이가 잘못을 해도 야단을 치기는커녕 그런 아이의 행동을 지적하는 사람에게 화를 내는 경우를 자주 본다. ... 부모들은 ( ... )는 말을 기억하고... 도와줘야 한다.",
+                        options: ["호랑이도 제 말 하면 온다", "세 살 버릇 여든까지 간다", "젊어서 고생은 사서도 한다", "개구리 올챙이 적 생각 못 한다"],
+                        answer: "세 살 버릇 여든까지 간다"
+                    }
+                ]
+            }
+        ];
+
+        // --- 상태 변수 ---
+        let currentPageIndex = 0;
+        let userAnswers = {}; // { 1: "답변1", 2: "답변2", ... }
+        let pageScores = {}; // { 0: 2, 1: 3, ... } (페이지 인덱스: 맞은 개수)
+        const totalQuestionsCount = quizData.reduce((acc, page) => acc + page.questions.length, 0);
+
+        // --- HTML 요소 ---
+        const quizContainer = document.getElementById('quiz-container');
+        const resultContainer = document.getElementById('result-container');
+        const pageTitle = document.getElementById('page-title');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const questionsWrapper = document.getElementById('questions-wrapper');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const gradePageBtn = document.getElementById('grade-page-btn');
+        const pageFeedback = document.getElementById('page-feedback');
+
+        // --- 결과 요소 ---
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const totalScoreEl = document.getElementById('total-score');
+        const totalPercentageEl = document.getElementById('total-percentage');
+        const resultMessageEl = document.getElementById('result-message');
+
+
+        // --- 함수 ---
+
+        /** 퀴즈 페이지 로드 */
+        function loadPage(pageIndex) {
+            const pageData = quizData[pageIndex];
+            pageTitle.textContent = pageData.title;
+            questionsWrapper.innerHTML = '';
+            pageFeedback.textContent = '';
+            
+            // 문제 생성
+            pageData.questions.forEach(q => {
+                const questionElement = document.createElement('div');
+                questionElement.id = `question-${q.id}`;
+                
+                // 질문 텍스트 (밑줄 태그 인식)
+                const questionText = document.createElement('p');
+                questionText.className = "text-lg font-medium text-gray-800 mb-4";
+                questionText.innerHTML = q.text.replace(/(\(.*?\))/g, '<span class="font-bold text-blue-600">$1</span>'); // 괄호 강조
+                questionElement.appendChild(questionText);
+
+                // 옵션 컨테이너
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = "space-y-3";
+                optionsContainer.id = `options-${q.id}`;
+                
+                q.options.forEach((option, index) => {
+                    const optionId = `q${q.id}-opt${index}`;
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.id = optionId;
+                    radio.name = `question-${q.id}`;
+                    radio.value = option;
+                    radio.className = 'option-radio';
+                    radio.onclick = () => selectAnswer(q.id, option);
+                    
+                    // 이전에 선택한 답이 있으면 체크
+                    if (userAnswers[q.id] === option) {
+                        radio.checked = true;
+                    }
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = ` (${index + 1}) ${option}`;
+                    label.className = 'option-label';
+
+                    optionsContainer.appendChild(radio);
+                    optionsContainer.appendChild(label);
+                });
+
+                questionElement.appendChild(optionsContainer);
+                questionsWrapper.appendChild(questionElement);
+            });
+
+            // 네비게이션 버튼 업데이트
+            updateNavigation();
+            
+            // 이미 채점된 페이지인지 확인
+            if (pageScores[pageIndex] !== undefined) {
+                showGradedPage(pageIndex);
+            }
+        }
+
+        /** 답안 선택 */
+        function selectAnswer(questionId, answer) {
+            userAnswers[questionId] = answer;
+            updateNavigation(); // 채점 버튼 활성화 여부 체크
+        }
+
+        /** 현재 페이지 채점 */
+        function gradeCurrentPage() {
+            const pageData = quizData[currentPageIndex];
+            let correctCount = 0;
+
+            pageData.questions.forEach(q => {
+                const selectedAnswer = userAnswers[q.id];
+                const isCorrect = selectedAnswer === q.answer;
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+
+                // 스타일 적용
+                const optionsContainer = document.getElementById(`options-${q.id}`);
+                const labels = optionsContainer.querySelectorAll('.option-label');
+                const radios = optionsContainer.querySelectorAll('.option-radio');
+
+                labels.forEach((label, index) => {
+                    const optionText = q.options[index];
+                    
+                    if (optionText === q.answer) {
+                        label.classList.add('correct'); // 정답
+                        if (selectedAnswer !== q.answer) {
+                             label.classList.add('correct-answer'); // 오답시 정답 표시
+                        }
+                    } else if (optionText === selectedAnswer && !isCorrect) {
+                        label.classList.add('incorrect'); // 사용자가 선택한 오답
+                    }
+                    
+                    radios[index].disabled = true; // 라디오 버튼 비활성화
+                });
+            });
+
+            pageScores[currentPageIndex] = correctCount;
+            pageFeedback.textContent = `${pageData.questions.length}개 중 ${correctCount}개 정답!`;
+            updateNavigation();
+        }
+
+        /** 채점된 페이지 스타일 다시 보여주기 */
+        function showGradedPage(pageIndex) {
+            const pageData = quizData[pageIndex];
+            
+             pageData.questions.forEach(q => {
+                const selectedAnswer = userAnswers[q.id];
+                const isCorrect = selectedAnswer === q.answer;
+
+                const optionsContainer = document.getElementById(`options-${q.id}`);
+                if (!optionsContainer) return; // 페이지가 아직 로드되지 않았을 수 있음
+                 
+                const labels = optionsContainer.querySelectorAll('.option-label');
+                const radios = optionsContainer.querySelectorAll('.option-radio');
+
+                labels.forEach((label, index) => {
+                    const optionText = q.options[index];
+                    
+                    if (optionText === q.answer) {
+                        label.classList.add('correct');
+                        if (selectedAnswer !== q.answer) {
+                             label.classList.add('correct-answer');
+                        }
+                    } else if (optionText === selectedAnswer && !isCorrect) {
+                        label.classList.add('incorrect');
+                    }
+                    
+                    radios[index].disabled = true;
+                });
+            });
+            
+            pageFeedback.textContent = `${pageData.questions.length}개 중 ${pageScores[pageIndex]}개 정답!`;
+            updateNavigation();
+        }
+
+
+        /** 네비게이션 버튼 상태 업데이트 */
+        function updateNavigation() {
+            const pageData = quizData[currentPageIndex];
+            const isGraded = pageScores[currentPageIndex] !== undefined;
+
+            // 이전 버튼
+            prevPageBtn.disabled = currentPageIndex === 0;
+
+            // 채점 버튼
+            // 모든 질문에 답했는지 확인
+            const allAnswered = pageData.questions.every(q => userAnswers[q.id] !== undefined);
+            gradePageBtn.style.display = isGraded ? 'none' : 'block';
+            gradePageBtn.disabled = !allAnswered;
+            
+            // 다음 버튼
+            nextPageBtn.style.display = isGraded ? 'block' : 'none';
+            if (currentPageIndex === quizData.length - 1) {
+                nextPageBtn.textContent = '전체 결과 보기';
+            } else {
+                nextPageBtn.textContent = '다음 유형';
+            }
+            
+            // 진행도
+            const progress = ((currentPageIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${currentPageIndex + 1} / ${quizData.length}`;
+        }
+
+        /** 다음 페이지로 */
+        function goToNextPage() {
+            if (currentPageIndex < quizData.length - 1) {
+                currentPageIndex++;
+                loadPage(currentPageIndex);
+            } else {
+                // 마지막 페이지 -> 결과 보기
+                showTotalResults();
+            }
+        }
+
+        /** 이전 페이지로 */
+        function goToPrevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                loadPage(currentPageIndex);
+            }
+        }
+
+        /** 전체 결과 표시 */
+        function showTotalResults() {
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+
+            let totalScore = 0;
+            for (const score of Object.values(pageScores)) {
+                totalScore += score;
+            }
+            
+            const percentage = Math.round((totalScore / totalQuestionsCount) * 100);
+
+            totalQuestionsEl.textContent = totalQuestionsCount;
+            totalScoreEl.textContent = totalScore;
+            totalPercentageEl.textContent = percentage;
+
+            let message = '';
+            if (percentage === 100) {
+                message = '완벽해요! 정말 대단합니다. 👏';
+            } else if (percentage >= 70) {
+                message = '훌륭합니다! 조금만 더 복습해봐요.';
+            } else if (percentage >= 50) {
+                message = '잘했어요! 복습이 좀 더 필요하겠네요.';
+            } else {
+                message = '아쉬운 결과네요. 다시 한 번 도전해보세요!';
+            }
+            resultMessageEl.textContent = message;
+        }
+
+        /** 퀴즈 다시 시작 */
+        function restartQuiz() {
+            currentPageIndex = 0;
+            userAnswers = {};
+            pageScores = {};
+
+            resultContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            loadPage(0);
+        }
+
+        // 초기 퀴즈 로드
+        document.addEventListener('DOMContentLoaded', () => loadPage(0));
+    </script>
+</body>
+</html>
