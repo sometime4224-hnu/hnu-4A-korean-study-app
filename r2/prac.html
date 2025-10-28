@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 휴대폰에서 자동으로 스케일링(반응형)되도록 뷰포트 메타 태그 추가 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 학습 퀴즈</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 한국어 웹폰트 (Pretendard) 로드 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        /* Pretendard 폰트 적용 */
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+        }
+
+        /* 선택된 옵션 스타일 */
+        .quiz-option.selected {
+            background-color: #e0f2fe; /* sky-100 */
+            border-color: #0284c7; /* sky-600 */
+        }
+        
+        /* 정답 스타일 */
+        .quiz-option.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #16a34a; /* green-600 */
+            color: #15803d; /* green-700 */
+        }
+
+        /* 오답 스타일 */
+        .quiz-option.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #dc2626; /* red-600 */
+            color: #b91c1c; /* red-700 */
+        }
+        
+        /* 오답 중 정답 표시 스타일 */
+        .quiz-option.correct-answer {
+             background-color: #dcfce7; /* green-100 */
+            border-color: #16a34a; /* green-600 */
+            color: #15803d; /* green-700 */
+            box-shadow: 0 0 10px rgba(22, 163, 74, 0.5);
+        }
+
+        /* 버튼 비활성화 스타일 */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 요청사항 변경으로 '채점하기' 버튼 숨김 */
+        #action-button {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- 퀴즈 앱 전체 컨테이너 -->
+    <!-- '다음'을 위한 클릭 리스너 추가 -->
+    <div id="app-container" class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 md:p-8 transition-all duration-300" onclick="handleNextClick()">
+
+        <!-- 퀴즈 섹션 -->
+        <div id="quiz-container">
+            <header class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-2xl font-bold text-gray-800">한국어 학습 퀴즈</h1>
+                    <!-- 진행 상황 표시 -->
+                    <div id="progress-text" class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full"></div>
+                </div>
+                <!-- 진행 바 -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </header>
+
+            <!-- 질문이 표시될 영역 -->
+            <div id="question-area" class="mb-6">
+                <h2 id="question-text" class="text-xl font-medium text-gray-700 mb-5 min-h-[60px]"></h2>
+                <div id="options-container" class="space-y-3">
+                    <!-- 퀴즈 옵션이 동적으로 추가됩니다. -->
+                </div>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <footer class="mt-8">
+                <!-- 피드백 메시지 -->
+                <div id="feedback-message" class="text-center min-h-[24px] mb-4 font-semibold"></div>
+                <!-- 동작 버튼 (채점/다음) (이제 숨겨짐) -->
+                <button id="action-button" classs="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="handleActionClick()">
+                    채점하기
+                </button>
+            </footer>
+        </div>
+
+        <!-- 결과 섹션 (초기에는 숨김) -->
+        <div id="result-container" class="hidden text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">퀴즈 완료!</h1>
+            <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-6">
+                <p class="text-lg text-gray-700">총 <span id="total-questions" class="font-bold"></span>문제 중</p>
+                <p class="text-6xl font-extrabold text-blue-600 my-2"><span id="score"></span>점</p>
+                <p class="text-xl font-semibold text-gray-800"><span id="score-percentage"></span>%</p>
+            </div>
+            <p id="result-message" class="text-lg text-gray-600 mb-8"></p>
+            <button id="restart-button" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-800 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50" onclick="restartQuiz()">
+                다시 풀기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 퀴즈 데이터 (첨부 이미지 기반)
+        const quizData = [
+            // --- image_5e55c1.png, Q4 (관용어) ---
+            {
+                question: '"입이 가볍다"의 뜻으로 알맞은 것은?',
+                options: ['비밀을 잘 지킨다', '말을 많이 한다', '비밀을 쉽게 말한다'],
+                answer: '비밀을 쉽게 말한다'
+            },
+            {
+                question: '"눈이 높다"의 뜻으로 알맞은 것은?',
+                options: ['키가 크다', '기준이 높다', '멀리 볼 수 있다'],
+                answer: '기준이 높다'
+            },
+            {
+                question: '"귀가 얇다"의 뜻으로 알맞은 것은?',
+                options: ['남의 말을 쉽게 믿는다', '잘 못 듣는다', '귀가 작다'],
+                answer: '남의 말을 쉽게 믿는다'
+            },
+            {
+                question: '"입이 무겁다"의 뜻으로 알맞은 것은?',
+                options: ['말이 느리다', '비밀을 잘 지킨다', '과묵하다'],
+                answer: '비밀을 잘 지킨다'
+            },
+            {
+                question: '"발이 넓다"의 뜻으로 알맞은 것은?',
+                options: ['신발이 크다', '달리기를 잘한다', '아는 사람이 많다'],
+                answer: '아는 사람이 많다'
+            },
+            // --- image_5e55c1.png, Q3 (단어 완성) ---
+            {
+                question: '빈칸에 알맞은 글자는? "자신__이 생겼어요."',
+                options: ['감', '심', '담'],
+                answer: '감'
+            },
+            {
+                question: '빈칸에 알맞은 글자는? "그 사람은 __준이 높아요."',
+                options: ['수', '소', '시'],
+                answer: '수'
+            },
+            {
+                question: '빈칸에 알맞은 글자는? "시험이 끝나서 __이 났어요."',
+                options: ['신', '발', '눈'],
+                answer: '신'
+            },
+            {
+                question: '빈칸에 알맞은 글자는? "감동적인 영화를 보고 __슴이 벅찼어요."',
+                options: ['손', '입', '가'],
+                answer: '가'
+            },
+            {
+                question: '빈칸에 알맞은 글자는? "그 아이는 __집이 세다."',
+                options: ['고', '구', '기'],
+                answer: '고'
+            },
+            // --- image_5e55a8.png, Q1 (속담) ---
+            {
+                question: '빈칸에 알맞은 말은? "소 잃고 __ 고친다"',
+                options: ['대문', '외양간', '지붕'],
+                answer: '외양간'
+            },
+            {
+                question: '그림에 알맞은 속담은? (우물 안 개구리)',
+                options: ['우물 안 개구리', '그림의 떡', '등잔 밑이 어둡다'],
+                answer: '우물 안 개구리'
+            },
+            {
+                question: '빈칸에 알맞은 말은? "__구멍에도 볕 들 날 있다"',
+                options: ['개', '소', '쥐'],
+                answer: '쥐'
+            }
+        ];
+
+        // 퀴즈 상태 변수
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null; // 사용자가 선택한 답
+        let isAnswerSubmitted = false; // 답안 제출 여부
+
+        // HTML 요소 가져오기
+        const quizContainer = document.getElementById('quiz-container');
+        const resultContainer = document.getElementById('result-container');
+        
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const actionButton = document.getElementById('action-button');
+        
+        const totalQuestions = document.getElementById('total-questions');
+        const scoreEl = document.getElementById('score');
+        const scorePercentage = document.getElementById('score-percentage');
+        const resultMessage = document.getElementById('result-message');
+
+        // 퀴즈 시작 시 첫 문제 로드
+        document.addEventListener('DOMContentLoaded', loadQuestion);
+
+        /**
+         * 현재 인덱스에 맞는 질문과 옵션을 화면에 로드합니다.
+         */
+        function loadQuestion() {
+            // 이전 상태 초기화
+            selectedAnswer = null;
+            isAnswerSubmitted = false;
+            optionsContainer.innerHTML = ''; // 옵션 비우기
+            feedbackMessage.textContent = ''; // 피드백 비우기
+            actionButton.textContent = '채점하기'; // 버튼은 숨겨져 있지만, 상태 관리를 위해 둠
+            actionButton.disabled = true;
+
+            // 현재 질문 데이터 가져오기
+            const questionData = quizData[currentQuestionIndex];
+            
+            // 질문 텍스트 설정
+            questionText.textContent = questionData.question;
+            
+            // 진행 상황 업데이트
+            progressText.textContent = `${currentQuestionIndex + 1} / ${quizData.length}`;
+            progressBar.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+
+            // 옵션 버튼 생성
+            questionData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'quiz-option w-full text-left p-4 border-2 border-gray-200 rounded-lg transition duration-200 hover:bg-gray-50 focus:outline-none';
+                // 클릭 시 selectOption 호출 (이벤트 객체 전달)
+                button.onclick = (event) => selectOption(button, option, event);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * 사용자가 옵션을 선택했을 때 호출됩니다.
+         * @param {HTMLElement} selectedButton - 클릭된 버튼 요소
+         * @param {string} option - 선택된 옵션의 텍스트
+         * @param {Event} event - 클릭 이벤트 객체
+         */
+        function selectOption(selectedButton, option, event) {
+            // 이미 답을 제출했다면 (다음으로 넘어가기 위한 클릭이므로)
+            // 아무것도 하지 않고 이벤트를 상위로 전달(bubble)시킵니다.
+            if (isAnswerSubmitted) return;
+            
+            // 답을 처음 제출하는 경우, 버블링을 중지합니다.
+            // (app-container의 handleNextClick이 즉시 실행되는 것을 방지)
+            event.stopPropagation();
+
+            // 답안 제출 상태로 변경
+            isAnswerSubmitted = true;
+            
+            // 선택된 답 저장
+            selectedAnswer = option;
+
+            // --- 'submitAnswer' 로직을 여기로 이동 ---
+            const questionData = quizData[currentQuestionIndex];
+            const isCorrect = selectedAnswer === questionData.answer;
+
+            if (isCorrect) {
+                score++;
+                feedbackMessage.textContent = '정답입니다! 🎉';
+                feedbackMessage.className = 'text-center min-h-[24px] mb-4 font-semibold text-green-600';
+            } else {
+                feedbackMessage.textContent = '아쉽네요. 정답은 "' + questionData.answer + '"입니다.';
+                feedbackMessage.className = 'text-center min-h-[24px] mb-4 font-semibold text-red-600';
+            }
+
+            // 모든 옵션 버튼 스타일링 (정답/오답 표시)
+            Array.from(optionsContainer.children).forEach(btn => {
+                const optionText = btn.textContent;
+                
+                if (optionText === questionData.answer) {
+                    btn.classList.add('correct'); // 정답
+                }
+                
+                if (optionText === selectedAnswer && !isCorrect) {
+                    btn.classList.add('incorrect'); // 사용자가 선택한 오답
+                }
+                
+                btn.disabled = true; // 채점 후 옵션 비활성화
+                btn.classList.remove('selected', 'hover:bg-gray-50'); // 선택/호버 스타일 제거
+            });
+            // --- 로직 이동 완료 ---
+        }
+
+        /**
+         * '채점하기' 또는 '다음 문제' 버튼 클릭 시 호출됩니다.
+         * (이 함수는 새 로직에서 사용되지 않습니다.)
+         */
+        function handleActionClick() {
+            // 이 로직은 selectOption과 handleNextClick으로 분리/이동되었습니다.
+        }
+
+        /**
+         * 사용자의 답을 채점합니다.
+         * (이 함수는 로직이 selectOption으로 이동되었습니다.)
+         */
+        function submitAnswer() {
+            // 이 로직은 selectOption으로 이동되었습니다.
+        }
+
+        /**
+         * (새 함수) 화면 클릭 시 다음 문제로 이동합니다.
+         * (문제를 푼 상태일 때만 동작합니다.)
+         */
+        function handleNextClick() {
+            // 답을 제출하지 않은 상태(문제 푸는 중)이면 아무것도 하지 않음
+            if (!isAnswerSubmitted) return;
+
+            // '다음 문제' 로직
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        /**
+         * 퀴즈가 끝나고 결과를 표시합니다.
+         */
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+
+            const percentage = Math.round((score / quizData.length) * 100);
+
+            totalQuestions.textContent = quizData.length;
+            scoreEl.textContent = score;
+            scorePercentage.textContent = percentage;
+
+            let message = '';
+            if (percentage === 100) {
+                message = '완벽해요! 정말 대단합니다. 👏';
+            } else if (percentage >= 70) {
+                message = '훌륭합니다! 조금만 더 복습해봐요.';
+            } else if (percentage >= 50) {
+                message = '잘했어요! 복습이 좀 더 필요하겠네요.';
+            } else {
+                message = '아쉬운 결과네요. 다시 한 번 도전해보세요!';
+            }
+            resultMessage.textContent = message;
+        }
+
+        /**
+         * '다시 풀기' 버튼 클릭 시 퀴즈를 초기화합니다.
+         */
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            isAnswerSubmitted = false;
+
+            resultContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+    </script>
+</body>
+</html>
+
+
