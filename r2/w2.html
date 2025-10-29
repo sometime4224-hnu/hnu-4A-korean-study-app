@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 필수 어휘 학습 앱 V2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#4F46E5',
+                        'light-blue': '#EEF2FF',
+                        'dark-text': '#1F2937',
+                        'light-gray': '#F9FAFB',
+                        'category-bg': '#E0E7FF', // 새로운 카테고리 배경색
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 글꼴 설정 */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f0f4f8; /* 배경색 변경 */
+        }
+        /* 예문 컨텐츠를 부드럽게 보여주기 위한 애니메이션 */
+        .example-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .example-content.active {
+            max-height: 500px; /* 충분히 큰 값으로 설정 */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+
+    <!-- 메인 컨테이너 -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-dark-text mb-2">한국어 학습 어휘 (2차 목록)</h1>
+            <p class="text-lg text-gray-600">카테고리별 단어를 클릭하여 한국어 예문과 영어 번역을 확인하세요.</p>
+        </header>
+
+        <!-- 어휘 목록이 삽입될 컨테이너 -->
+        <div id="vocabulary-container">
+            <!-- JavaScript가 여기에 카테고리와 카드들을 생성합니다. -->
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // 1. 어휘 데이터 (카테고리별로 통합)
+        const vocabularyData = [
+            // 1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)
+            {
+                category: "1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)",
+                korean: "가슴이 찡하다",
+                english: "to be deeply touched/moved",
+                examples: [
+                    { kr: "할머니의 편지를 읽고 가슴이 찡했어요.", en: "My heart was deeply touched after reading my grandmother's letter." },
+                    { kr: "감동적인 영화를 볼 때마다 가슴이 찡해진다.", en: "Every time I watch a touching movie, my heart is deeply moved." }
+                ]
+            },
+            {
+                category: "1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)",
+                korean: "감동적이다",
+                english: "to be touching/moving",
+                examples: [
+                    { kr: "그의 연설은 너무 감동적이어서 모두 눈물을 흘렸다.", en: "His speech was so moving that everyone shed tears." },
+                    { kr: "이 소설의 마지막 장면은 정말 감동적이다.", en: "The final scene of this novel is truly touching." }
+                ]
+            },
+            {
+                category: "1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)",
+                korean: "대단하다",
+                english: "to be great/amazing",
+                examples: [
+                    { kr: "혼자서 그 일을 해내다니 정말 대단해!", en: "It's really great that you accomplished that alone!" },
+                    { kr: "그녀는 매일 새벽에 일어나 공부하는 대단한 노력을 했다.", en: "She put in an amazing effort, waking up early every morning to study." }
+                ]
+            },
+            {
+                category: "1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)",
+                korean: "신이 나다",
+                english: "to feel elated/excited",
+                examples: [
+                    { kr: "오랜만에 친구들을 만나서 신이 났어요.", en: "I felt elated meeting my friends after a long time." },
+                    { kr: "내일 소풍 갈 생각에 아이들은 벌써부터 신이 났다.", en: "The children are already excited thinking about the picnic tomorrow." }
+                ]
+            },
+            {
+                category: "1. 감상 및 감정 표현 어휘 (Appreciation and Feeling)",
+                korean: "지루하다",
+                english: "to be boring/tedious",
+                examples: [
+                    { kr: "그 영화는 너무 길고 내용이 없어서 지루했다.", en: "The movie was too long and had no content, so it was boring." },
+                    { kr: "반복되는 일상은 때로는 매우 지루하게 느껴진다.", en: "The repetitive daily routine sometimes feels very tedious." }
+                ]
+            },
+
+            // 2. 평가 및 의견 표현 어휘 (Evaluation and Opinion)
+            {
+                category: "2. 평가 및 의견 표현 어휘 (Evaluation and Opinion)",
+                korean: "수준이 높다",
+                english: "to be high-level/high-quality",
+                examples: [
+                    { kr: "이 식당의 음식은 맛과 서비스 모두 수준이 높다.", en: "The food at this restaurant is high-level in both taste and service." },
+                    { kr: "그 강연은 내용이 깊고 전문적이어서 수준이 높았다.", en: "The lecture was high-quality as the content was deep and professional." }
+                ]
+            },
+            {
+                category: "2. 평가 및 의견 표현 어휘 (Evaluation and Opinion)",
+                korean: "기대 못 하다",
+                english: "to not live up to expectations",
+                examples: [
+                    { kr: "생각했던 것보다 훨씬 실망스러워서 기대 못 했다.", en: "It was much more disappointing than I thought; it didn't live up to expectations." },
+                    { kr: "팀원들의 노력이 부족해서 좋은 결과를 기대 못 했습니다.", en: "Due to the lack of effort from team members, we couldn't expect good results." }
+                ]
+            },
+            {
+                category: "2. 평가 및 의견 표현 어휘 (Evaluation and Opinion)",
+                korean: "이해가 안 되다",
+                english: "to not have an understanding/not make sense",
+                examples: [
+                    { kr: "수학 문제는 아무리 봐도 도무지 이해가 안 된다.", en: "No matter how much I look at the math problem, I just don't have an understanding of it." },
+                    { kr: "왜 그렇게 행동했는지 그의 마음이 이해가 안 돼요.", en: "I don't have an understanding of his feelings—why he acted that way." }
+                ]
+            },
+            {
+                category: "2. 평가 및 의견 표현 어휘 (Evaluation and Opinion)",
+                korean: "설명이 필요 없다",
+                english: "to have no need for explanation",
+                examples: [
+                    { kr: "그녀의 실력은 워낙 뛰어나서 설명이 필요 없다.", en: "Her skill is so outstanding that it has no need for explanation." },
+                    { kr: "이 그림은 아름다움 자체가 완벽해서 설명이 필요 없다.", en: "The beauty of this painting is so perfect that it has no need for explanation." }
+                ]
+            },
+
+            // 3. 접미사 '—거리'를 활용한 어휘
+            {
+                category: "3. 접미사 '—거리'를 활용한 어휘 (Suffix '—거리')",
+                korean: "볼거리",
+                english: "thing to see; attraction",
+                examples: [
+                    { kr: "경복궁은 외국인 관광객에게 최고의 볼거리입니다.", en: "Gyeongbokgung Palace is the best attraction for foreign tourists." },
+                    { kr: "이 도시에는 역사적인 유적지가 많아 볼거리가 풍부하다.", en: "This city has many historical sites, so there are abundant things to see." }
+                ]
+            },
+            {
+                category: "3. 접미사 '—거리'를 활용한 어휘 (Suffix '—거리')",
+                korean: "관심거리",
+                english: "thing of interest",
+                examples: [
+                    { kr: "요즘 가장 큰 관심거리는 경제 상황의 변화이다.", en: "The biggest thing of interest these days is the change in the economic situation." },
+                    { kr: "새로 나온 스마트폰은 젊은 세대의 관심거리다.", en: "The newly released smartphone is a thing of interest for the younger generation." }
+                ]
+            },
+            {
+                category: "3. 접미사 '—거리'를 활용한 어휘 (Suffix '—거리')",
+                korean: "이야깃거리",
+                english: "thing to talk about; subject of conversation",
+                examples: [
+                    { kr: "주말에 있었던 재미있는 일이 좋은 이야깃거리가 되었다.", en: "The fun thing that happened over the weekend became a good subject of conversation." },
+                    { kr: "우리는 만나면 끝없이 이야깃거리가 생겨서 좋다.", en: "It's good that we always have endless things to talk about when we meet." }
+                ]
+            },
+            {
+                category: "3. 접미사 '—거리'를 활용한 어휘 (Suffix '—거리')",
+                korean: "웃음거리",
+                english: "a thing to laugh about",
+                examples: [
+                    { kr: "실수했지만 덕분에 모두 함께 웃을 수 있는 웃음거리가 되었다.", en: "I made a mistake, but thanks to it, it became a thing to laugh about where everyone could laugh together." },
+                    { kr: "실패를 두려워하지 마세요. 그것은 잠시의 웃음거리일 뿐입니다.", en: "Don't be afraid of failure. It's just a temporary thing to laugh about." }
+                ]
+            },
+            {
+                category: "3. 접미사 '—거리'를 활용한 어휘 (Suffix '—거리')",
+                korean: "걱정거리",
+                english: "cause of worry",
+                examples: [
+                    { kr: "그의 건강 문제는 가족들에게 큰 걱정거리가 되었다.", en: "His health problem became a big cause of worry for his family." },
+                    { kr: "내일 있을 시험이 가장 큰 걱정거리다.", en: "The exam tomorrow is my biggest cause of worry." }
+                ]
+            }
+        ];
+
+        // 2. DOM 요소 생성 및 이벤트 핸들러
+        function initializeApp() {
+            const container = document.getElementById('vocabulary-container');
+            const categories = {}; // 카테고리별로 단어를 묶을 객체
+
+            // 카테고리별로 데이터 분류
+            vocabularyData.forEach(item => {
+                if (!categories[item.category]) {
+                    categories[item.category] = [];
+                }
+                categories[item.category].push(item);
+            });
+
+            // 카테고리별로 UI 생성
+            let cardIndex = 0;
+            for (const category in categories) {
+                // 카테고리 제목
+                const categoryHeader = document.createElement('h2');
+                categoryHeader.className = 'text-2xl font-extrabold text-dark-text mt-8 mb-4 border-b-4 border-primary-blue/50 pb-2';
+                categoryHeader.textContent = category;
+                container.appendChild(categoryHeader);
+
+                // 어휘 카드 목록 컨테이너
+                const listContainer = document.createElement('div');
+                listContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10';
+
+                categories[category].forEach(item => {
+                    // 단어 카드 생성
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden';
+
+                    // 카드 헤더 (단어 + 정의, 클릭 영역)
+                    const header = document.createElement('div');
+                    header.className = 'p-5 cursor-pointer flex justify-between items-start border-b border-light-gray group hover:bg-light-gray/80 transition-colors';
+                    header.setAttribute('role', 'button');
+                    header.setAttribute('aria-expanded', 'false');
+                    header.setAttribute('aria-controls', `examples-${cardIndex}`);
+
+                    // 단어와 정의
+                    const textWrapper = document.createElement('div');
+                    textWrapper.innerHTML = `
+                        <h3 class="text-xl font-bold text-primary-blue mb-0.5">${item.korean}</h3>
+                        <p class="text-sm text-gray-600 font-medium">${item.english}</p>
+                    `;
+
+                    // 화살표 아이콘 (SVG)
+                    const arrowIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    arrowIcon.setAttribute('class', 'w-6 h-6 text-primary-blue transition-transform duration-300 transform group-hover:text-primary-blue/80');
+                    arrowIcon.setAttribute('viewBox', '0 0 24 24');
+                    arrowIcon.setAttribute('fill', 'none');
+                    arrowIcon.setAttribute('stroke', 'currentColor');
+                    arrowIcon.setAttribute('stroke-width', '2.5');
+                    arrowIcon.setAttribute('stroke-linecap', 'round');
+                    arrowIcon.setAttribute('stroke-linejoin', 'round');
+                    arrowIcon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+
+                    header.appendChild(textWrapper);
+                    header.appendChild(arrowIcon);
+                    card.appendChild(header);
+
+                    // 예문 컨텐츠 (초기에는 숨김)
+                    const exampleContent = document.createElement('div');
+                    exampleContent.id = `examples-${cardIndex}`;
+                    exampleContent.className = 'example-content bg-light-blue/50';
+
+                    // 예문 목록
+                    const examplesHtml = item.examples.map((ex, exIndex) => `
+                        <div class="mb-4 last:mb-0 p-3 bg-white rounded-lg shadow-sm border border-light-blue">
+                            <p class="text-gray-800 font-semibold mb-1">
+                                <span class="text-sm font-bold text-primary-blue mr-1">${exIndex + 1}.</span> ${ex.kr}
+                            </p>
+                            <p class="text-xs text-gray-500 italic ml-4 pt-1 border-l-2 border-primary-blue/30 pl-2">
+                                ${ex.en}
+                            </p>
+                        </div>
+                    `).join('');
+
+                    exampleContent.innerHTML = `<div class="px-5 py-0">${examplesHtml}</div>`;
+                    card.appendChild(exampleContent);
+
+                    // 클릭 이벤트 핸들러
+                    header.addEventListener('click', () => {
+                        const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                        
+                        // 다른 모든 카드를 닫기 (아코디언 기능)
+                        document.querySelectorAll('.example-content.active').forEach(openContent => {
+                            const openHeader = openContent.previousElementSibling;
+                            if (openContent !== exampleContent) {
+                                openContent.classList.remove('active');
+                                openHeader.setAttribute('aria-expanded', 'false');
+                                openHeader.querySelector('svg').style.transform = 'rotate(0deg)';
+                            }
+                        });
+
+                        // 현재 카드 토글
+                        exampleContent.classList.toggle('active');
+                        header.setAttribute('aria-expanded', String(!isExpanded));
+                        arrowIcon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+                    });
+
+                    listContainer.appendChild(card);
+                    cardIndex++;
+                });
+                
+                container.appendChild(listContainer);
+            }
+        }
+
+        // 페이지 로드 후 앱 초기화
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
+
