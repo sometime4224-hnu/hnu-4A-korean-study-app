@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 필수 어휘 학습 앱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#4F46E5',
+                        'light-blue': '#EEF2FF',
+                        'dark-text': '#1F2937',
+                        'light-gray': '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 글꼴을 Inter와 한국어 글꼴인 Noto Sans KR로 설정 */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f9fafb;
+        }
+        /* 예문 컨텐츠를 부드럽게 보여주기 위한 애니메이션 */
+        .example-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .example-content.active {
+            max-height: 500px; /* 충분히 큰 값으로 설정 */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+
+    <!-- 메인 컨테이너 -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-dark-text mb-2">한국어 필수 어휘 학습</h1>
+            <p class="text-lg text-gray-500">각 단어를 클릭하여 예문과 용례를 확인하세요.</p>
+        </header>
+
+        <!-- 어휘 목록이 삽입될 컨테이너 -->
+        <div id="vocabulary-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- JavaScript가 여기에 카드들을 생성합니다. -->
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // 1. 어휘 데이터 (한국어, 영어 정의, 한국어 예문, 영어 번역)
+        const vocabularyData = [
+            {
+                korean: "걱정스럽다",
+                english: "to be worried",
+                examples: [
+                    { kr: "아들의 성적이 좋지 않아 걱정스러워요.", en: "I'm worried because my son's grades are not good." },
+                    { kr: "요즘 날씨가 너무 추워서 감기 걸릴까 걱정스러워.", en: "I'm worried I might catch a cold because the weather is so cold these days." }
+                ]
+            },
+            {
+                korean: "불만이다",
+                english: "to be dissatisfied",
+                examples: [
+                    { kr: "회사의 복지에 불만인 직원들이 많습니다.", en: "There are many employees who are dissatisfied with the company's welfare." },
+                    { kr: "서비스가 기대에 미치지 못해서 조금 불만입니다.", en: "The service didn't meet expectations, so I'm a little dissatisfied." }
+                ]
+            },
+            {
+                korean: "계획성이 없다",
+                english: "to not plan ahead",
+                examples: [
+                    { kr: "그는 여행 계획성이 없어서 항상 짐을 늦게 싼다.", en: "He doesn't plan his trips ahead, so he always packs late." },
+                    { kr: "계획성이 없는 사람은 목표 달성이 어렵다.", en: "It's hard for a person without planning ability to achieve goals." }
+                ]
+            },
+            {
+                korean: "사랑스럽다",
+                english: "to be lovable",
+                examples: [
+                    { kr: "아기의 웃는 모습이 정말 사랑스러워요.", en: "The baby's smiling face is truly lovable." },
+                    { kr: "그녀는 항상 밝고 긍정적이어서 모두에게 사랑스럽다.", en: "She is always bright and positive, making her lovable to everyone." }
+                ]
+            },
+            {
+                korean: "고집이 세다",
+                english: "to be stubborn",
+                examples: [
+                    { kr: "우리 할아버지는 고집이 세서 한번 결정하면 바꾸지 않으셔.", en: "My grandfather is stubborn, so once he makes a decision, he doesn't change it." },
+                    { kr: "고집이 센 아이를 설득하기는 정말 힘들어요.", en: "It's really hard to convince a stubborn child." }
+                ]
+            },
+            {
+                korean: "속상하다",
+                english: "to be distressed",
+                examples: [
+                    { kr: "친구와 싸워서 하루 종일 속상했어요.", en: "I was distressed all day because I fought with my friend." },
+                    { kr: "열심히 준비했는데 실패해서 너무 속상해.", en: "I worked hard to prepare but failed, so I'm very distressed." }
+                ]
+            },
+            {
+                korean: "눈치가 없다",
+                english: "to lack tact/behave senselessly",
+                examples: [
+                    { kr: "그는 분위기 파악을 못하고 눈치 없이 농담을 했다.", en: "He didn't grasp the atmosphere and made a tactless joke." },
+                    { kr: "눈치 없는 사람은 다른 사람에게 피해를 줄 수 있다.", en: "A tactless person can cause harm to others." }
+                ]
+            },
+            {
+                korean: "여성스럽다",
+                english: "to be feminine",
+                examples: [
+                    { kr: "그녀는 긴 머리와 부드러운 말투로 매우 여성스러워 보였다.", en: "With her long hair and soft way of speaking, she looked very feminine." },
+                    { kr: "여성스러운 옷차림이 그녀에게 잘 어울린다.", en: "Feminine clothing suits her well." }
+                ]
+            },
+            {
+                korean: "당황스럽다",
+                english: "to feel embarrassed",
+                examples: [
+                    { kr: "갑자기 이름이 생각나지 않아 당황스러웠다.", en: "I felt embarrassed because I suddenly couldn't remember the name." },
+                    { kr: "예상치 못한 질문을 받아서 매우 당황스러웠다.", en: "I was very embarrassed because I received an unexpected question." }
+                ]
+            },
+            {
+                korean: "자랑스럽다",
+                english: "to be proud",
+                examples: [
+                    { kr: "네가 이룬 모든 것이 정말 자랑스러워.", en: "I'm truly proud of everything you have achieved." },
+                    { kr: "우리 아들이 훌륭한 사람으로 자라서 자랑스럽습니다.", en: "I am proud that our son has grown up to be a wonderful person." }
+                ]
+            },
+            {
+                korean: "따지다",
+                english: "to nitpick",
+                examples: [
+                    { kr: "그는 작은 실수 하나하나까지 꼼꼼하게 따지는 성격이다.", en: "He is the type to meticulously nitpick every small mistake." },
+                    { kr: "너무 사소한 것까지 따지지 말고 그냥 넘어가자.", en: "Let's not nitpick over such minor things and just move on." }
+                ]
+            },
+            {
+                korean: "자존심이 강하다",
+                english: "to have a strong sense of pride",
+                examples: [
+                    { kr: "자존심이 강해서 쉽게 도움을 요청하지 않는다.", en: "Because she has a strong sense of pride, she doesn't easily ask for help." },
+                    { kr: "자존심이 강한 사람들은 비판을 잘 받아들이지 못한다.", en: "People with a strong sense of pride often cannot accept criticism well." }
+                ]
+            },
+            {
+                korean: "발끈하다",
+                english: "to fly into a rage",
+                examples: [
+                    { kr: "농담 한마디에 그가 갑자기 발끈하며 화를 냈다.", en: "He suddenly flew into a rage and got angry at a single joke." },
+                    { kr: "사소한 일에 발끈하지 말고 침착하게 대응하세요.", en: "Don't fly into a rage over minor things; respond calmly." }
+                ]
+            },
+            {
+                korean: "지적하다",
+                english: "to point out/indicate",
+                examples: [
+                    { kr: "선생님이 나의 잘못된 부분을 친절하게 지적해 주셨다.", en: "The teacher kindly pointed out my mistakes." },
+                    { kr: "이 보고서에서 개선할 점을 몇 가지 지적해 주세요.", en: "Please point out a few things to improve in this report." }
+                ]
+            }
+        ];
+
+        // 2. DOM 요소 생성 및 이벤트 핸들러
+        function initializeApp() {
+            const container = document.getElementById('vocabulary-list');
+
+            vocabularyData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden';
+
+                // 카드 헤더 (단어 + 정의, 클릭 영역)
+                const header = document.createElement('div');
+                header.className = 'p-5 cursor-pointer flex justify-between items-start border-b border-light-gray group hover:bg-light-gray transition-colors';
+                header.setAttribute('role', 'button');
+                header.setAttribute('aria-expanded', 'false');
+                header.setAttribute('aria-controls', `examples-${index}`);
+
+                // 단어와 정의
+                const textWrapper = document.createElement('div');
+                textWrapper.innerHTML = `
+                    <h2 class="text-2xl font-bold text-primary-blue mb-1">${item.korean}</h2>
+                    <p class="text-base text-gray-600 font-medium">${item.english}</p>
+                `;
+
+                // 화살표 아이콘 (lucide-react의 chevron-down 아이콘 SVG를 사용)
+                const arrowIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                arrowIcon.setAttribute('class', 'w-6 h-6 text-primary-blue transition-transform duration-300 transform group-hover:text-primary-blue/80');
+                arrowIcon.setAttribute('viewBox', '0 0 24 24');
+                arrowIcon.setAttribute('fill', 'none');
+                arrowIcon.setAttribute('stroke', 'currentColor');
+                arrowIcon.setAttribute('stroke-width', '2.5');
+                arrowIcon.setAttribute('stroke-linecap', 'round');
+                arrowIcon.setAttribute('stroke-linejoin', 'round');
+                arrowIcon.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+
+                header.appendChild(textWrapper);
+                header.appendChild(arrowIcon);
+                card.appendChild(header);
+
+                // 예문 컨텐츠 (초기에는 숨김)
+                const exampleContent = document.createElement('div');
+                exampleContent.id = `examples-${index}`;
+                exampleContent.className = 'example-content bg-light-blue/50';
+
+                // 예문 목록
+                const examplesHtml = item.examples.map((ex, exIndex) => `
+                    <div class="mb-4 last:mb-0 p-3 bg-white rounded-lg shadow-sm">
+                        <p class="text-gray-700 font-semibold mb-1">
+                            <span class="text-sm font-bold text-primary-blue">${exIndex + 1}.</span> ${ex.kr}
+                        </p>
+                        <p class="text-sm text-gray-500 italic ml-4">
+                            ${ex.en}
+                        </p>
+                    </div>
+                `).join('');
+
+                exampleContent.innerHTML = `<div class="px-5 py-0">${examplesHtml}</div>`;
+                card.appendChild(exampleContent);
+
+                // 클릭 이벤트 핸들러
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    
+                    // 다른 모든 카드를 닫기
+                    document.querySelectorAll('.example-content.active').forEach(openContent => {
+                        if (openContent !== exampleContent) {
+                            openContent.classList.remove('active');
+                            openContent.previousElementSibling.setAttribute('aria-expanded', 'false');
+                            openContent.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    // 현재 카드 토글
+                    exampleContent.classList.toggle('active');
+                    header.setAttribute('aria-expanded', String(!isExpanded));
+                    arrowIcon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        // 페이지 로드 후 앱 초기화
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
+
