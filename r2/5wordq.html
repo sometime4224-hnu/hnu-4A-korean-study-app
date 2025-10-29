@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 어휘 퀴즈</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter 폰트 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Noto Sans KR 폰트 (한국어용) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 기본 폰트 설정 */
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        
+        /* 선택된 버튼 스타일 */
+        .option-btn.selected {
+            background-color: #3b82f6; /* bg-blue-600 */
+            color: white;
+            border-color: #3b82f6; /* border-blue-600 */
+        }
+        
+        /* 정답 버튼 스타일 */
+        .option-btn.correct {
+            background-color: #22c55e; /* bg-green-500 */
+            color: white;
+            border-color: #22c55e; /* border-green-500 */
+        }
+        
+        /* 오답 버튼 스타일 */
+        .option-btn.incorrect {
+            background-color: #ef4444; /* bg-red-500 */
+            color: white;
+            border-color: #ef4444; /* border-red-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 md:p-8">
+        
+        <!-- 로딩 스피너 -->
+        <div id="loading" class="text-center p-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p class="mt-4 text-gray-600">퀴즈를 불러오는 중입니다...</p>
+        </div>
+
+        <!-- 퀴즈 컨테이너 (처음에는 숨김) -->
+        <div id="quiz-app" class="hidden">
+            
+            <!-- 퀴즈 섹션 -->
+            <div id="quiz-container">
+                <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-600 mb-6">한국어 어휘 퀴즈</h1>
+                
+                <!-- 질문 표시 -->
+                <div id="question-container" class="mb-6 min-h-[100px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold text-gray-700">문제 <span id="question-number">1</span> / <span id="total-questions">15</span></span>
+                        <!-- 'question-word'를 표시하던 span을 숨김 처리 (hidden 클래스 추가) -->
+                        <span id="question-word" class="hidden text-xl md:text-2xl font-bold text-blue-700 bg-blue-50 p-2 rounded-lg"></span>
+                    </div>
+                    <p id="question-text" class="text-lg md:text-xl text-gray-800 leading-relaxed"></p>
+                </div>
+                
+                <!-- 선택지 버튼 -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Javascript로 버튼 생성 -->
+                </div>
+                
+                <!-- 네비게이션 버튼 -->
+                <div class="flex justify-between">
+                    <button id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50">이전</button>
+                    <button id="next-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">다음</button>
+                    <button id="submit-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200 hidden">채점하기</button>
+                </div>
+            </div>
+
+            <!-- 결과 섹션 (처음에는 숨김) -->
+            <div id="result-container" class="hidden text-center">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">퀴즈 결과</h2>
+                <p class="text-5xl font-bold mb-6">
+                    <span id="score" class="text-green-500">0</span> / <span id="total-score">15</span>
+                </p>
+                <p id="score-message" class="text-xl text-gray-700 mb-8"></p>
+                
+                <!-- 틀린 문제 피드백 -->
+                <div id="feedback-container" class="text-left bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-red-600">틀린 문제 다시 보기</h3>
+                    <div id="feedback-list" class="space-y-4">
+                        <!-- Javascript로 피드백 내용 추가 -->
+                    </div>
+                </div>
+                
+                <button id="restart-btn" class="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-200">다시 풀기</button>
+            </div>
+            
+        </div>
+        
+        <!-- 이전 기록 섹션 -->
+        <div id="previous-results-container" class="mt-8 pt-6 border-t border-gray-200 hidden">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">나의 퀴즈 기록 📝</h3>
+            <div id="results-list" class="space-y-2 max-h-40 overflow-y-auto">
+                <p id="no-results" class="text-gray-500">아직 저장된 기록이 없습니다.</p>
+                <!-- Javascript로 기록 추가 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase 모듈 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            setPersistence,
+            browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            query,
+            onSnapshot,
+            serverTimestamp,
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase 설정 (Canvas 환경 변수 사용)
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-korean-quiz-app';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Firebase 앱, 인증, Firestore 초기화
+        let app, auth, db;
+        let userId = null; // 사용자 ID
+        let resultsCollectionPath = ''; // Firestore 저장 경로
+        let unsubscribeResults = null; // onSnapshot 구독 취소 함수
+
+        // Firestore 로깅 설정 (디버깅용)
+        setLogLevel('Debug');
+
+        // 퀴즈 데이터 (속담 및 관용어로 변경)
+        const quizData = [
+            // --- 속담 (Proverbs) ---
+            {
+                word: "콩 심은 데 콩 난다",
+                question: "다음 중 '콩 심은 데 콩 난다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "열심히 공부했더니 시험을 잘 봤어요.", 
+                    "자전거를 잃어버린 후에 자물쇠를 샀어요.", 
+                    "요리사가 요리하다가 음식을 태웠어요.", 
+                    "엄마와 아빠가 싸우는데 나만 혼났어요."
+                ],
+                answer: "열심히 공부했더니 시험을 잘 봤어요.",
+                feedback: "'콩 심은 데 콩 난다'는 원인대로 결과가 나온다는 뜻입니다. 열심히 노력했으니 좋은 결과가 나온 상황에 씁니다."
+            },
+            {
+                word: "개구리 올챙이 적 생각 못 한다",
+                question: "다음 중 '개구리 올챙이 적 생각 못 한다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "부자가 된 후에, 가난했던 때를 잊고 다른 사람을 무시해요.", 
+                    "어릴 때부터 손톱을 물어뜯었는데, 어른이 되어서도 고치기 어려워요.", 
+                    "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요.", 
+                    "요리사가 요리하다가 음식을 태웠어요."
+                ],
+                answer: "부자가 된 후에, 가난했던 때를 잊고 다른 사람을 무시해요.",
+                feedback: "'개구리 올챙이 적 생각 못 한다'는 자신이 부족했던 옛날을 잊어버리고 잘난 척하는 상황에 씁니다."
+            },
+            {
+                word: "소 잃고 외양간 고친다",
+                question: "다음 중 '소 잃고 외양간 고친다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "자전거를 잃어버린 후에 자물쇠를 샀어요.", 
+                    "열심히 공부했더니 시험을 잘 봤어요.", 
+                    "회사에서 혼나고 집에 와서 동생에게 화를 냈어요.", 
+                    "엄마와 아빠가 싸우는데 나만 혼났어요."
+                ],
+                answer: "자전거를 잃어버린 후에 자물쇠를 샀어요.",
+                feedback: "'소 잃고 외양간 고친다'는 일이 이미 잘못된 후에 고치려고 해서 소용이 없는 상황에 씁니다."
+            },
+            {
+                word: "고래 싸움에 새우 등 터진다",
+                question: "다음 중 '고래 싸움에 새우 등 터진다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "엄마와 아빠가 싸우는데, 잘못 없는 나만 혼났어요.", 
+                    "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요.", 
+                    "부자가 된 후에, 가난했던 때를 잊고 다른 사람을 무시해요.", 
+                    "열심히 공부했더니 시험을 잘 봤어요."
+                ],
+                answer: "엄마와 아빠가 싸우는데, 잘못 없는 나만 혼났어요.",
+                feedback: "'고래 싸움에 새우 등 터진다'는 힘이 센 사람들 싸움에 약한 사람이 피해를 보는 상황에 씁니다."
+            },
+            {
+                word: "세 살 버릇 여든까지 간다",
+                question: "다음 중 '세 살 버릇 여든까지 간다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "어릴 때부터 손톱을 물어뜯었는데, 어른이 되어서도 고치기 어려워요.", 
+                    "요리사가 요리하다가 음식을 태웠어요.", 
+                    "자전거를 잃어버린 후에 자물쇠를 샀어요.", 
+                    "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요."
+                ],
+                answer: "어릴 때부터 손톱을 물어뜯었는데, 어른이 되어서도 고치기 어려워요.",
+                feedback: "'세 살 버릇 여든까지 간다'는 어릴 때 생긴 나쁜 습관은 고치기 어렵다는 뜻입니다."
+            },
+            {
+                word: "믿는 도끼에 발등 찍힌다",
+                question: "다음 중 '믿는 도끼에 발등 찍힌다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요.", 
+                    "엄마와 아빠가 싸우는데, 잘못 없는 나만 혼났어요.", 
+                    "열심히 공부했더니 시험을 잘 봤어요.", 
+                    "부자가 된 후에, 가난했던 때를 잊고 다른 사람을 무시해요."
+                ],
+                answer: "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요.",
+                feedback: "'믿는 도끼에 발등 찍힌다'는 내가 믿었던 사람에게 배신을 당한 상황에 씁니다."
+            },
+            {
+                word: "원숭이도 나무에서 떨어진다",
+                question: "다음 중 '원숭이도 나무에서 떨어진다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "매일 요리하는 요리사가 오늘 음식을 태웠어요.", 
+                    "어릴 때부터 생긴 나쁜 습관을 고치기 어려워요.", 
+                    "자전거를 잃어버린 후에 자물쇠를 샀어요.", 
+                    "회사에서 혼나고 집에 와서 동생에게 화를 냈어요."
+                ],
+                answer: "매일 요리하는 요리사가 오늘 음식을 태웠어요.",
+                feedback: "'원숭이도 나무에서 떨어진다'는 아무리 잘하는 사람도 실수할 수 있다는 뜻입니다."
+            },
+            {
+                word: "종로에서 뺨 맞고 한강에서 화풀이한다",
+                question: "다음 중 '종로에서 뺨 맞고 한강에서 화풀이한다' 속담을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "회사에서 상사에게 혼나고, 집에 와서 동생에게 화를 냈어요.", 
+                    "가장 친한 친구가 내 비밀을 다른 사람에게 말했어요.", 
+                    "부자가 된 후에, 가난했던 때를 잊고 다른 사람을 무시해요.", 
+                    "엄마와 아빠가 싸우는데, 잘못 없는 나만 혼났어요."
+                ],
+                answer: "회사에서 상사에게 혼나고, 집에 와서 동생에게 화를 냈어요.",
+                feedback: "'종로에서 뺨 맞고 한강에서 화풀이한다'는 다른 곳에서 생긴 화를 관계없는 사람에게 푸는 상황에 씁니다."
+            },
+
+            // --- 관용어 (Idioms) ---
+            {
+                word: "손이 모자라다",
+                question: "다음 중 '손이 모자라다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "식당에 손님이 너무 많아서 일할 사람이 더 필요해요.", 
+                    "그 사람은 1시간 걸릴 일을 30분 만에 끝냈어요.", 
+                    "어디를 가도 아는 사람이 정말 많아요.", 
+                    "음식을 조금만 하려고 했는데, 항상 너무 많이 만들어요."
+                ],
+                answer: "식당에 손님이 너무 많아서 일할 사람이 더 필요해요.",
+                feedback: "'손이 모자라다'는 일할 사람이 부족하다는 뜻입니다."
+            },
+            {
+                word: "손이 빠르다",
+                question: "다음 중 '손이 빠르다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "그 사람은 1시간 걸릴 일을 30분 만에 끝냈어요.", 
+                    "비밀 이야기를 해도 다른 사람에게 절대 말하지 않아요.", 
+                    "다른 사람의 말을 너무 쉽게 믿고, 물건을 금방 사요.", 
+                    "지금 당장 여행을 떠나고 싶어요."
+                ],
+                answer: "그 사람은 1시간 걸릴 일을 30분 만에 끝냈어요.",
+                feedback: "'손이 빠르다'는 일을 아주 빨리 잘한다는 뜻입니다."
+            },
+            {
+                word: "발이 넓다",
+                question: "다음 중 '발이 넓다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "그 사람은 어디를 가도 아는 사람이 정말 많아요.", 
+                    "식당에 손님이 너무 많아서 일할 사람이 더 필요해요.", 
+                    "쇼핑을 오래 했지만, 마음에 드는 옷이 하나도 없어요.", 
+                    "음식을 조금만 하려고 했는데, 항상 너무 많이 만들어요."
+                ],
+                answer: "그 사람은 어디를 가도 아는 사람이 정말 많아요.",
+                feedback: "'발이 넓다'는 아는 사람이 많고 사람들과 관계가 좋다는 뜻입니다."
+            },
+            {
+                word: "손이 크다",
+                question: "다음 중 '손이 크다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "음식을 조금만 하려고 했는데, 항상 너무 많이 만들어요.", 
+                    "비밀 이야기를 해도 다른 사람에게 절대 말하지 않아요.", 
+                    "그 사람은 1시간 걸릴 일을 30분 만에 끝냈어요.", 
+                    "일할 사람이 부족해서 도움이 필요해요."
+                ],
+                answer: "음식을 조금만 하려고 했는데, 항상 너무 많이 만들어요.",
+                feedback: "'손이 크다'는 돈이나 물건을 아끼지 않고 넉넉하게 쓰거나, 음식을 많이 만드는 사람에게 씁니다."
+            },
+            {
+                word: "입이 무겁다",
+                question: "다음 중 '입이 무겁다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "그 사람에게 비밀 이야기를 해도 절대 다른 사람에게 말하지 않아요.", 
+                    "다른 사람의 말을 너무 쉽게 믿고, 물건을 금방 사요.", 
+                    "그 사람은 어디를 가도 아는 사람이 정말 많아요.", 
+                    "지금 당장 여행을 떠나고 싶어요."
+                ],
+                answer: "그 사람에게 비밀 이야기를 해도 절대 다른 사람에게 말하지 않아요.",
+                feedback: "'입이 무겁다'는 비밀을 잘 지키는 사람을 말합니다."
+            },
+            {
+                word: "귀가 얇다",
+                question: "다음 중 '귀가 얇다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "다른 사람의 말을 너무 쉽게 믿고, 물건을 금방 사요.", 
+                    "비밀 이야기를 해도 다른 사람에게 절대 말하지 않아요.", 
+                    "쇼핑을 오래 했지만, 마음에 드는 옷이 하나도 없어요.", 
+                    "그 사람은 1시간 걸릴 일을 30분 만에 끝냈어요."
+                ],
+                answer: "다른 사람의 말을 너무 쉽게 믿고, 물건을 금방 사요.",
+                feedback: "'귀가 얇다'는 다른 사람의 말을 쉽게 믿는다는 뜻입니다."
+            },
+            {
+                word: "마음이 굴뚝같다",
+                question: "다음 중 '마음이 굴뚝같다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "지금 당장 여행을 떠나고 싶은 마음이 아주 커요.", 
+                    "일할 사람이 부족해서 도움이 필요해요.", 
+                    "그 사람은 어디를 가도 아는 사람이 정말 많아요.", 
+                    "다른 사람의 말을 너무 쉽게 믿어요."
+                ],
+                answer: "지금 당장 여행을 떠나고 싶은 마음이 아주 커요.",
+                feedback: "'마음이 굴뚝같다'는 어떤 것을 아주 간절하게 하고 싶다는 뜻입니다."
+            },
+            {
+                word: "눈에 차다",
+                question: "다음 중 '눈에 차다' 표현을 사용하기 좋은 상황은 무엇인가요?",
+                options: [
+                    "쇼핑을 오래 했지만, 마음에 드는 옷이 하나도 없어요.", 
+                    "음식을 조금만 하려고 했는데, 항상 너무 많이 만들어요.", 
+                    "비밀 이야기를 해도 다른 사람에게 절대 말하지 않아요.", 
+                    "일할 사람이 부족해서 도움이 필요해요."
+                ],
+                answer: "쇼핑을 오래 했지만, 마음에 드는 옷이 하나도 없어요.",
+                feedback: "'눈에 차다'는 마음에 들어서 만족스럽다는 뜻입니다. (예: 눈에 차는 옷이 없다 = 마음에 드는 옷이 없다)"
+            }
+        ];
+
+        // 퀴즈 상태 변수
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let quizSubmitted = false;
+
+        // HTML 요소 가져오기
+        const loadingEl = document.getElementById('loading');
+        const quizAppEl = document.getElementById('quiz-app');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultContainer = document.getElementById('result-container');
+        
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const questionWordEl = document.getElementById('question-word');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        const scoreEl = document.getElementById('score');
+        const totalScoreEl = document.getElementById('total-score');
+        const scoreMessageEl = document.getElementById('score-message');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackListEl = document.getElementById('feedback-list');
+        const restartBtn = document.getElementById('restart-btn');
+
+        const prevResultsContainer = document.getElementById('previous-results-container');
+        const resultsListEl = document.getElementById('results-list');
+        const noResultsEl = document.getElementById('no-results');
+
+
+        // Firebase 초기화 및 인증 함수
+        async function initializeFirebase() {
+            try {
+                // 앱 초기화 확인
+                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase 설정이 비어있습니다.");
+                    loadingEl.textContent = "오류: Firebase 설정을 불러올 수 없습니다.";
+                    return;
+                }
+                
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // 세션 지속성 설정
+                await setPersistence(auth, browserSessionPersistence);
+
+                // 인증 상태 리스너
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        console.log("로그인 성공:", user.uid);
+                        userId = user.uid;
+                        setupApp();
+                    } else {
+                        console.log("로그인 필요. 토큰 확인 중...");
+                        // 로그인 시도
+                        try {
+                            if (initialAuthToken) {
+                                console.log("커스텀 토큰으로 로그인 시도...");
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                console.log("익명으로 로그인 시도...");
+                                await signInAnonymously(auth);
+                            }
+                        } catch (authError) {
+                            console.error("로그인 실패:", authError);
+                            loadingEl.textContent = "오류: 로그인에 실패했습니다.";
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase 초기화 오류:", error);
+                loadingEl.textContent = "앱을 시작하는 데 문제가 발생했습니다.";
+            }
+        }
+        
+        // 앱 설정 (로그인 성공 후)
+        function setupApp() {
+            if (!userId) {
+                console.error("사용자 ID가 없습니다.");
+                return;
+            }
+            // Firestore 경로 설정
+            resultsCollectionPath = `/artifacts/${appId}/users/${userId}/koreanQuizResults`;
+            
+            // 퀴즈 시작
+            startQuiz();
+            
+            // 이전 기록 불러오기
+            loadPreviousResults();
+            
+            // 로딩 숨기고 앱 표시
+            loadingEl.classList.add('hidden');
+            quizAppEl.classList.remove('hidden');
+            prevResultsContainer.classList.remove('hidden');
+        }
+
+        // 배열 섞기 함수 (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            let currentIndex = array.length,  randomIndex;
+            
+            // 배열에 요소가 남아있는 동안
+            while (currentIndex != 0) {
+                // 남은 요소 중 하나를 선택
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // 현재 요소와 교환
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+
+            return array;
+        }
+
+        // 퀴즈 시작 함수
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers.fill(null);
+            quizSubmitted = false;
+            
+            totalQuestionsEl.textContent = quizData.length;
+            totalScoreEl.textContent = quizData.length;
+            
+            renderQuestion();
+            
+            quizContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            feedbackListEl.innerHTML = '';
+        }
+
+        // 질문 렌더링 함수
+        function renderQuestion() {
+            if (currentQuestionIndex < 0 || currentQuestionIndex >= quizData.length) {
+                return;
+            }
+            
+            const question = quizData[currentQuestionIndex];
+            
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            questionTextEl.textContent = question.question;
+            // 'question-word'를 업데이트하는 코드 제거
+            // questionWordEl.textContent = question.word; 
+            
+            optionsContainer.innerHTML = '';
+
+            // --- 선택지 순서 섞기 ---
+            // 1. 원본 옵션 배열을 복사합니다.
+            const shuffledOptions = [...question.options];
+            // 2. 복사된 배열의 순서를 섞습니다.
+            shuffleArray(shuffledOptions);
+            // --- ---
+            
+            // 섞인 배열(shuffledOptions)을 사용하여 버튼을 만듭니다.
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn', 'w-full', 'text-left', 'p-4', 'border-2', 'border-gray-300', 'rounded-lg', 'transition', 'duration-200', 'hover:bg-gray-100', 'hover:border-blue-400');
+                
+                if (userAnswers[currentQuestionIndex] === option) {
+                    button.classList.add('selected');
+                }
+                
+                // 퀴즈 제출 후 스타일
+                if (quizSubmitted) {
+                    button.disabled = true;
+                    if (option === question.answer) {
+                        button.classList.add('correct');
+                    } else if (userAnswers[currentQuestionIndex] === option) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option);
+                }
+                
+                optionsContainer.appendChild(button);
+            });
+            
+            updateNavigationButtons();
+        }
+        
+        // 답 선택 함수
+        function selectAnswer(selectedOption) {
+            if (quizSubmitted) return;
+            
+            userAnswers[currentQuestionIndex] = selectedOption;
+            
+            // 선택된 버튼 스타일 업데이트
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === selectedOption) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // 0.5초 후 자동으로 다음 문제로 이동 (선택 사항)
+            // setTimeout(() => {
+            //     if (currentQuestionIndex < quizData.length - 1) {
+            //         nextQuestion();
+            //     }
+            // }, 500);
+        }
+
+        // 네비게이션 버튼 업데이트
+        function updateNavigationButtons() {
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+            
+            // 퀴즈 제출 후 버튼 숨기기
+            if (quizSubmitted) {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.add('hidden');
+            } else {
+                 prevBtn.classList.remove('hidden');
+                 // nextBtn/submitBtn 은 위 로직 따름
+            }
+        }
+
+        // 다음 문제
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+        
+        // 이전 문제
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // 퀴즈 채점
+        async function submitQuiz() {
+            quizSubmitted = true;
+            let score = 0;
+            const incorrectAnswers = [];
+
+            quizData.forEach((question, index) => {
+                if (userAnswers[index] === question.answer) {
+                    score++;
+                } else {
+                    incorrectAnswers.push({
+                        question: question.question,
+                        word: question.word,
+                        yourAnswer: userAnswers[index] || "선택 안 함",
+                        correctAnswer: question.answer,
+                        feedback: question.feedback
+                    });
+                }
+            });
+
+            // 결과 표시
+            scoreEl.textContent = score;
+            if (score === quizData.length) {
+                scoreMessageEl.textContent = "완벽해요! 모든 문제를 맞혔습니다! 🥳";
+            } else if (score >= quizData.length * 0.7) {
+                scoreMessageEl.textContent = "잘했어요! 조금만 더 노력해 보세요! 👍";
+            } else {
+                scoreMessageEl.textContent = "아쉬워요. 다시 한번 복습해 보세요! 🤓";
+            }
+            
+            // 피드백 생성
+            if (incorrectAnswers.length > 0) {
+                feedbackListEl.innerHTML = incorrectAnswers.map(item => `
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-red-200">
+                        <p class="font-semibold text-gray-800">${item.word}: ${item.question}</p>
+                        <p class="text-sm text-red-600">내 답: ${item.yourAnswer}</p>
+                        <p class="text-sm text-green-600">정답: ${item.correctAnswer}</p>
+                        <p class="text-sm text-gray-600 mt-2">💡 ${item.feedback}</p>
+                    </div>
+                `).join('');
+                feedbackContainer.classList.remove('hidden');
+            } else {
+                feedbackListEl.innerHTML = '<p class="text-green-600">틀린 문제가 없습니다. 축하합니다!</p>';
+            }
+
+            // 화면 전환
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            
+            // 퀴즈 제출 후 현재 상태(오답/정답 표시)를 다시 렌더링
+            // 사용자가 마지막 문제를 보고 채점할 때 유용
+            currentQuestionIndex = quizData.length - 1; 
+            renderQuestion();
+            
+            // 결과 화면이 보이도록 버튼 숨기기
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.add('hidden');
+
+            // Firestore에 결과 저장
+            try {
+                await saveResultToFirestore(score, quizData.length, incorrectAnswers.map(item => item.word));
+            } catch (error) {
+                console.error("결과 저장 실패:", error);
+                // 사용자에게 피드백을 줄 수 있음 (예: alert)
+            }
+        }
+        
+        // Firestore에 결과 저장
+        async function saveResultToFirestore(score, total, incorrectWords) {
+            if (!db || !userId) {
+                console.error("Firestore DB 또는 사용자 ID가 없습니다.");
+                return;
+            }
+            
+            try {
+                const docRef = await addDoc(collection(db, resultsCollectionPath), {
+                    score: score,
+                    total: total,
+                    incorrectWords: incorrectWords,
+                    timestamp: serverTimestamp() // 서버 시간 기준
+                });
+                console.log("결과 저장 성공, ID: ", docRef.id);
+            } catch (error) {
+                console.error("Firestore 저장 오류: ", error);
+                // 재시도 로직이나 사용자 알림 추가 가능
+            }
+        }
+
+        // 이전 기록 불러오기 (실시간)
+        function loadPreviousResults() {
+            if (!db || !userId) return;
+            
+            // 이전 구독이 있다면 취소
+            if (unsubscribeResults) {
+                unsubscribeResults();
+            }
+
+            const q = query(collection(db, resultsCollectionPath));
+            
+            unsubscribeResults = onSnapshot(q, (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    noResultsEl.classList.remove('hidden');
+                    resultsListEl.innerHTML = '';
+                    return;
+                }
+                
+                noResultsEl.classList.add('hidden');
+                resultsListEl.innerHTML = ''; // 목록 초기화
+                
+                const results = [];
+                querySnapshot.forEach((doc) => {
+                    results.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // 최신순으로 정렬 (timestamp가 있는 경우)
+                results.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                results.forEach(result => {
+                    const li = document.createElement('div');
+                    li.classList.add('p-3', 'bg-gray-100', 'rounded-lg', 'flex', 'justify-between', 'items-center');
+                    
+                    const date = result.timestamp ? new Date(result.timestamp.seconds * 1000).toLocaleString('ko-KR') : '날짜 없음';
+                    
+                    li.innerHTML = `
+                        <span class="text-gray-700">${date}</span>
+                        <span class="font-bold text-blue-600">${result.score} / ${result.total} 점</span>
+                    `;
+                    resultsListEl.appendChild(li);
+                });
+
+            }, (error) => {
+                console.error("이전 기록 불러오기 오류:", error);
+                noResultsEl.textContent = "기록을 불러오는 데 실패했습니다.";
+                noResultsEl.classList.remove('hidden');
+            });
+        }
+
+
+        // 이벤트 리스너 연결
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+        submitBtn.addEventListener('click', submitQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+        
+        // 앱 실행
+        initializeFirebase();
+
+    </script>
+</body>
+</html>
+
+
+
