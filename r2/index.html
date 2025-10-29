@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복습2 어휘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#4F46E5',
+                        'light-blue': '#EEF2FF',
+                        'dark-text': '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f0f4f8;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex items-center justify-center p-4">
+
+    <!-- 메인 컨테이너 -->
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-10 text-center">
+        <header class="mb-10">
+            <h1 class="text-4xl font-extrabold text-dark-text mb-3">복습2 어휘</h1>
+            <p class="text-lg text-gray-500">한국어 어휘 학습 복습 모듈을 선택해 주세요.</p>
+        </header>
+
+        <main class="space-y-6">
+            <!-- W1 링크 카드 -->
+            <a href="./w1.html" class="block">
+                <div class="bg-primary-blue text-white p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border-b-4 border-primary-blue/70">
+                    <h2 class="text-2xl font-bold mb-1">모듈 1: 기본 감정/성격 어휘</h2>
+                    <p class="text-sm opacity-90">걱정스럽다, 고집이 세다, 자랑스럽다 등</p>
+                    <span class="mt-3 inline-block text-sm font-semibold py-1 px-4 bg-white text-primary-blue rounded-full">학습 시작 &rarr;</span>
+                </div>
+            </a>
+
+            <!-- W2 링크 카드 -->
+            <a href="./w2.html" class="block">
+                <div class="bg-indigo-600 text-white p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border-b-4 border-indigo-600/70">
+                    <h2 class="text-2xl font-bold mb-1">모듈 2: 감상/평가 및 '-거리' 어휘</h2>
+                    <p class="text-sm opacity-90">가슴이 찡하다, 수준이 높다, 볼거리 등</p>
+                    <span class="mt-3 inline-block text-sm font-semibold py-1 px-4 bg-white text-indigo-600 rounded-full">학습 시작 &rarr;</span>
+                </div>
+            </a>
+        </main>
+    </div>
+</body>
+</html>
+
