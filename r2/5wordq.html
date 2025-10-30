@@ -4,152 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한국어 어휘 퀴즈</title>
-    <!-- Tailwind CSS 로드 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter 폰트 로드 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Noto Sans KR 폰트 (한국어용) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* 기본 폰트 설정 */
         body {
-            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
+            overscroll-behavior: none; /* 스크롤 당김 효과 제거 */
         }
-        
-        /* 선택된 버튼 스타일 */
-        .option-btn.selected {
-            background-color: #3b82f6; /* bg-blue-600 */
-            color: white;
-            border-color: #3b82f6; /* border-blue-600 */
+        /* 커스텀 스크롤바 (결과 창용) */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
-        
-        /* 정답 버튼 스타일 */
-        .option-btn.correct {
-            background-color: #22c55e; /* bg-green-500 */
-            color: white;
-            border-color: #22c55e; /* border-green-500 */
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
         }
-        
-        /* 오답 버튼 스타일 */
-        .option-btn.incorrect {
-            background-color: #ef4444; /* bg-red-500 */
-            color: white;
-            border-color: #ef4444; /* border-red-500 */
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 md:p-8">
-        
-        <!-- 로딩 스피너 -->
-        <div id="loading" class="text-center p-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p class="mt-4 text-gray-600">퀴즈를 불러오는 중입니다...</p>
+    <!-- 사용자 이름 입력 화면 -->
+    <div id="login-screen" class="w-full max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">한국어 어휘 퀴즈</h2>
+        <p class="text-center text-gray-600 mb-8">퀴즈 기록을 저장할 이름을 입력해 주세요.</p>
+        <div class="mb-4">
+            <label for="user-name-input" class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+            <input type="text" id="user-name-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="이름 (2글자 이상)">
         </div>
+        <button id="login-button" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg">
+            퀴즈 시작하기
+        </button>
+    </div>
 
-        <!-- 퀴즈 컨테이너 (처음에는 숨김) -->
-        <div id="quiz-app" class="hidden">
+    <!-- 퀴즈 메인 화면 (처음에는 숨김) -->
+    <div id="quiz-container" class="hidden w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
+        <!-- 퀴즈 영역 -->
+        <div class="w-full md:w-2/3 bg-white p-6 md:p-8 rounded-2xl shadow-xl transition-all duration-300">
             
-            <!-- 퀴즈 섹션 -->
-            <div id="quiz-container">
-                <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-600 mb-6">한국어 어휘 퀴즈</h1>
+            <!-- 퀴즈 진행 화면 -->
+            <div id="quiz-progress-screen">
+                <h2 id="user-greeting" class="text-xl font-semibold text-gray-700 mb-6"></h2>
                 
                 <!-- 질문 표시 -->
                 <div id="question-container" class="mb-6 min-h-[100px]">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-lg font-semibold text-gray-700">문제 <span id="question-number">1</span> / <span id="total-questions">15</span></span>
+                        <span class="text-lg font-semibold text-gray-700">문제 <span id="question-number">1</span> / <span id="total-questions">16</span></span>
                         <!-- 'question-word'를 표시하던 span을 숨김 처리 (hidden 클래스 추가) -->
                         <span id="question-word" class="hidden text-xl md:text-2xl font-bold text-blue-700 bg-blue-50 p-2 rounded-lg"></span>
                     </div>
                     <p id="question-text" class="text-lg md:text-xl text-gray-800 leading-relaxed"></p>
                 </div>
-                
+
                 <!-- 선택지 버튼 -->
-                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <!-- Javascript로 버튼 생성 -->
+                <div id="options-container" class="grid grid-cols-1 gap-4 mb-6">
+                    <!-- JavaScript로 버튼 생성 -->
                 </div>
-                
-                <!-- 네비게이션 버튼 -->
-                <div class="flex justify-between">
-                    <button id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50">이전</button>
-                    <button id="next-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">다음</button>
-                    <button id="submit-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200 hidden">채점하기</button>
+
+                <!-- 제출 버튼 -->
+                <button id="submit-btn" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg disabled:bg-gray-400">
+                    채점하기
+                </button>
+            </div>
+
+            <!-- 퀴즈 결과 화면 -->
+            <div id="result-screen" class="hidden">
+                <h2 class="text-3xl font-bold text-center text-blue-800 mb-4">퀴즈 결과</h2>
+                <p id="score-text" class="text-5xl font-bold text-center text-gray-800 mb-6">100점</p>
+                <div id="feedback-container" class="space-y-4 mb-6 max-h-60 overflow-y-auto custom-scrollbar p-4 bg-gray-50 rounded-lg">
+                    <!-- 피드백 내용 -->
+                </div>
+                <div class="flex gap-4">
+                    <button id="retry-btn" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                        다시 풀기
+                    </button>
+                    <button id="next-btn" class="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-800 transition duration-300">
+                        다음 문제
+                    </button>
                 </div>
             </div>
 
-            <!-- 결과 섹션 (처음에는 숨김) -->
-            <div id="result-container" class="hidden text-center">
-                <h2 class="text-3xl font-bold text-blue-600 mb-4">퀴즈 결과</h2>
-                <p class="text-5xl font-bold mb-6">
-                    <span id="score" class="text-green-500">0</span> / <span id="total-score">15</span>
-                </p>
-                <p id="score-message" class="text-xl text-gray-700 mb-8"></p>
-                
-                <!-- 틀린 문제 피드백 -->
-                <div id="feedback-container" class="text-left bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-red-600">틀린 문제 다시 보기</h3>
-                    <div id="feedback-list" class="space-y-4">
-                        <!-- Javascript로 피드백 내용 추가 -->
-                    </div>
-                </div>
-                
-                <button id="restart-btn" class="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-200">다시 풀기</button>
-            </div>
-            
-        </div>
-        
-        <!-- 이전 기록 섹션 -->
-        <div id="previous-results-container" class="mt-8 pt-6 border-t border-gray-200 hidden">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">나의 퀴즈 기록 📝</h3>
-            <div id="results-list" class="space-y-2 max-h-40 overflow-y-auto">
-                <p id="no-results" class="text-gray-500">아직 저장된 기록이 없습니다.</p>
-                <!-- Javascript로 기록 추가 -->
-            </div>
         </div>
 
+        <!-- 이전 결과 영역 -->
+        <div id="prev-results-container" class="w-full md:w-1/3 bg-white p-6 md:p-8 rounded-2xl shadow-xl">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">이전 퀴즈 기록</h3>
+            <div id="prev-results-list" class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                <!-- 이전 결과가 여기에 표시됩니다. -->
+                <p id="no-results-text" class="text-gray-500">아직 퀴즈 기록이 없습니다.</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Firebase 모듈 가져오기
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged,
-            setPersistence,
-            browserSessionPersistence
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            query,
-            onSnapshot,
-            serverTimestamp,
-            setLogLevel
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- 맞춤형 알림/모달 창 -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
+            <p id="modal-message" class="text-lg text-gray-800 mb-6"></p>
+            <button id="modal-close-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                확인
+            </button>
+        </div>
+    </div>
 
-        // Firebase 설정 (Canvas 환경 변수 사용)
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-korean-quiz-app';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // Firebase 앱, 인증, Firestore 초기화
-        let app, auth, db;
-        let userId = null; // 사용자 ID
-        let resultsCollectionPath = ''; // Firestore 저장 경로
-        let unsubscribeResults = null; // onSnapshot 구독 취소 함수
-
-        // Firestore 로깅 설정 (디버깅용)
-        setLogLevel('Debug');
-
-        // 퀴즈 데이터 (속담 및 관용어로 변경)
+    <script>
+        // 퀴즈 데이터 (속담 및 관용어)
         const quizData = [
             // --- 속담 (Proverbs) ---
             {
@@ -349,143 +313,176 @@
         ];
 
         // 퀴즈 상태 변수
+        let currentUserName = '';
         let currentQuestionIndex = 0;
-        let userAnswers = new Array(quizData.length).fill(null);
-        let quizSubmitted = false;
+        let userAnswers = {}; // { 0: "선택한답", 1: "선택한답" }
+        let quizState = 'progress'; // 'progress' | 'feedback'
 
         // HTML 요소 가져오기
-        const loadingEl = document.getElementById('loading');
-        const quizAppEl = document.getElementById('quiz-app');
-        const quizContainer = document.getElementById('quiz-container');
-        const resultContainer = document.getElementById('result-container');
+        const loginScreen = document.getElementById('login-screen');
+        const userNameInput = document.getElementById('user-name-input');
+        const loginButton = document.getElementById('login-button');
         
+        const quizContainer = document.getElementById('quiz-container');
+        const userGreeting = document.getElementById('user-greeting');
+        
+        const quizProgressScreen = document.getElementById('quiz-progress-screen');
+        const questionContainer = document.getElementById('question-container');
         const questionNumberEl = document.getElementById('question-number');
-        const totalQuestionsEl = document.getElementById('total-questions');
         const questionWordEl = document.getElementById('question-word');
+        const totalQuestionsEl = document.getElementById('total-questions');
         const questionTextEl = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
-        
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
         const submitBtn = document.getElementById('submit-btn');
-        
-        const scoreEl = document.getElementById('score');
-        const totalScoreEl = document.getElementById('total-score');
-        const scoreMessageEl = document.getElementById('score-message');
+
+        const resultScreen = document.getElementById('result-screen');
+        const scoreTextEl = document.getElementById('score-text');
         const feedbackContainer = document.getElementById('feedback-container');
-        const feedbackListEl = document.getElementById('feedback-list');
-        const restartBtn = document.getElementById('restart-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const nextBtn = document.getElementById('next-btn');
 
-        const prevResultsContainer = document.getElementById('previous-results-container');
-        const resultsListEl = document.getElementById('results-list');
-        const noResultsEl = document.getElementById('no-results');
+        const prevResultsContainer = document.getElementById('prev-results-container');
+        const prevResultsList = document.getElementById('prev-results-list');
+        const noResultsText = document.getElementById('no-results-text');
 
+        const modal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
 
-        // Firebase 초기화 및 인증 함수
-        async function initializeFirebase() {
-            try {
-                // 앱 초기화 확인
-                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase 설정이 비어있습니다.");
-                    loadingEl.textContent = "오류: Firebase 설정을 불러올 수 없습니다.";
-                    return;
-                }
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // 세션 지속성 설정
-                await setPersistence(auth, browserSessionPersistence);
-
-                // 인증 상태 리스너
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        console.log("로그인 성공:", user.uid);
-                        userId = user.uid;
-                        setupApp();
-                    } else {
-                        console.log("로그인 필요. 토큰 확인 중...");
-                        // 로그인 시도
-                        try {
-                            if (initialAuthToken) {
-                                console.log("커스텀 토큰으로 로그인 시도...");
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                console.log("익명으로 로그인 시도...");
-                                await signInAnonymously(auth);
-                            }
-                        } catch (authError) {
-                            console.error("로그인 실패:", authError);
-                            loadingEl.textContent = "오류: 로그인에 실패했습니다.";
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase 초기화 오류:", error);
-                loadingEl.textContent = "앱을 시작하는 데 문제가 발생했습니다.";
-            }
+        // 모달창 기능
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
         }
-        
-        // 앱 설정 (로그인 성공 후)
-        function setupApp() {
-            if (!userId) {
-                console.error("사용자 ID가 없습니다.");
+
+        // 사용자 로그인 처리
+        function handleLogin() {
+            const userName = userNameInput.value.trim();
+            if (userName.length < 2) {
+                showModal("이름을 2글자 이상 입력해 주세요.");
                 return;
             }
-            // Firestore 경로 설정
-            resultsCollectionPath = `/artifacts/${appId}/users/${userId}/koreanQuizResults`;
+            
+            currentUserName = userName;
+            loginScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            userGreeting.textContent = `${currentUserName}님, 환영합니다!`;
+            
+            // 이 사용자의 이전 결과 불러오기
+            loadPreviousResults();
             
             // 퀴즈 시작
             startQuiz();
+        }
+
+        // 이전 결과 불러오기 (localStorage)
+        function loadPreviousResults() {
+            if (!currentUserName) return;
             
-            // 이전 기록 불러오기
-            loadPreviousResults();
-            
-            // 로딩 숨기고 앱 표시
-            loadingEl.classList.add('hidden');
-            quizAppEl.classList.remove('hidden');
-            prevResultsContainer.classList.remove('hidden');
+            const resultsKey = `koreanQuizResults_${currentUserName}`;
+            try {
+                const resultsRaw = localStorage.getItem(resultsKey);
+                const results = resultsRaw ? JSON.parse(resultsRaw) : [];
+                renderPreviousResults(results);
+            } catch (error) {
+                console.error("이전 결과 불러오기 실패 (localStorage): ", error);
+                renderPreviousResults([]); // 오류 발생 시 빈 목록 표시
+            }
+        }
+
+        // 이전 결과 UI 렌더링
+        function renderPreviousResults(results) {
+            prevResultsList.innerHTML = ''; // 목록 초기화
+            if (results.length === 0) {
+                noResultsText.classList.remove('hidden');
+            } else {
+                noResultsText.classList.add('hidden');
+                
+                // 최신 결과가 위로 오도록 정렬 (원본 배열을 바꾸지 않기 위해 slice() 사용)
+                const sortedResults = results.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                sortedResults.forEach(data => {
+                    const date = new Date(data.timestamp).toLocaleString('ko-KR');
+                    const scoreColor = data.score === data.total ? 'text-blue-600' : 'text-red-600';
+
+                    const resultEl = document.createElement('div');
+                    resultEl.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
+                    resultEl.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-semibold ${scoreColor}">점수: ${data.score} / ${data.total}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${date}</span>
+                    `;
+                    prevResultsList.appendChild(resultEl);
+                });
+            }
+        }
+
+        // 퀴즈 결과 저장 (localStorage)
+        function saveQuizResult(score, total, feedback) {
+            if (!currentUserName) return; // 사용자가 없으면 저장 안 함
+
+            const newResult = {
+                userName: currentUserName,
+                score: score,
+                total: total,
+                feedback: feedback.map(f => ({ q: f.question, a: f.answer })), // 간단하게 저장
+                timestamp: new Date().toISOString() // ISO 문자열로 저장
+            };
+
+            const resultsKey = `koreanQuizResults_${currentUserName}`;
+            try {
+                const prevResultsRaw = localStorage.getItem(resultsKey);
+                const prevResults = prevResultsRaw ? JSON.parse(prevResultsRaw) : [];
+                
+                prevResults.push(newResult);
+                
+                // localStorage에 저장
+                localStorage.setItem(resultsKey, JSON.stringify(prevResults));
+                
+                // UI 업데이트
+                renderPreviousResults(prevResults);
+            } catch (error) {
+                console.error("결과 저장 실패 (localStorage): ", error);
+            }
         }
 
         // 배열 섞기 함수 (Fisher-Yates Shuffle)
         function shuffleArray(array) {
             let currentIndex = array.length,  randomIndex;
             
-            // 배열에 요소가 남아있는 동안
             while (currentIndex != 0) {
-                // 남은 요소 중 하나를 선택
                 randomIndex = Math.floor(Math.random() * currentIndex);
                 currentIndex--;
 
-                // 현재 요소와 교환
                 [array[currentIndex], array[randomIndex]] = [
                     array[randomIndex], array[currentIndex]];
             }
-
             return array;
         }
 
         // 퀴즈 시작 함수
         function startQuiz() {
             currentQuestionIndex = 0;
-            userAnswers.fill(null);
-            quizSubmitted = false;
-            
+            userAnswers = {};
+            quizState = 'progress';
             totalQuestionsEl.textContent = quizData.length;
-            totalScoreEl.textContent = quizData.length;
+
+            resultScreen.classList.add('hidden');
+            quizProgressScreen.classList.remove('hidden');
             
+            submitBtn.textContent = '채점하기';
+            submitBtn.disabled = true;
+
+            shuffleArray(quizData); // 퀴즈 문제 순서 섞기
             renderQuestion();
-            
-            quizContainer.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-            feedbackListEl.innerHTML = '';
         }
 
-        // 질문 렌더링 함수
+        // 질문 렌더링
         function renderQuestion() {
             if (currentQuestionIndex < 0 || currentQuestionIndex >= quizData.length) {
+                console.error("유효하지 않은 질문 인덱스:", currentQuestionIndex);
                 return;
             }
             
@@ -494,257 +491,242 @@
             questionNumberEl.textContent = currentQuestionIndex + 1;
             questionTextEl.textContent = question.question;
             // 'question-word'를 업데이트하는 코드 제거
-            // questionWordEl.textContent = question.word; 
             
             optionsContainer.innerHTML = '';
 
             // --- 선택지 순서 섞기 ---
-            // 1. 원본 옵션 배열을 복사합니다.
             const shuffledOptions = [...question.options];
-            // 2. 복사된 배열의 순서를 섞습니다.
             shuffleArray(shuffledOptions);
             // --- ---
             
-            // 섞인 배열(shuffledOptions)을 사용하여 버튼을 만듭니다.
             shuffledOptions.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option;
-                button.classList.add('option-btn', 'w-full', 'text-left', 'p-4', 'border-2', 'border-gray-300', 'rounded-lg', 'transition', 'duration-200', 'hover:bg-gray-100', 'hover:border-blue-400');
+                button.className = 'w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition duration-200 text-gray-700';
                 
+                // 사용자가 이전에 선택한 답이 있으면 표시
                 if (userAnswers[currentQuestionIndex] === option) {
-                    button.classList.add('selected');
+                    button.classList.add('bg-blue-100', 'border-blue-500', 'font-semibold');
                 }
-                
-                // 퀴즈 제출 후 스타일
-                if (quizSubmitted) {
-                    button.disabled = true;
-                    if (option === question.answer) {
-                        button.classList.add('correct');
-                    } else if (userAnswers[currentQuestionIndex] === option) {
-                        button.classList.add('incorrect');
-                    }
-                } else {
-                    button.onclick = () => selectAnswer(option);
-                }
-                
+
+                button.addEventListener('click', () => selectOption(button, option));
                 optionsContainer.appendChild(button);
             });
+
+            submitBtn.disabled = userAnswers[currentQuestionIndex] === undefined;
             
-            updateNavigationButtons();
+            // 마지막 문제인지 확인
+            if (currentQuestionIndex === quizData.length - 1) {
+                submitBtn.textContent = '최종 결과 보기';
+            } else {
+                submitBtn.textContent = '채점하기';
+            }
+            quizState = 'progress';
         }
-        
-        // 답 선택 함수
-        function selectAnswer(selectedOption) {
-            if (quizSubmitted) return;
+
+        // 선택지 선택
+        function selectOption(selectedButton, option) {
+            // 'feedback' 상태일 때는 선택 변경 불가
+            if (quizState === 'feedback') return;
+
+            // 모든 버튼의 선택 스타일 제거
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'border-blue-500', 'font-semibold');
+            });
+
+            // 클릭한 버튼에만 스타일 적용
+            selectedButton.classList.add('bg-blue-100', 'border-blue-500', 'font-semibold');
             
-            userAnswers[currentQuestionIndex] = selectedOption;
-            
-            // 선택된 버튼 스타일 업데이트
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                if (btn.textContent === selectedOption) {
-                    btn.classList.add('selected');
+            userAnswers[currentQuestionIndex] = option;
+            submitBtn.disabled = false;
+        }
+
+        // 채점하기 버튼 클릭
+        function submitQuiz() {
+            if (quizState === 'feedback') return; // 이미 피드백 상태면 무시
+            if (userAnswers[currentQuestionIndex] === undefined) return; // 답을 선택하지 않았으면 무시
+
+            quizState = 'feedback';
+            const question = quizData[currentQuestionIndex];
+            const selectedAnswer = userAnswers[currentQuestionIndex];
+            const isCorrect = (selectedAnswer === question.answer);
+
+            // 모든 선택지 버튼 비활성화 및 정답/오답 표시
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                const optionText = btn.textContent;
+
+                if (optionText === question.answer) {
+                    // 정답
+                    btn.classList.add('bg-green-100', 'border-green-500', 'ring-2', 'ring-green-400');
+                    btn.classList.remove('bg-blue-100', 'border-blue-500');
+                } else if (optionText === selectedAnswer && !isCorrect) {
+                    // 사용자가 선택한 오답
+                    btn.classList.add('bg-red-100', 'border-red-500', 'ring-2', 'ring-red-400');
+                    btn.classList.remove('bg-blue-100', 'border-blue-500');
+                } else {
+                    // 선택하지 않은 오답
+                    btn.classList.add('bg-gray-50', 'text-gray-500');
                 }
             });
-            
-            // 0.5초 후 자동으로 다음 문제로 이동 (선택 사항)
-            // setTimeout(() => {
-            //     if (currentQuestionIndex < quizData.length - 1) {
-            //         nextQuestion();
-            //     }
-            // }, 500);
-        }
 
-        // 네비게이션 버튼 업데이트
-        function updateNavigationButtons() {
-            prevBtn.disabled = currentQuestionIndex === 0;
+            // 결과 화면 표시
+            quizProgressScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            feedbackContainer.innerHTML = ''; // 피드백 컨테이너 초기화
             
+            const feedbackTitle = document.createElement('h3');
+            feedbackTitle.className = 'text-xl font-bold mb-2';
+            
+            const feedbackText = document.createElement('p');
+            feedbackText.className = 'text-gray-700';
+            feedbackText.textContent = question.feedback;
+
+            if (isCorrect) {
+                feedbackTitle.textContent = '정답입니다! 🎉';
+                feedbackTitle.className += ' text-green-700';
+                scoreTextEl.textContent = '정답!';
+                scoreTextEl.className = 'text-5xl font-bold text-center text-green-600 mb-6';
+            } else {
+                feedbackTitle.textContent = '틀렸습니다.';
+                feedbackTitle.className += ' text-red-700';
+                feedbackContainer.appendChild(feedbackTitle);
+                
+                const yourAnswerEl = document.createElement('p');
+                yourAnswerEl.className = 'text-sm text-gray-600';
+                yourAnswerEl.innerHTML = `<b>내가 선택한 답:</b> ${selectedAnswer}`;
+                feedbackContainer.appendChild(yourAnswerEl);
+                
+                const correctAnswerEl = document.createElement('p');
+                correctAnswerEl.className = 'text-sm text-gray-600 mb-2';
+                correctAnswerEl.innerHTML = `<b>정답:</b> ${question.answer}`;
+                feedbackContainer.appendChild(correctAnswerEl);
+                
+                scoreTextEl.textContent = '오답';
+                scoreTextEl.className = 'text-5xl font-bold text-center text-red-600 mb-6';
+            }
+            
+            feedbackContainer.appendChild(feedbackTitle);
+            feedbackContainer.appendChild(feedbackText);
+
+            // 버튼 설정
+            retryBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+
             if (currentQuestionIndex === quizData.length - 1) {
-                nextBtn.classList.add('hidden');
-                submitBtn.classList.remove('hidden');
+                // 마지막 문제인 경우
+                nextBtn.textContent = '최종 점수 보기';
             } else {
-                nextBtn.classList.remove('hidden');
-                submitBtn.classList.add('hidden');
-            }
-            
-            // 퀴즈 제출 후 버튼 숨기기
-            if (quizSubmitted) {
-                prevBtn.classList.add('hidden');
-                nextBtn.classList.add('hidden');
-                submitBtn.classList.add('hidden');
-            } else {
-                 prevBtn.classList.remove('hidden');
-                 // nextBtn/submitBtn 은 위 로직 따름
+                nextBtn.textContent = '다음 문제';
             }
         }
 
-        // 다음 문제
+        // 다음 문제 버튼 / 최종 점수 보기 버튼
         function nextQuestion() {
-            if (currentQuestionIndex < quizData.length - 1) {
+            if (currentQuestionIndex === quizData.length - 1) {
+                // 최종 점수 계산 및 표시
+                showFinalResults();
+            } else {
+                // 다음 문제로 이동
                 currentQuestionIndex++;
-                renderQuestion();
-            }
-        }
-        
-        // 이전 문제
-        function prevQuestion() {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
+                quizProgressScreen.classList.remove('hidden');
+                resultScreen.classList.add('hidden');
                 renderQuestion();
             }
         }
 
-        // 퀴즈 채점
-        async function submitQuiz() {
-            quizSubmitted = true;
+        // 최종 결과 표시
+        function showFinalResults() {
             let score = 0;
-            const incorrectAnswers = [];
+            const detailedFeedback = [];
 
             quizData.forEach((question, index) => {
-                if (userAnswers[index] === question.answer) {
+                const selected = userAnswers[index];
+                const correct = question.answer;
+                const isCorrect = (selected === correct);
+                if (isCorrect) {
                     score++;
-                } else {
-                    incorrectAnswers.push({
-                        question: question.question,
-                        word: question.word,
-                        yourAnswer: userAnswers[index] || "선택 안 함",
-                        correctAnswer: question.answer,
-                        feedback: question.feedback
-                    });
                 }
+                detailedFeedback.push({
+                    question: question.question,
+                    selected: selected || "선택 안 함",
+                    answer: correct,
+                    isCorrect: isCorrect,
+                    feedback: question.feedback
+                });
             });
 
-            // 결과 표시
-            scoreEl.textContent = score;
-            if (score === quizData.length) {
-                scoreMessageEl.textContent = "완벽해요! 모든 문제를 맞혔습니다! 🥳";
-            } else if (score >= quizData.length * 0.7) {
-                scoreMessageEl.textContent = "잘했어요! 조금만 더 노력해 보세요! 👍";
-            } else {
-                scoreMessageEl.textContent = "아쉬워요. 다시 한번 복습해 보세요! 🤓";
-            }
+            const total = quizData.length;
+            const finalScorePercent = Math.round((score / total) * 100);
             
-            // 피드백 생성
-            if (incorrectAnswers.length > 0) {
-                feedbackListEl.innerHTML = incorrectAnswers.map(item => `
-                    <div class="p-4 bg-white rounded-lg shadow-sm border border-red-200">
-                        <p class="font-semibold text-gray-800">${item.word}: ${item.question}</p>
-                        <p class="text-sm text-red-600">내 답: ${item.yourAnswer}</p>
-                        <p class="text-sm text-green-600">정답: ${item.correctAnswer}</p>
-                        <p class="text-sm text-gray-600 mt-2">💡 ${item.feedback}</p>
-                    </div>
-                `).join('');
-                feedbackContainer.classList.remove('hidden');
-            } else {
-                feedbackListEl.innerHTML = '<p class="text-green-600">틀린 문제가 없습니다. 축하합니다!</p>';
-            }
+            quizProgressScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
 
-            // 화면 전환
-            quizContainer.classList.add('hidden');
-            resultContainer.classList.remove('hidden');
+            scoreTextEl.textContent = `${finalScorePercent}점`;
+            scoreTextEl.className = 'text-5xl font-bold text-center text-blue-800 mb-6';
+
+            feedbackContainer.innerHTML = `<h3 class="text-xl font-bold mb-4 text-gray-800">전체 문제 다시보기 (${score} / ${total} 정답)</h3>`;
+
+            detailedFeedback.forEach((fb, index) => {
+                const fbEl = document.createElement('div');
+                fbEl.className = `p-3 rounded-lg mb-3 ${fb.isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`;
+                fbEl.innerHTML = `
+                    <p class="font-semibold text-gray-700 mb-1">${index + 1}. ${fb.question}</p>
+                    ${fb.isCorrect ? `
+                        <p class="text-sm text-green-700"><b>정답:</b> ${fb.answer}</p>
+                    ` : `
+                        <p class="text-sm text-red-700"><b>내가 선택한 답:</b> ${fb.selected}</p>
+                        <p class="text-sm text-green-700"><b>정답:</b> ${fb.answer}</p>
+                    `}
+                    <p class="text-xs text-gray-600 mt-1">${fb.feedback}</p>
+                `;
+                feedbackContainer.appendChild(fbEl);
+            });
             
-            // 퀴즈 제출 후 현재 상태(오답/정답 표시)를 다시 렌더링
-            // 사용자가 마지막 문제를 보고 채점할 때 유용
-            currentQuestionIndex = quizData.length - 1; 
-            renderQuestion();
-            
-            // 결과 화면이 보이도록 버튼 숨기기
-            prevBtn.classList.add('hidden');
+            // 버튼 변경
             nextBtn.classList.add('hidden');
-            submitBtn.classList.add('hidden');
+            retryBtn.classList.remove('hidden');
+            retryBtn.textContent = '새로운 퀴즈 풀기';
 
-            // Firestore에 결과 저장
-            try {
-                await saveResultToFirestore(score, quizData.length, incorrectAnswers.map(item => item.word));
-            } catch (error) {
-                console.error("결과 저장 실패:", error);
-                // 사용자에게 피드백을 줄 수 있음 (예: alert)
-            }
-        }
-        
-        // Firestore에 결과 저장
-        async function saveResultToFirestore(score, total, incorrectWords) {
-            if (!db || !userId) {
-                console.error("Firestore DB 또는 사용자 ID가 없습니다.");
-                return;
-            }
-            
-            try {
-                const docRef = await addDoc(collection(db, resultsCollectionPath), {
-                    score: score,
-                    total: total,
-                    incorrectWords: incorrectWords,
-                    timestamp: serverTimestamp() // 서버 시간 기준
-                });
-                console.log("결과 저장 성공, ID: ", docRef.id);
-            } catch (error) {
-                console.error("Firestore 저장 오류: ", error);
-                // 재시도 로직이나 사용자 알림 추가 가능
-            }
+            // 결과 저장
+            saveQuizResult(score, total, detailedFeedback);
         }
 
-        // 이전 기록 불러오기 (실시간)
-        function loadPreviousResults() {
-            if (!db || !userId) return;
-            
-            // 이전 구독이 있다면 취소
-            if (unsubscribeResults) {
-                unsubscribeResults();
-            }
-
-            const q = query(collection(db, resultsCollectionPath));
-            
-            unsubscribeResults = onSnapshot(q, (querySnapshot) => {
-                if (querySnapshot.empty) {
-                    noResultsEl.classList.remove('hidden');
-                    resultsListEl.innerHTML = '';
-                    return;
-                }
-                
-                noResultsEl.classList.add('hidden');
-                resultsListEl.innerHTML = ''; // 목록 초기화
-                
-                const results = [];
-                querySnapshot.forEach((doc) => {
-                    results.push({ id: doc.id, ...doc.data() });
-                });
-                
-                // 최신순으로 정렬 (timestamp가 있는 경우)
-                results.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-                results.forEach(result => {
-                    const li = document.createElement('div');
-                    li.classList.add('p-3', 'bg-gray-100', 'rounded-lg', 'flex', 'justify-between', 'items-center');
-                    
-                    const date = result.timestamp ? new Date(result.timestamp.seconds * 1000).toLocaleString('ko-KR') : '날짜 없음';
-                    
-                    li.innerHTML = `
-                        <span class="text-gray-700">${date}</span>
-                        <span class="font-bold text-blue-600">${result.score} / ${result.total} 점</span>
-                    `;
-                    resultsListEl.appendChild(li);
-                });
-
-            }, (error) => {
-                console.error("이전 기록 불러오기 오류:", error);
-                noResultsEl.textContent = "기록을 불러오는 데 실패했습니다.";
-                noResultsEl.classList.remove('hidden');
-            });
+        // 다시 풀기 버튼
+        function retryQuiz() {
+            startQuiz();
         }
 
+        // DOM 로드 완료 후 이벤트 리스너 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            // 모든 요소가 로드되었는지 확인
+            if (loginButton && submitBtn && nextBtn && retryBtn && modalCloseBtn && userNameInput) {
+                // 로그인 버튼
+                loginButton.addEventListener('click', handleLogin);
+                
+                // 이름 입력창에서 Enter 키로 로그인
+                userNameInput.addEventListener('keyup', (event) => {
+                    if (event.key === 'Enter') {
+                        handleLogin();
+                    }
+                });
 
-        // 이벤트 리스너 연결
-        prevBtn.addEventListener('click', prevQuestion);
-        nextBtn.addEventListener('click', nextQuestion);
-        submitBtn.addEventListener('click', submitQuiz);
-        restartBtn.addEventListener('click', startQuiz);
-        
-        // 앱 실행
-        initializeFirebase();
-
+                // 퀴즈 버튼
+                submitBtn.addEventListener('click', submitQuiz);
+                nextBtn.addEventListener('click', nextQuestion);
+                retryBtn.addEventListener('click', retryQuiz);
+                
+                // 모달 닫기 버튼
+                modalCloseBtn.addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+            } else {
+                console.error("퀴즈 앱 초기화에 실패했습니다. HTML 요소를 찾을 수 없습니다.");
+            }
+        });
     </script>
 </body>
 </html>
-
 
 
