@@ -15,6 +15,7 @@
         /* 기본 폰트 설정 */
         body {
             font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            overscroll-behavior: none;
         }
         
         /* 선택된 버튼 스타일 */
@@ -37,20 +38,45 @@
             color: white;
             border-color: #ef4444; /* border-red-500 */
         }
+
+        /* 커스텀 스크롤바 (결과 창용) */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 md:p-8">
-        
-        <!-- 로딩 스피너 -->
-        <div id="loading" class="text-center p-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p class="mt-4 text-gray-600">퀴즈를 불러오는 중입니다...</p>
+    <!-- 로그인 화면 -->
+    <div id="login-screen" class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 md:p-8">
+        <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">한국어 어휘 퀴즈</h2>
+        <p class="text-center text-gray-600 mb-8">퀴즈 기록을 저장할 이름을 입력해 주세요.</p>
+        <div class="mb-4">
+            <label for="user-name-input" class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+            <input type="text" id="user-name-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="이름 (2글자 이상)">
         </div>
+        <button id="login-button" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg">
+            퀴즈 시작하기
+        </button>
+        <p id="login-error" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+    </div>
 
-        <!-- 퀴즈 컨테이너 (처음에는 숨김) -->
-        <div id="quiz-app" class="hidden">
+    <!-- 퀴즈 앱 메인 컨테이너 (처음에는 숨김) -->
+    <div id="app-container" class="hidden bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 md:p-8">
+
+        <!-- 퀴즈 컨테이너 -->
+        <div id="quiz-app">
             
             <!-- 퀴즈 섹션 -->
             <div id="quiz-container">
@@ -90,7 +116,7 @@
                 <!-- 틀린 문제 피드백 -->
                 <div id="feedback-container" class="text-left bg-gray-50 p-4 rounded-lg">
                     <h3 class="text-xl font-semibold mb-4 text-red-600">틀린 문제 다시 보기</h3>
-                    <div id="feedback-list" class="space-y-4">
+                    <div id="feedback-list" class="space-y-4 max-h-60 overflow-y-auto custom-scrollbar">
                         <!-- Javascript로 피드백 내용 추가 -->
                     </div>
                 </div>
@@ -101,9 +127,11 @@
         </div>
         
         <!-- 이전 기록 섹션 -->
-        <div id="previous-results-container" class="mt-8 pt-6 border-t border-gray-200 hidden">
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">나의 퀴즈 기록 📝</h3>
-            <div id="results-list" class="space-y-2 max-h-40 overflow-y-auto">
+        <div id="previous-results-container" class="mt-8 pt-6 border-t border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">
+                <span id="user-name-display"></span>님의 퀴즈 기록 📝
+            </h3>
+            <div id="results-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
                 <p id="no-results" class="text-gray-500">아직 저장된 기록이 없습니다.</p>
                 <!-- Javascript로 기록 추가 -->
             </div>
@@ -111,51 +139,9 @@
 
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Firebase 모듈 가져오기
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged,
-            setPersistence,
-            browserSessionPersistence
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            query,
-            onSnapshot,
-            serverTimestamp,
-            setLogLevel
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- 수정된 부분 (시작) ---
-        
-        // Firebase 설정 (Canvas 환경 변수 사용)
-        const rawFirebaseConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-korean-quiz-app';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // Firebase 앱, 인증, Firestore 초기화
-        let app, auth, db;
-        let userId = null; // 사용자 ID
-        let resultsCollectionPath = ''; // Firestore 저장 경로
-        let unsubscribeResults = null; // onSnapshot 구독 취소 함수
-        let firebaseConfig = {}; // Firebase 설정 객체를 담을 변수
-        
-        // --- 수정된 부분 (끝) ---
-
-
-        // Firestore 로깅 설정 (디버깅용)
-        setLogLevel('Debug');
-
-        // 퀴즈 데이터
+    <!-- JavaScript -->
+    <script>
+        // 퀴즈 데이터 (첫 번째 이미지의 어휘로 변경)
         const quizData = [
             // --- 감상/평가 어휘 ---
             {
@@ -173,14 +159,14 @@
                 feedback: "'기대만 못하다'는 기대했던 것보다 결과가 나쁘다는 뜻입니다."
             },
             {
-                word: "이해하기 안 되다",
+                word: "이해하기 안 되다", // "이해가 안 되다" 또는 "이해하기 어렵다"가 더 자연스러울 수 있으나 원본 따름
                 question: "'이해하기 안 되다'의 뜻은 무엇인가요?",
                 options: ["정말 놀랍다", "분위기가 나쁘다", "무슨 뜻인지 잘 모르겠다", "잊을 수 없다"],
                 answer: "무슨 뜻인지 잘 모르겠다",
                 feedback: "'이해하기 안 되다'는 내용이 어렵거나 복잡해서 뜻을 알기 어렵다는 말입니다."
             },
             {
-                word: "상황이 별로 안 좋다",
+                word: "상황이 별로 안 좋다", // "상황"보다는 "분위기"나 "느낌"이 문맥에 맞을 수 있으나 원본 따름
                 question: "'상황이 별로 안 좋다'의 뜻은 무엇인가요?",
                 options: ["재미없고 별로다", "특별히 좋지도 나쁘지도 않다", "분위기나 느낌이 좋지 않다", "아주 훌륭하다"],
                 answer: "분위기나 느낌이 좋지 않다",
@@ -267,12 +253,18 @@
         ];
 
         // 퀴즈 상태 변수
+        let currentUserName = '';
         let currentQuestionIndex = 0;
         let userAnswers = new Array(quizData.length).fill(null);
         let quizSubmitted = false;
 
         // HTML 요소 가져오기
-        const loadingEl = document.getElementById('loading');
+        const loginScreen = document.getElementById('login-screen');
+        const userNameInput = document.getElementById('user-name-input');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error');
+
+        const appContainer = document.getElementById('app-container');
         const quizAppEl = document.getElementById('quiz-app');
         const quizContainer = document.getElementById('quiz-container');
         const resultContainer = document.getElementById('result-container');
@@ -295,95 +287,31 @@
         const restartBtn = document.getElementById('restart-btn');
 
         const prevResultsContainer = document.getElementById('previous-results-container');
+        const userNameDisplay = document.getElementById('user-name-display');
         const resultsListEl = document.getElementById('results-list');
         const noResultsEl = document.getElementById('no-results');
 
-
-        // Firebase 초기화 및 인증 함수
-        async function initializeFirebase() {
-            try {
-                
-                // --- 수정된 부분 (시작) ---
-                // Firebase 설정 파싱
-                if (rawFirebaseConfig && rawFirebaseConfig.trim() !== "") {
-                    try {
-                        firebaseConfig = JSON.parse(rawFirebaseConfig);
-                    } catch (e) {
-                        console.error("Firebase 설정 JSON 파싱 오류:", e, rawFirebaseConfig);
-                        loadingEl.textContent = "오류: Firebase 설정 형식이 잘못되었습니다.";
-                        return;
-                    }
-                } else {
-                    console.error("Firebase 설정이 제공되지 않았습니다. (__firebase_config is missing or empty)");
-                    loadingEl.textContent = "오류: Firebase 설정을 찾을 수 없습니다.";
-                    return;
-                }
-
-                // 앱 초기화 확인 (이제 firebaseConfig가 채워졌는지 확인)
-                if (Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase 설정이 비어있습니다. (After parsing)");
-                    loadingEl.textContent = "오류: Firebase 설정을 불러올 수 없습니다.";
-                    return;
-                }
-                // --- 수정된 부분 (끝) ---
-
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // 세션 지속성 설정
-                await setPersistence(auth, browserSessionPersistence);
-
-                // 인증 상태 리스너
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        console.log("로그인 성공:", user.uid);
-                        userId = user.uid;
-                        setupApp();
-                    } else {
-                        console.log("로그인 필요. 토큰 확인 중...");
-                        // 로그인 시도
-                        try {
-                            if (initialAuthToken) {
-                                console.log("커스텀 토큰으로 로그인 시도...");
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                console.log("익명으로 로그인 시도...");
-                                await signInAnonymously(auth);
-                            }
-                        } catch (authError) {
-                            console.error("로그인 실패:", authError);
-                            loadingEl.textContent = "오류: 로그인에 실패했습니다.";
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase 초기화 오류:", error);
-                loadingEl.textContent = "앱을 시작하는 데 문제가 발생했습니다.";
-            }
-        }
-        
-        // 앱 설정 (로그인 성공 후)
-        function setupApp() {
-            if (!userId) {
-                console.error("사용자 ID가 없습니다.");
+        // 앱 시작 함수 (로그인 처리)
+        function handleLogin() {
+            const userName = userNameInput.value.trim();
+            if (userName.length < 2) {
+                loginError.textContent = "이름을 2글자 이상 입력해 주세요.";
+                loginError.classList.remove('hidden');
                 return;
             }
-            // Firestore 경로 설정
-            resultsCollectionPath = `/artifacts/${appId}/users/${userId}/koreanQuizResults`;
             
+            currentUserName = userName;
+            
+            loginScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            
+            userNameDisplay.textContent = currentUserName;
+
             // 퀴즈 시작
             startQuiz();
             
             // 이전 기록 불러오기
-            loadPreviousResults();
-            
-            // 로딩 숨기고 앱 표시
-            loadingEl.classList.add('hidden');
-            quizAppEl.classList.remove('hidden');
-            prevResultsContainer.classList.remove('hidden');
+            loadPreviousResultsFromLocalStorage();
         }
 
         // 퀴즈 시작 함수
@@ -391,6 +319,9 @@
             currentQuestionIndex = 0;
             userAnswers.fill(null);
             quizSubmitted = false;
+
+            // 질문 순서 섞기
+            shuffleArray(quizData);
             
             totalQuestionsEl.textContent = quizData.length;
             totalScoreEl.textContent = quizData.length;
@@ -400,6 +331,20 @@
             quizContainer.classList.remove('hidden');
             resultContainer.classList.add('hidden');
             feedbackListEl.innerHTML = '';
+        }
+
+        // 배열 섞기 함수 (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            let currentIndex = array.length,  randomIndex;
+            
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
         }
 
         // 질문 렌더링 함수
@@ -412,12 +357,14 @@
             
             questionNumberEl.textContent = currentQuestionIndex + 1;
             questionTextEl.textContent = question.question;
-            // 'question-word'를 업데이트하는 코드 제거
-            // questionWordEl.textContent = question.word; 
             
             optionsContainer.innerHTML = '';
+
+            // 선택지 순서 섞기
+            const shuffledOptions = [...question.options];
+            shuffleArray(shuffledOptions);
             
-            question.options.forEach(option => {
+            shuffledOptions.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option;
                 button.classList.add('option-btn', 'w-full', 'text-left', 'p-4', 'border-2', 'border-gray-300', 'rounded-lg', 'transition', 'duration-200', 'hover:bg-gray-100', 'hover:border-blue-400');
@@ -457,13 +404,6 @@
                     btn.classList.add('selected');
                 }
             });
-            
-            // 0.5초 후 자동으로 다음 문제로 이동 (선택 사항)
-            // setTimeout(() => {
-            //     if (currentQuestionIndex < quizData.length - 1) {
-            //         nextQuestion();
-            //     }
-            // }, 500);
         }
 
         // 네비게이션 버튼 업데이트
@@ -473,6 +413,8 @@
             if (currentQuestionIndex === quizData.length - 1) {
                 nextBtn.classList.add('hidden');
                 submitBtn.classList.remove('hidden');
+                // 마지막 문제에서 답을 선택했는지 확인
+                submitBtn.disabled = userAnswers[currentQuestionIndex] === null;
             } else {
                 nextBtn.classList.remove('hidden');
                 submitBtn.classList.add('hidden');
@@ -506,7 +448,26 @@
         }
 
         // 퀴즈 채점
-        async function submitQuiz() {
+        function submitQuiz() {
+            // 모든 답이 선택되었는지 확인
+            const allAnswered = userAnswers.every(answer => answer !== null);
+            if (!allAnswered) {
+                // 이 앱은 한 문제씩 푸는 게 아니라, 마지막에 한 번에 채점하는 방식입니다.
+                // 마지막 문제의 답만 확인
+                if (userAnswers[currentQuestionIndex] === null) {
+                    alert("마지막 문제의 답을 선택해 주세요."); // 간단한 알림
+                    return;
+                }
+                // 혹은 모든 문제를 풀었는지 확인
+                const unanswered = userAnswers.filter(a => a === null).length;
+                if (unanswered > 0) {
+                    if (!confirm(`아직 풀지 않은 문제가 ${unanswered}개 있습니다. 채점하시겠습니까?`)) {
+                        return;
+                    }
+                }
+            }
+
+
             quizSubmitted = true;
             let score = 0;
             const incorrectAnswers = [];
@@ -548,6 +509,7 @@
                 feedbackContainer.classList.remove('hidden');
             } else {
                 feedbackListEl.innerHTML = '<p class="text-green-600">틀린 문제가 없습니다. 축하합니다!</p>';
+                feedbackContainer.classList.remove('hidden'); // 틀린 문제 없어도 보이게
             }
 
             // 화면 전환
@@ -564,96 +526,116 @@
             nextBtn.classList.add('hidden');
             submitBtn.classList.add('hidden');
 
-            // Firestore에 결과 저장
-            try {
-                await saveResultToFirestore(score, quizData.length, incorrectAnswers.map(item => item.word));
-            } catch (error) {
-                console.error("결과 저장 실패:", error);
-                // 사용자에게 피드백을 줄 수 있음 (예: alert)
-            }
+            // localStorage에 결과 저장
+            saveResultToLocalStorage(score, quizData.length, incorrectAnswers.map(item => item.word));
         }
         
-        // Firestore에 결과 저장
-        async function saveResultToFirestore(score, total, incorrectWords) {
-            if (!db || !userId) {
-                console.error("Firestore DB 또는 사용자 ID가 없습니다.");
+        // localStorage에 결과 저장
+        function saveResultToLocalStorage(score, total, incorrectWords) {
+            if (!currentUserName) {
+                console.error("사용자 이름이 없어 결과를 저장할 수 없습니다.");
                 return;
             }
             
+            const key = `koreanQuizResults_${currentUserName}`;
+            const newResult = {
+                score: score,
+                total: total,
+                incorrectWords: incorrectWords,
+                timestamp: new Date().toISOString() // 서버 시간 대신 클라이언트 시간
+            };
+
+            let results = [];
             try {
-                const docRef = await addDoc(collection(db, resultsCollectionPath), {
-                    score: score,
-                    total: total,
-                    incorrectWords: incorrectWords,
-                    timestamp: serverTimestamp() // 서버 시간 기준
-                });
-                console.log("결과 저장 성공, ID: ", docRef.id);
+                const rawResults = localStorage.getItem(key);
+                if (rawResults) {
+                    results = JSON.parse(rawResults);
+                }
             } catch (error) {
-                console.error("Firestore 저장 오류: ", error);
-                // 재시도 로직이나 사용자 알림 추가 가능
+                console.error("localStorage에서 결과 읽기 오류: ", error);
+                results = []; // 오류 발생 시 초기화
+            }
+
+            results.push(newResult);
+
+            try {
+                localStorage.setItem(key, JSON.stringify(results));
+                console.log("결과 저장 성공:", newResult);
+                
+                // 저장 후 즉시 목록 새로고침
+                renderPreviousResults(results);
+            } catch (error) {
+                console.error("localStorage 저장 오류: ", error);
             }
         }
 
-        // 이전 기록 불러오기 (실시간)
-        function loadPreviousResults() {
-            if (!db || !userId) return;
+        // localStorage에서 이전 기록 불러오기
+        function loadPreviousResultsFromLocalStorage() {
+            if (!currentUserName) return;
             
-            // 이전 구독이 있다면 취소
-            if (unsubscribeResults) {
-                unsubscribeResults();
-            }
-
-            const q = query(collection(db, resultsCollectionPath));
-            
-            unsubscribeResults = onSnapshot(q, (querySnapshot) => {
-                if (querySnapshot.empty) {
-                    noResultsEl.classList.remove('hidden');
-                    resultsListEl.innerHTML = '';
-                    return;
+            const key = `koreanQuizResults_${currentUserName}`;
+            let results = [];
+            try {
+                const rawResults = localStorage.getItem(key);
+                if (rawResults) {
+                    results = JSON.parse(rawResults);
                 }
-                
-                noResultsEl.classList.add('hidden');
-                resultsListEl.innerHTML = ''; // 목록 초기화
-                
-                const results = [];
-                querySnapshot.forEach((doc) => {
-                    results.push({ id: doc.id, ...doc.data() });
-                });
-                
-                // 최신순으로 정렬 (timestamp가 있는 경우)
-                results.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+            } catch (error) {
+                console.error("localStorage에서 결과 읽기 오류: ", error);
+            }
+            
+            renderPreviousResults(results);
+        }
 
-                results.forEach(result => {
-                    const li = document.createElement('div');
-                    li.classList.add('p-3', 'bg-gray-100', 'rounded-lg', 'flex', 'justify-between', 'items-center');
-                    
-                    const date = result.timestamp ? new Date(result.timestamp.seconds * 1000).toLocaleString('ko-KR') : '날짜 없음';
-                    
-                    li.innerHTML = `
-                        <span class="text-gray-700">${date}</span>
-                        <span class="font-bold text-blue-600">${result.score} / ${result.total} 점</span>
-                    `;
-                    resultsListEl.appendChild(li);
-                });
-
-            }, (error) => {
-                console.error("이전 기록 불러오기 오류:", error);
-                noResultsEl.textContent = "기록을 불러오는 데 실패했습니다.";
+        // 이전 기록 목록을 UI에 렌더링
+        function renderPreviousResults(results) {
+            if (!results || results.length === 0) {
                 noResultsEl.classList.remove('hidden');
+                resultsListEl.innerHTML = '';
+                return;
+            }
+            
+            noResultsEl.classList.add('hidden');
+            resultsListEl.innerHTML = ''; // 목록 초기화
+            
+            // 최신순으로 정렬 (timestamp 기준)
+            results.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            results.forEach(result => {
+                const li = document.createElement('div');
+                li.classList.add('p-3', 'bg-gray-100', 'rounded-lg', 'flex', 'justify-between', 'items-center');
+                
+                const date = new Date(result.timestamp).toLocaleString('ko-KR');
+                
+                li.innerHTML = `
+                    <span class="text-gray-700 text-sm">${date}</span>
+                    <span class="font-bold text-blue-600">${result.score} / ${result.total} 점</span>
+                `;
+                resultsListEl.appendChild(li);
             });
         }
 
+        // 이벤트 리스너 DOM 로드 후 연결
+        document.addEventListener('DOMContentLoaded', () => {
+            // 로그인 버튼
+            loginButton.addEventListener('click', handleLogin);
+            
+            // 이름 입력창에서 Enter 키로 로그인
+            userNameInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    handleLogin();
+                }
+            });
 
-        // 이벤트 리스너 연결
-        prevBtn.addEventListener('click', prevQuestion);
-        nextBtn.addEventListener('click', nextQuestion);
-        submitBtn.addEventListener('click', submitQuiz);
-        restartBtn.addEventListener('click', startQuiz);
-        
-        // 앱 실행
-        initializeFirebase();
+            // 퀴즈 네비게이션
+            prevBtn.addEventListener('click', prevQuestion);
+            nextBtn.addEventListener('click', nextQuestion);
+            submitBtn.addEventListener('click', submitQuiz);
+            restartBtn.addEventListener('click', startQuiz);
+        });
 
     </script>
 </body>
 </html>
+
 
