@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다국어 퀴즈 어휘 학습장</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 언어별 폰트 적용 */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+        /* 베트남어 */
+        body[lang="vi"] {
+            font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+        }
+        /* 일본어 */
+        body[lang="ja"] {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- 헤더 -->
+    <header class="bg-blue-600 text-white text-center p-4 shadow-md">
+        <h1 class="text-2xl font-bold">다국어 퀴즈 어휘 학습장</h1>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-3xl mx-auto p-4 md:p-6">
+        
+        <!-- 언어 선택 버튼 -->
+        <div id="lang-switcher" class="flex justify-center space-x-2 mb-4">
+            <button data-lang="ko" class="lang-btn bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold transition-colors shadow">한국어</button>
+            <button data-lang="vi" class="lang-btn bg-white text-blue-600 border border-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow">Tiếng Việt</button>
+            <button data-lang="ja" class="lang-btn bg-white text-blue-600 border border-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow">日本語</button>
+        </div>
+
+        <!-- 슬라이더 컨테이너 -->
+        <div id="slider-container" class="bg-white rounded-lg shadow-xl p-6 md:p-8 min-h-[450px] transition-all duration-300">
+            <!-- 어휘 카드가 여기에 동적으로 삽입됩니다 -->
+        </div>
+
+        <!-- 네비게이션 -->
+        <div class="flex justify-between items-center mt-6">
+            <button id="prevBtn" class="bg-blue-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow">
+                이전
+            </button>
+            <span id="slide-counter" class="text-gray-700 font-medium text-lg">
+                <!-- 1 / 5 -->
+            </span>
+            <button id="nextBtn" class="bg-blue-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow">
+                다음
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // --- 어휘 데이터 (번역 추가) ---
+        const vocabularyData = [
+            // --- 문제 [1-2] ---
+            {
+                title: "문제 [1-2] 어휘 (19803.jpg)",
+                words: [
+                    { word: "수준 높다", 
+                      meaning: "실력이나 정도가 보통보다 위에 있다.", 
+                      example: "이 가수는 정말 수준 높은 노래를 불렀어요.",
+                      meaning_vi: "Năng lực hoặc trình độ cao hơn mức bình thường.",
+                      example_vi: "Ca sĩ này đã hát một bài hát có trình độ rất cao.",
+                      meaning_ja: "実力や程度が普通より上にある。",
+                      example_ja: "この歌手は本当にレベルの高い歌を歌いました。" },
+                    { word: "연주자", 
+                      meaning: "악기를 다루어 음악을 공연하는 사람.", 
+                      example: "피아노 연주자의 손가락이 정말 빨랐어요.",
+                      meaning_vi: "Người biểu diễn âm nhạc bằng nhạc cụ.",
+                      example_vi: "Ngón tay của người chơi piano thật sự rất nhanh.",
+                      meaning_ja: "楽器を扱って音楽を公演する人。",
+                      example_ja: "ピアノ演奏者の指が本当に速かったです。" },
+                    { word: "구성되다", 
+                      meaning: "여러 부분이나 요소가 모여 하나로 만들어지다.", 
+                      example: "우리 팀은 5명으로 구성되어 있어요.",
+                      meaning_vi: "Nhiều bộ phận hoặc yếu tố tập hợp lại tạo thành một.",
+                      example_vi: "Đội của chúng tôi bao gồm 5 thành viên.",
+                      meaning_ja: "いくつかの部分や要素が集まって一つに作られる。",
+                      example_ja: "私たちのチームは5人で構成されています。" },
+                    { word: "감동적", 
+                      meaning: "마음이 크게 움직여 느낌이 깊다.", 
+                      example: "영화의 마지막 장면이 정말 감동적이었어요.",
+                      meaning_vi: "Tình cảm sâu sắc do tác động mạnh đến trái tim.",
+                      example_vi: "Cảnh cuối cùng của bộ phim thật sự rất cảm động.",
+                      meaning_ja: "心が大きく動かされて感じが深い。",
+                      example_ja: "映画の最後のシーンが本当に感動的でした。" },
+                    { word: "빠지다", 
+                      meaning: "어떤 상태나 장소에 깊이 들어가다.", 
+                      example: "저는 요즘 드라마에 푹 빠져 있어요.",
+                      meaning_vi: "Đi sâu vào một trạng thái hoặc địa điểm nào đó.",
+                      example_vi: "Dạo này tôi đang đắm chìm trong phim truyền hình.",
+                      meaning_ja: "ある状態や場所に深く入り込む。",
+                      example_ja: "私は最近ドラマにどっぷりハマっています。" },
+                    { word: "공연", 
+                      meaning: "많은 사람들 앞에서 음악, 춤, 연극 등을 보여주는 것.", 
+                      example: "주말에 친구와 공연을 보러 갈 거예요.",
+                      meaning_vi: "Việc biểu diễn âm nhạc, nhảy múa, kịch... trước nhiều người.",
+                      example_vi: "Cuối tuần tôi sẽ đi xem biểu diễn với bạn.",
+                      meaning_ja: "多くの人々の前で音楽、ダンス、演劇などを見せること。",
+                      example_ja: "週末に友達と公演を見に行くつもりです。" },
+                    { word: "전시", 
+                      meaning: "그림이나 물건을 여러 사람에게 보여주기 위해 펼쳐 놓는 것.", 
+                      example: "미술관에서 새로운 전시를 시작했어요.",
+                      meaning_vi: "Trưng bày tranh ảnh hoặc đồ vật cho nhiều người xem.",
+                      example_vi: "Bảo tàng mỹ thuật đã bắt đầu một triển lãm mới.",
+                      meaning_ja: "絵や品物を多くの人に見せるために広げて置くこと。",
+                      example_ja: "美術館で新しい展示が始まりました。" },
+                    { word: "전국 투어", 
+                      meaning: "나라 전체를 돌면서 공연하는 것.", 
+                      example: "그 가수가 전국 투어를 시작한대요.",
+                      meaning_vi: "Việc biểu diễn vòng quanh cả nước.",
+                      example_vi: "Nghe nói ca sĩ đó bắt đầu chuyến lưu diễn toàn quốc.",
+                      meaning_ja: "国全体を回りながら公演すること。",
+                      example_ja: "その歌手が全国ツアーを始めるそうです。" },
+                    { word: "예정", 
+                      meaning: "앞으로 할 일을 미리 정해 놓은 것.", 
+                      example: "다음 달에 이사할 예정입니다.",
+                      meaning_vi: "Việc đã định trước sẽ làm trong tương lai.",
+                      example_vi: "Tôi dự định chuyển nhà vào tháng sau.",
+                      meaning_ja: "これからすることをあらかじめ決めておくこと。",
+                      example_ja: "来月引っ越す予定です。" },
+                    { word: "세계문화유산", 
+                      meaning: "전 세계가 함께 보호해야 할 중요한 문화 재산.", 
+                      example: "불국사는 유네스코 세계문화유산입니다.",
+                      meaning_vi: "Tài sản văn hóa quan trọng mà cả thế giới cần cùng nhau bảo vệ.",
+                      example_vi: "Chùa Bulguksa là Di sản văn hóa thế giới của UNESCO.",
+                      meaning_ja: "全世界が共に保護すべき重要な文化財産。",
+                      example_ja: "仏国寺はユネスコ世界文化遺産です。" },
+                    { word: "등재되다", 
+                      meaning: "이름이나 내용이 공식적인 문서에 오르다.", 
+                      example: "그 건물이 세계문화유산으로 등재되었습니다.",
+                      meaning_vi: "Tên hoặc nội dung được đưa vào văn bản chính thức.",
+                      example_vi: "Tòa nhà đó đã được đăng ký là Di sản văn hóa thế giới.",
+                      meaning_ja: "名前や内容が公式な文書に載る。",
+                      example_ja: "その建物が世界文化遺産に登録されました。" },
+                    { word: "기념하다", 
+                      meaning: "특별한 일이나 사람을 잊지 않고 기억하다.", 
+                      example: "우리는 결혼 10주년을 기념하기 위해 여행을 갔어요.",
+                      meaning_vi: "Ghi nhớ và không quên một việc hoặc người đặc biệt.",
+                      example_vi: "Chúng tôi đã đi du lịch để kỷ niệm 10 năm ngày cưới.",
+                      meaning_ja: "特別なことや人を忘れずに記憶する。",
+                      example_ja: "私たちは結婚10周年を記念するために旅行に行きました。" },
+                    { word: "펼쳐지다", 
+                      meaning: "막혀 있던 것이 열리거나, 행사가 시작되다.", 
+                      example: "눈앞에 아름다운 바다가 펼쳐졌어요.",
+                      meaning_vi: "Thứ bị chặn được mở ra, hoặc sự kiện bắt đầu.",
+                      example_vi: "Biển cả tươi đẹp trải dài trước mắt.",
+                      meaning_ja: "遮られていたものが開いたり、イベントが始まったりする。",
+                      example_ja: "目の前に美しい海が広がりました。" },
+                    { word: "목숨을 걸다", 
+                      meaning: "죽을 수도 있는 위험을 참고 어떤 일을 하다.", 
+                      example: "소방관들은 목숨을 걸고 사람들을 구합니다.",
+                      meaning_vi: "Chấp nhận nguy hiểm có thể chết để làm việc gì đó.",
+                      example_vi: "Lính cứu hỏa đánh cược mạng sống để cứu người.",
+                      meaning_ja: "死ぬかもしれない危険を覚悟して何かをする。",
+                      example_ja: "消防士たちは命をかけて人々を救います。" },
+                    { word: "독립운동가", 
+                      meaning: "나라의 독립을 위해 싸운 사람.", 
+                      example: "유관순 열사는 유명한 독립운동가입니다.",
+                      meaning_vi: "Người đã chiến đấu vì độc lập của đất nước.",
+                      example_vi: "Liệt sĩ Yu Gwan-sun là nhà hoạt động độc lập nổi tiếng.",
+                      meaning_ja: "国の独立のために戦った人。",
+                      example_ja: "柳寛順(ユ・グァンスン)烈士は有名な独立運動家です。" },
+                    { word: "작품", 
+                      meaning: "만든 물건. (특히 예술 활동으로 만든 것)", 
+                      example: "이 그림은 피카소의 작품입니다.",
+                      meaning_vi: "Đồ vật được tạo ra. (Đặc biệt là thứ được tạo ra từ hoạt động nghệ thuật)",
+                      example_vi: "Bức tranh này là tác phẩm của Picasso.",
+                      meaning_ja: "作った物。（特に芸術活動で作ったもの）",
+                      example_ja: "この絵はピカソの作品です。" },
+                    { word: "되돌아보다", 
+                      meaning: "지난 일을 다시 생각하다.", 
+                      example: "일기를 쓰면서 하루를 되돌아봅니다.",
+                      meaning_vi: "Suy nghĩ lại về việc đã qua.",
+                      example_vi: "Tôi nhìn lại một ngày của mình khi viết nhật ký.",
+                      meaning_ja: "過ぎたことを再び考える。",
+                      example_ja: "日記を書きながら一日を振り返ります。" }
+                ]
+            },
+            // --- 문제 [3-5] ---
+            {
+                title: "문제 [3-5] 어휘 (19806.jpg)",
+                words: [
+                    { word: "믿는 도끼에 발등 찍힌다", 
+                      meaning: "(관용구) 내가 정말 믿었던 사람에게 배신을 당하거나 속았을 때 쓰는 말.", 
+                      example: "친구를 믿고 돈을 빌려줬는데 도망갔어요. 믿는 도끼에 발등 찍혔어요.",
+                      meaning_vi: "(Thành ngữ) Bị phản bội hoặc lừa dối bởi người mình tin tưởng.",
+                      example_vi: "Tôi tin bạn và cho mượn tiền nhưng anh ta đã bỏ trốn. Đúng là bị dao đâm sau lưng.",
+                      meaning_ja: "（慣用句）本当に信じていた人に裏切られたり、だまされたりした時に使う言葉。",
+                      example_ja: "友達を信じてお金を貸したら逃げられました。信じる斧に足を切られました。" },
+                    { word: "팔아 넘기다", 
+                      meaning: "다른 사람에게 돈을 받고 물건이나 정보 등을 주다. (주로 나쁜 뜻)", 
+                      example: "그는 회사의 비밀을 다른 회사에 팔아 넘겼어요.",
+                      meaning_vi: "Nhận tiền và đưa đồ vật hoặc thông tin... cho người khác. (Thường mang ý xấu)",
+                      example_vi: "Anh ta đã bán bí mật công ty cho công ty khác.",
+                      meaning_ja: "他人にお金をもらって物や情報などを渡す。（主に悪い意味）",
+                      example_ja: "彼は会社の秘密を他社に売り渡しました。" },
+                    { word: "피해를 주다", 
+                      meaning: "다른 사람에게 나쁜 영향을 주거나 손해를 입히다.", 
+                      example: "시끄러운 소리로 이웃에게 피해를 주면 안 됩니다.",
+                      meaning_vi: "Gây ảnh hưởng xấu hoặc tổn thất cho người khác.",
+                      example_vi: "Không được gây ồn ào làm phiền hàng xóm.",
+                      meaning_ja: "他人に悪い影響を与えたり、損害を与えたりする。",
+                      example_ja: "うるさい音で隣人に迷惑をかけてはいけません。" },
+                    { word: "피해를 입다", 
+                      meaning: "나쁜 영향을 받거나 손해를 당하다.", 
+                      example: "태풍 때문에 농부들이 큰 피해를 입었어요.",
+                      meaning_vi: "Nhận ảnh hưởng xấu hoặc chịu thiệt hại.",
+                      example_vi: "Nông dân đã chịu thiệt hại lớn do bão.",
+                      meaning_ja: "悪い影響を受けたり、損害を被ったりする。",
+                      example_ja: "台風のせいで農家が大きな被害を受けました。" },
+                    { word: "외로워하다", 
+                      meaning: "혼자 있는 것 같아서 슬퍼하는 마음이 들다.", 
+                      example: "강아지가 주인이 없어서 외로워해요.",
+                      meaning_vi: "Cảm thấy buồn bã vì dường như chỉ có một mình.",
+                      example_vi: "Chú chó cảm thấy cô đơn vì không có chủ.",
+                      meaning_ja: "一人でいるようで悲しい気持ちになる。",
+                      example_ja: "子犬が飼い主がいなくて寂しがっています。" },
+                    { word: "써 내려가다", 
+                      meaning: "글을 계속해서 쓰다.", 
+                      example: "그는 자신의 생각을 공책에 써 내려갔어요.",
+                      meaning_vi: "Viết liên tục.",
+                      example_vi: "Anh ấy đã viết suy nghĩ của mình vào vở.",
+                      meaning_ja: "文章を書き続ける。",
+                      example_ja: "彼は自分の考えをノートに書き下ろしました。" },
+                    { word: "가득 차다", 
+                      meaning: "어떤 공간에 무엇이 꽉 차 있다.", 
+                      example: "방 안에 사람들이 가득 찼어요.",
+                      meaning_vi: "Thứ gì đó đầy ắp trong một không gian.",
+                      example_vi: "Mọi người đầy ắp trong phòng.",
+                      meaning_ja: "ある空間に何かがいっぱいになっている。",
+                      example_ja: "部屋の中に人がいっぱいです。" },
+                    { word: "고향", 
+                      meaning: "태어나고 자란 곳.", 
+                      example: "명절에는 고향에 가는 사람들이 많아요.",
+                      meaning_vi: "Nơi sinh ra và lớn lên.",
+                      example_vi: "Vào ngày lễ có rất nhiều người về quê.",
+                      meaning_ja: "生まれて育った所。",
+                      example_ja: "祝日には故郷に帰る人が多いです。" },
+                    { word: "종종", 
+                      meaning: "가끔.", 
+                      example: "저는 종종 공원에서 산책을 해요.",
+                      meaning_vi: "Thỉnh thoảng.",
+                      example_vi: "Tôi thỉnh thoảng đi dạo ở công viên.",
+                      meaning_ja: "時々。",
+                      example_ja: "私は時々公園で散歩をします。" },
+                    { word: "-기 마련이다", 
+                      meaning: "(문법) 그렇게 되는 것이 당연하다.", 
+                      example: "사람은 누구나 실수하기 마련입니다.",
+                      meaning_vi: "(Ngữ pháp) Việc trở nên như vậy là đương nhiên.",
+                      example_vi: "Con người ai cũng có lúc mắc sai lầm.",
+                      meaning_ja: "（文法）そうなるのが当然だ。",
+                      example_ja: "人は誰でも間違いを犯すものです。" },
+                    { word: "계획하다", 
+                      meaning: "앞으로 할 일을 미리 생각하고 정하다.", 
+                      example: "여름휴가 계획을 세우고 있어요.",
+                      meaning_vi: "Suy nghĩ và quyết định trước việc sẽ làm.",
+                      example_vi: "Tôi đang lập kế hoạch cho kỳ nghỉ hè.",
+                      meaning_ja: "これからすることをあらかじめ考えて決める。",
+                      example_ja: "夏休みの計画を立てています。" },
+                    { word: "-(으)ㄹ 수밖에 없다", 
+                      meaning: "(문법) 다른 방법이 없고 그것만 가능하다.", 
+                      example: "너무 피곤해서 쉴 수밖에 없었어요.",
+                      meaning_vi: "(Ngữ pháp) Không còn cách nào khác và chỉ có thể làm điều đó.",
+                      example_vi: "Vì quá mệt mỏi nên tôi không còn cách nào khác ngoài nghỉ ngơi.",
+                      meaning_ja: "（文法）他の方法がなく、それしか可能でない。",
+                      example_ja: "とても疲れていたので休むしかありませんでした。" },
+                    { word: "지루하다", 
+                      meaning: "재미가 없고 심심하다.", 
+                      example: "영화가 너무 지루해서 잠이 왔어요.",
+                      meaning_vi: "Không thú vị và nhàm chán.",
+                      example_vi: "Bộ phim quá nhàm chán nên tôi buồn ngủ.",
+                      meaning_ja: "面白くなくて退屈だ。",
+                      example_ja: "映画がとても退屈で眠くなりました。" },
+                    { word: "쳐다보다", 
+                      meaning: "얼굴이나 눈을 들어 똑바로 보다.", 
+                      example: "고양이가 저를 가만히 쳐다보고 있어요.",
+                      meaning_vi: "Ngẩng mặt hoặc mắt lên nhìn thẳng.",
+                      example_vi: "Con mèo đang nhìn tôi chằm chằm.",
+                      meaning_ja: "顔や目を上げてまっすぐ見る。",
+                      example_ja: "猫が私をじっと見つめています。" },
+                    { word: "쓸데없다", 
+                      meaning: "필요하지 않고 쓸모가 없다.", 
+                      example: "쓸데없는 걱정은 하지 마세요.",
+                      meaning_vi: "Không cần thiết và vô dụng.",
+                      example_vi: "Đừng lo lắng những điều vô ích.",
+                      meaning_ja: "必要でなく、役に立たない。",
+                      example_ja: "無駄な心配はしないでください。" },
+                    { word: "당황스럽다", 
+                      meaning: "어떻게 해야 할지 모르고 마음이 급해지다.", 
+                      example: "갑자기 많은 사람들이 쳐다봐서 당황스러웠어요.",
+                      meaning_vi: "Không biết phải làm thế nào và trở nên vội vàng.",
+                      example_vi: "Tôi đã rất bối rối vì đột nhiên có nhiều người nhìn.",
+                      meaning_ja: "どうすればいいかわからず、心が焦る。",
+                      example_ja: "急にたくさんの人に見られて戸惑いました。" },
+                    { word: "상대방", 
+                      meaning: "나와 이야기하거나 함께 무언가를 하는 다른 사람.", 
+                      example: "대화할 때는 상대방의 눈을 보세요.",
+                      meaning_vi: "Người khác nói chuyện hoặc làm gì đó cùng với mình.",
+                      example_vi: "Khi nói chuyện, hãy nhìn vào mắt đối phương.",
+                      meaning_ja: "私と話したり、一緒に何かをしたりする他の人。",
+                      example_ja: "会話するときは相手の目を見てください。" }
+                ]
+            },
+            // --- 문제 [6-7] ---
+            {
+                title: "문제 [6-7] 어휘 (19809.jpg)",
+                words: [
+                    { word: "소 잃고 외양간 고친다", 
+                      meaning: "(속담) 일이 이미 잘못된 후에 고치려고 한다는 뜻.", 
+                      example: "시험에 떨어진 후에 공부를 시작하는 것은 소 잃고 외양간 고치는 격이에요.",
+                      meaning_vi: "(Tục ngữ) Có nghĩa là cố gắng sửa chữa sau khi mọi việc đã sai.",
+                      example_vi: "Bắt đầu học sau khi thi trượt là mất bò mới lo làm chuồng.",
+                      meaning_ja: "（ことわざ）事がすでに間違った後で直そうとするという意味。",
+                      example_ja: "試験に落ちた後に勉強を始めるのは、牛を失ってから牛小屋を直すようなものです。" },
+                    { word: "손을 쓰다", 
+                      meaning: "어떤 문제를 해결하기 위해 행동을 하다.", 
+                      example: "더 늦기 전에 손을 써야 해요.",
+                      meaning_vi: "Hành động để giải quyết vấn đề nào đó.",
+                      example_vi: "Phải ra tay trước khi quá muộn.",
+                      meaning_ja: "ある問題を解決するために行動する。",
+                      example_ja: "手遅れになる前に手を打たなければなりません。" },
+                    { word: "쓸모없다", 
+                      meaning: "필요하거나 도움이 되지 않는다.", 
+                      example: "이 고장 난 시계는 이제 쓸모없어요.",
+                      meaning_vi: "Không cần thiết hoặc không giúp ích.",
+                      example_vi: "Cái đồng hồ hỏng này bây giờ vô dụng rồi.",
+                      meaning_ja: "必要だったり、役に立ったりしない。",
+                      example_ja: "この壊れた時計はもう役に立ちません。" },
+                    { word: "소설가", 
+                      meaning: "소설을 쓰는 사람.", 
+                      example: "저는 그 소설가가 쓴 책을 다 읽었어요.",
+                      meaning_vi: "Người viết tiểu thuyết.",
+                      example_vi: "Tôi đã đọc tất cả các cuốn sách mà tiểu thuyết gia đó viết.",
+                      meaning_ja: "小説を書く人。",
+                      example_ja: "私はその小説家が書いた本をすべて読みました。" },
+                    { word: "시도하다", 
+                      meaning: "어떤 것을 해 보려고 노력하다.", 
+                      example: "새로운 요리를 시도해 봤어요.",
+                      meaning_vi: "Cố gắng làm thử điều gì đó.",
+                      example_vi: "Tôi đã thử làm món ăn mới.",
+                      meaning_ja: "何かをやってみようと努力する。",
+                      example_ja: "新しい料理を試してみました。" },
+                    { word: "예방하다", 
+                      meaning: "나쁜 일이 생기기 전에 미리 막다.", 
+                      example: "감기를 예방하기 위해 손을 자주 씻어요.",
+                      meaning_vi: "Ngăn chặn trước khi điều xấu xảy ra.",
+                      example_vi: "Tôi rửa tay thường xuyên để phòng cảm cúm.",
+                      meaning_ja: "悪いことが起こる前にあらかじめ防ぐ。",
+                      example_ja: "風邪を予防するために手をよく洗います。" },
+                    { word: "포기하다", 
+                      meaning: "하던 일을 그만두거나 하려고 했던 마음을 버리다.", 
+                      example: "너무 어려워도 포기하지 마세요.",
+                      meaning_vi: "Ngừng việc đang làm hoặc từ bỏ ý định đã có.",
+                      example_vi: "Dù khó khăn cũng đừng từ bỏ.",
+                      meaning_ja: "していたことをやめたり、しようとしていた気持ちを捨てたりする。",
+                      example_ja: "難しすぎても諦めないでください。" },
+                    { word: "직접", 
+                      meaning: "중간에 다른 것을 거치지 않고 바로.", 
+                      example: "제가 직접 만들었어요.",
+                      meaning_vi: "Trực tiếp mà không thông qua bất cứ điều gì khác ở giữa.",
+                      example_vi: "Chính tôi đã tự làm.",
+                      meaning_ja: "途中で他のものを経ずにすぐに。",
+                      example_ja: "私が直接作りました。" },
+                    { word: "지적하다", 
+                      meaning: "잘못된 점이나 이상한 점을 콕 집어 말하다.", 
+                      example: "선생님이 제 글에서 틀린 부분을 지적해 주셨어요.",
+                      meaning_vi: "Chỉ ra và nói về điểm sai hoặc điểm lạ.",
+                      example_vi: "Giáo viên đã chỉ ra những phần sai trong bài viết của tôi.",
+                      meaning_ja: "間違った点やおかしな点を特定して言う。",
+                      example_ja: "先生が私の文章の間違った部分を指摘してくれました。" },
+                    { word: "창피하다", 
+                      meaning: "부끄럽고 얼굴이 뜨거워지는 느낌.", 
+                      example: "사람들 앞에서 넘어져서 창피했어요.",
+                      meaning_vi: "Cảm giác xấu hổ và mặt nóng bừng.",
+                      example_vi: "Tôi bị ngã trước mặt mọi người nên rất xấu hổ.",
+                      meaning_ja: "恥ずかしくて顔が熱くなる感じ。",
+                      example_ja: "人前で転んで恥ずかしかったです。" },
+                    { word: "자연스럽다", 
+                      meaning: "억지로 꾸미지 않고 보통 때와 같다.", 
+                      example: "그 배우는 연기가 참 자연스러워요.",
+                      meaning_vi: "Không cố ý tô điểm và giống như bình thường.",
+                      example_vi: "Diễn viên đó diễn xuất thật tự nhiên.",
+                      meaning_ja: "無理に飾らず、普段と同じだ。",
+                      example_ja: "あの俳優は演技がとても自然です。" },
+                    { word: "부드럽게", 
+                      meaning: "느낌이 딱딱하지 않고 편안하게.", 
+                      example: "아이에게 부드럽게 말해 주세요.",
+                      meaning_vi: "Thoải mái và không cứng nhắc.",
+                      example_vi: "Hãy nói chuyện với em bé một cách nhẹ nhàng.",
+                      meaning_ja: "感じが硬くなく、楽に。",
+                      example_ja: "子供に優しく話しかけてください。" },
+                    { word: "다가가다", 
+                      meaning: "어떤 대상에 가까이 가다.", 
+                      example: "강아지에게 천천히 다가갔어요.",
+                      meaning_vi: "Đến gần một đối tượng nào đó.",
+                      example_vi: "Tôi từ từ tiến lại gần chú chó.",
+                      meaning_ja: "ある対象に近づいて行く。",
+                      example_ja: "子犬にゆっくりと近づきました。" },
+                    { word: "효과적이다", 
+                      meaning: "좋은 결과나 효과가 있다.", 
+                      example: "이 방법이 가장 효과적입니다.",
+                      meaning_vi: "Có kết quả hoặc hiệu quả tốt.",
+                      example_vi: "Phương pháp này là hiệu quả nhất.",
+                      meaning_ja: "良い結果や効果がある。",
+                      example_ja: "この方法が最も効果的です。" },
+                    { word: "상황", 
+                      meaning: "일이 벌어진 현재의 모습이나 상태.", 
+                      example: "지금은 상황이 좋지 않아요.",
+                      meaning_vi: "Hình ảnh hoặc trạng thái hiện tại của sự việc.",
+                      example_vi: "Bây giờ tình hình không tốt.",
+                      meaning_ja: "事が起こった現在の様子や状態。",
+                      example_ja: "今は状況が良くありません。" }
+                ]
+            },
+            // --- 문제 [8-10] ---
+            {
+                title: "문제 [8-10] 어휘 (19812.jpg, 19815.jpg)",
+                words: [
+                    { word: "이성 친구", 
+                      meaning: "성별이 다른 친구. (종종 사귀는 사람을 의미하기도 함)", 
+                      example: "그는 이성 친구가 많아요.",
+                      meaning_vi: "Bạn khác giới. (Thường cũng có nghĩa là người yêu)",
+                      example_vi: "Anh ấy có nhiều bạn khác giới.",
+                      meaning_ja: "性別の異なる友達。（しばしば付き合っている人を意味することもある）",
+                      example_ja: "彼は異性の友達が多いです。" },
+                    { word: "사귀다", 
+                      meaning: "친구로 지내거나 연인으로 만나다.", 
+                      example: "우리는 사귄 지 1년 되었어요.",
+                      meaning_vi: "Làm bạn hoặc hẹn hò như người yêu.",
+                      example_vi: "Chúng tôi đã hẹn hò được 1 năm.",
+                      meaning_ja: "友達として過ごしたり、恋人として付き合ったりする。",
+                      example_ja: "私たちは付き合って1年になります。" },
+                    { word: "눈이 높다", 
+                      meaning: "(관용구) 좋아하는 사람이나 물건을 고르는 기준이 높다.", 
+                      example: "그는 눈이 높아서 아직 여자친구가 없어요.",
+                      meaning_vi: "(Thành ngữ) Tiêu chuẩn chọn người hoặc vật mình thích cao.",
+                      example_vi: "Anh ấy kén chọn nên vẫn chưa có bạn gái.",
+                      meaning_ja: "（慣用句）好きな人や物を選ぶ基準が高い。",
+                      example_ja: "彼は理想が高いので、まだ彼女がいません。" },
+                    { word: "발견하다", 
+                      meaning: "몰랐던 것이나 숨겨진 것을 찾아내다.", 
+                      example: "새로운 맛집을 발견했어요!",
+                      meaning_vi: "Tìm ra điều chưa biết hoặc bị che giấu.",
+                      example_vi: "Tôi đã phát hiện ra một quán ăn ngon mới!",
+                      meaning_ja: "知らなかったことや隠されていたことを見つけ出す。",
+                      example_ja: "新しい美味しいお店を発見しました！" },
+                    { word: "마음을 닫다", 
+                      meaning: "(관용구) 다른 사람을 받아들이지 않다.", 
+                      example: "상처를 받은 후에 마음을 닫아 버렸어요.",
+                      meaning_vi: "(Thành ngữ) Không chấp nhận người khác.",
+                      example_vi: "Sau khi bị tổn thương, tôi đã khép lòng mình lại.",
+                      meaning_ja: "（慣用句）他の人を受け入れない。",
+                      example_ja: "傷ついた後、心を閉ざしてしまいました。" },
+                    { word: "완전하다", 
+                      meaning: "부족한 점이 하나도 없이 다 갖추어져 있다.", 
+                      example: "완전한 계획은 없어요.",
+                      meaning_vi: "Đầy đủ mà không có một điểm thiếu sót nào.",
+                      example_vi: "Không có kế hoạch nào là hoàn hảo cả.",
+                      meaning_ja: "足りない点が一つもなく、すべて備わっている。",
+                      example_ja: "完全な計画はありません。" },
+                    { word: "기준", 
+                      meaning: "어떤 것을 판단하거나 고를 때 기본이 되는 것.", 
+                      example: "사람마다 행복의 기준은 다릅니다.",
+                      meaning_vi: "Cơ sở để phán đoán hoặc lựa chọn điều gì đó.",
+                      example_vi: "Tiêu chuẩn hạnh phúc của mỗi người là khác nhau.",
+                      meaning_ja: "何かを判断したり選んだりする時に基本となるもの。",
+                      example_ja: "人によって幸せの基準は異なります。" },
+                    { word: "판단하다", 
+                      meaning: "생각해서 결정하다.", 
+                      example: "겉모습만 보고 사람을 판단하면 안 돼요.",
+                      meaning_vi: "Suy nghĩ và quyết định.",
+                      example_vi: "Không được đánh giá người khác chỉ qua vẻ bề ngoài.",
+                      meaning_ja: "考えて決定する。",
+                      example_ja: "外見だけを見て人を判断してはいけません。" },
+                    { word: "알아 가다", 
+                      meaning: "시간을 두고 천천히 알게 되다.", 
+                      example: "우리는 서로를 알아 가는 중입니다.",
+                      meaning_vi: "Dành thời gian và từ từ tìm hiểu.",
+                      example_vi: "Chúng tôi đang trong quá trình tìm hiểu nhau.",
+                      meaning_ja: "時間をかけてゆっくり知っていく。",
+                      example_ja: "私たちは互いを知っていく過程です。" },
+                    { word: "실수하다", 
+                      meaning: "잘못 행동하거나 틀리다.", 
+                      example: "누구나 실수할 수 있어요.",
+                      meaning_vi: "Hành động sai hoặc làm sai.",
+                      example_vi: "Ai cũng có thể mắc sai lầm.",
+                      meaning_ja: "間違って行動したり、間違う。",
+                      example_ja: "誰でも間違いをすることがあります。" },
+                    { word: "매진", 
+                      meaning: "표나 물건이 다 팔려서 없음.", 
+                      example: "콘서트 표가 1분 만에 매진되었어요.",
+                      meaning_vi: "Vé hoặc đồ vật đã bán hết và không còn.",
+                      example_vi: "Vé xem hòa nhạc đã bán hết trong vòng 1 phút.",
+                      meaning_ja: "チケットや品物がすべて売れてないこと。",
+                      example_ja: "コンサートのチケットが1分で売り切れになりました。" },
+                    { word: "기록하다", 
+                      meaning: "나중에 알 수 있도록 글이나 그림, 영상 등으로 남기다.", 
+                      example: "중요한 내용은 공책에 기록해 두세요.",
+                      meaning_vi: "Để lại bằng chữ, tranh, video... để sau này có thể biết.",
+                      example_vi: "Hãy ghi lại những nội dung quan trọng vào vở.",
+                      meaning_ja: "後で分かるように文や絵、映像などで残す。",
+                      example_ja: "重要な内容はノートに記録しておいてください。" },
+                    { word: "관심", 
+                      meaning: "어떤 것에 마음이 끌리고 궁금해하는 것.", 
+                      example: "저는 한국 문화에 관심이 많아요.",
+                      meaning_vi: "Trái tim bị thu hút và tò mò về điều gì đó.",
+                      example_vi: "Tôi rất quan tâm đến văn hóa Hàn Quốc.",
+                      meaning_ja: "何かに心が引かれて知りたがること。",
+                      example_ja: "私は韓国文化にとても興味があります。" },
+                    { word: "공연장", 
+                      meaning: "공연을 하는 장소.", 
+                      example: "공연장 입구에 사람들이 줄을 서 있었어요.",
+                      meaning_vi: "Địa điểm tổ chức biểu diễn.",
+                      example_vi: "Mọi người đang xếp hàng ở lối vào nhà hát.",
+                      meaning_ja: "公演をする場所。",
+                      example_ja: "公演場の入り口に人々が並んでいました。" },
+                    { word: "매력", 
+                      meaning: "사람의 마음을 끄는 힘.", 
+                      example: "그 사람은 웃는 모습이 매력 있어요.",
+                      meaning_vi: "Sức mạnh thu hút trái tim của người khác.",
+                      example_vi: "Người đó có nụ cười rất quyến rũ.",
+                      meaning_ja: "人の心を引く力。",
+                      example_ja: "あの人は笑う姿が魅力的です。" },
+                    { word: "친해지다", 
+                      meaning: "사이가 가깝고 정이 많아지다.", 
+                      example: "새 친구와 금방 친해졌어요.",
+                      meaning_vi: "Mối quan hệ trở nên gần gũi và có nhiều tình cảm hơn.",
+                      example_vi: "Tôi đã nhanh chóng trở nên thân thiết với người bạn mới.",
+                      meaning_ja: "仲が近くなり、情が深まる。",
+                      example_ja: "新しい友達とすぐに親しくなりました。" },
+                    { word: "대중음악", 
+                      meaning: "많은 사람들이 좋아하고 즐겨 듣는 음악.", 
+                      example: "K-pop은 세계적인 대중음악이 되었어요.",
+                      meaning_vi: "Âm nhạc được nhiều người yêu thích và thưởng thức.",
+                      example_vi: "K-pop đã trở thành âm nhạc đại chúng toàn cầu.",
+                      meaning_ja: "多くの人が好み、楽しんで聴く音楽。",
+                      example_ja: "K-POPは世界的な大衆音楽になりました。" },
+                    { word: "감정", 
+                      meaning: "기쁨, 슬픔, 화남 등 마음의 느낌.", 
+                      example: "그는 자기감정을 잘 표현하지 않아요.",
+                      meaning_vi: "Cảm giác của trái tim như vui, buồn, giận...",
+                      example_vi: "Anh ấy không hay thể hiện cảm xúc của mình.",
+                      meaning_ja: "喜び、悲しみ、怒りなど、心の感じ。",
+                      example_ja: "彼は自分の感情をあまり表現しません。" },
+                    { word: "담아내다", 
+                      meaning: "어떤 생각이나 느낌, 모습을 안에 넣어 보여주다.", 
+                      example: "이 사진은 가을의 풍경을 잘 담아냈어요.",
+                      meaning_vi: "Đưa suy nghĩ, cảm xúc, hoặc hình ảnh vào bên trong và thể hiện ra.",
+                      example_vi: "Bức ảnh này đã lột tả rất tốt phong cảnh mùa thu.",
+                      meaning_ja: "ある考えや感じ、姿を中に入れて見せる。",
+                      example_ja: "この写真は秋の風景をよく捉えています。" },
+                    { word: "악기", 
+                      meaning: "음악을 연주할 때 쓰는 도구.", 
+                      example: "피아노, 기타 같은 악기를 배우고 싶어요.",
+                      meaning_vi: "Dụng cụ dùng để biểu diễn âm nhạc.",
+                      example_vi: "Tôi muốn học nhạc cụ như piano, guitar.",
+                      meaning_ja: "音楽を演奏する時に使う道具。",
+                      example_ja: "ピアノやギターのような楽器を習いたいです。" },
+                    { word: "평소", 
+                      meaning: "보통 때.", 
+                      example: "평소에는 9시에 일어나요.",
+                      meaning_vi: "Lúc bình thường.",
+                      example_vi: "Bình thường tôi thức dậy lúc 9 giờ.",
+                      meaning_ja: "普段。",
+                      example_ja: "普段は9時に起きます。" },
+                    { word: "필자", 
+                      meaning: "이 글을 쓴 사람.", 
+                      example: "필자의 생각에 동의합니다.",
+                      meaning_vi: "Người viết bài viết này.",
+                      example_vi: "Tôi đồng ý với suy nghĩ của tác giả.",
+                      meaning_ja: "この文を書いた人。",
+                      example_ja: "筆者の考えに同意します。" },
+                    { word: "목적", 
+                      meaning: "이루려고 하는 일이나 나아가는 방향.", 
+                      example: "이번 여행의 목적은 휴식입니다.",
+                      meaning_vi: "Công việc muốn đạt được hoặc hướng đi.",
+                      example_vi: "Mục đích của chuyến đi này là nghỉ ngơi.",
+                      meaning_ja: "成し遂げようとすることや進む方向。",
+                      example_ja: "今回の旅行の目的は休息です。" }
+                ]
+            },
+            // --- 문제 [11-12] ---
+            {
+                title: "문제 [11-12] 어휘 (19815.jpg)",
+                words: [
+                    { word: "성호르몬", 
+                      meaning: "남성이나 여성의 신체 특징을 만드는 호르몬.", 
+                      example: "성호르몬은 뇌 발달에도 영향을 줍니다.",
+                      meaning_vi: "Hormone tạo ra đặc điểm cơ thể của nam hoặc nữ.",
+                      example_vi: "Hormone sinh dục cũng ảnh hưởng đến sự phát triển của não.",
+                      meaning_ja: "男性や女性の身体的特徴を作るホルモン。",
+                      example_ja: "性ホルモンは脳の発達にも影響を与えます。" },
+                    { word: "신체적 특징", 
+                      meaning: "몸의 겉모습이나 구조에서 나타나는 특별한 점.", 
+                      example: "사람마다 신체적 특징이 다릅니다.",
+                      meaning_vi: "Điểm đặc biệt xuất hiện trên vẻ bề ngoài hoặc cấu trúc của cơ thể.",
+                      example_vi: "Mỗi người có đặc điểm cơ thể khác nhau.",
+                      meaning_ja: "体の外見や構造に現れる特別な点。",
+                      example_ja: "人によって身体的特徴が異なります。" },
+                    { word: "뇌", 
+                      meaning: "머릿속에서 생각하고 느끼는 것을 담당하는 부분.", 
+                      example: "뇌는 우리 몸에서 매우 중요합니다.",
+                      meaning_vi: "Bộ phận trong đầu chịu trách nhiệm suy nghĩ và cảm nhận.",
+                      example_vi: "Não rất quan trọng trong cơ thể chúng ta.",
+                      meaning_ja: "頭の中で考えたり感じたりすることを担当する部分。",
+                      example_ja: "脳は私たちの体で非常に重要です。" },
+                    { word: "발달", 
+                      meaning: "점점 더 좋게 자라거나 커지는 것.", 
+                      example: "아이의 언어 발달이 빨라요.",
+                      meaning_vi: "Việc lớn lên hoặc to ra dần dần tốt hơn.",
+                      example_vi: "Sự phát triển ngôn ngữ của đứa trẻ rất nhanh.",
+                      meaning_ja: "だんだん良く育ったり、大きくなったりすること。",
+                      example_ja: "子供の言語発達が速いです。" },
+                    { word: "영향을 미치다", 
+                      meaning: "다른 것에 변화를 주다.", 
+                      example: "날씨가 기분에 영향을 미칠 수 있어요.",
+                      meaning_vi: "Gây ra sự thay đổi cho cái khác.",
+                      example_vi: "Thời tiết có thể ảnh hưởng đến tâm trạng.",
+                      meaning_ja: "他のものに変化を与える。",
+                      example_ja: "天気が気分に影響を与えることがあります。" },
+                    { word: "성별", 
+                      meaning: "남자와 여자, 또는 그 구별.", 
+                      example: "성별에 따라 생각이 다를 수 있어요.",
+                      meaning_vi: "Nam và nữ, hoặc sự phân biệt đó.",
+                      example_vi: "Suy nghĩ có thể khác nhau tùy theo giới tính.",
+                      meaning_ja: "男性と女性、またはその区別。",
+                      example_ja: "性別によって考え方が異なることがあります。" },
+                    { word: "차이", 
+                      meaning: "서로 같지 않고 다른 점.", 
+                      example: "두 그림의 차이를 찾아보세요.",
+                      meaning_vi: "Điểm khác nhau và không giống nhau.",
+                      example_vi: "Hãy tìm điểm khác biệt giữa hai bức tranh.",
+                      meaning_ja: "互いに同じでなく、異なる点。",
+                      example_ja: "二つの絵の違いを見つけてください。" },
+                    { word: "대체로", 
+                      meaning: "거의 다, 대부분.", 
+                      example: "이 식당은 대체로 음식이 맛있어요.",
+                      meaning_vi: "Hầu hết, đa phần.",
+                      example_vi: "Nhà hàng này nhìn chung đồ ăn rất ngon.",
+                      meaning_ja: "ほとんど、大部分。",
+                      example_ja: "この食堂はだいたい食べ物が美味しいです。" },
+                    { word: "체계적", 
+                      meaning: "순서나 규칙이 잘 정해져 있는 것.", 
+                      example: "체계적인 계획이 필요합니다.",
+                      meaning_vi: "Việc có thứ tự hoặc quy tắc được sắp xếp tốt.",
+                      example_vi: "Cần có một kế hoạch có hệ thống.",
+                      meaning_ja: "順序や規則がきちんと決められていること。",
+                      example_ja: "体系的な計画が必要です。" },
+                    { word: "반면에", 
+                      meaning: "그와는 반대로.", 
+                      example: "오빠는 조용한 반면에, 동생은 활발해요.",
+                      meaning_vi: "Ngược lại với điều đó.",
+                      example_vi: "Anh trai thì trầm tính, ngược lại em trai thì hoạt bát.",
+                      meaning_ja: "それとは反対に。",
+                      example_ja: "兄は静かな反面、弟は活発です。" },
+                    { word: "공감", 
+                      meaning: "다른 사람의 감정이나 생각을 똑같이 느끼는 것.", 
+                      example: "친구의 슬픔에 공감하며 위로해 주었어요.",
+                      meaning_vi: "Cảm nhận giống hệt cảm xúc hoặc suy nghĩ của người khác.",
+                      example_vi: "Tôi đồng cảm với nỗi buồn của bạn và an ủi cậu ấy.",
+                      meaning_ja: "他人の感情や考えを同じように感じること。",
+                      example_ja: "友達の悲しみに共感し、慰めてあげました。" },
+                    { word: "능력", 
+                      meaning: "어떤 일을 잘할 수 있는 힘.", 
+                      example: "그는 외국어 능력이 뛰어나요.",
+                      meaning_vi: "Sức mạnh có thể làm tốt một việc gì đó.",
+                      example_vi: "Anh ấy có năng lực ngoại ngữ xuất sắc.",
+                      meaning_ja: "ある事をうまくできる力。",
+                      example_ja: "彼は外国語能力が優れています。" },
+                    { word: "뛰어나다", 
+                      meaning: "보통보다 훨씬 잘하다.", 
+                      example: "그는 축구 실력이 뛰어나요.",
+                      meaning_vi: "Giỏi hơn nhiều so với bình thường.",
+                      example_vi: "Anh ấy có kỹ năng bóng đá xuất sắc.",
+                      meaning_ja: "普通よりはるかに上手だ。",
+                      example_ja: "彼はサッカーの実力が優れています。" },
+                    { word: "감정적", 
+                      meaning: "감정에 쉽게 움직이는 것.", 
+                      example: "그는 감정적인 사람이라 잘 울고 잘 웃어요.",
+                      meaning_vi: "Dễ bị cảm xúc chi phối.",
+                      example_vi: "Anh ấy là người sống tình cảm nên hay khóc hay cười.",
+                      meaning_ja: "感情に動かされやすいこと。",
+                      example_ja: "彼は感情的な人なので、よく泣いたり笑ったりします。" },
+                    { word: "반응", 
+                      meaning: "어떤 행동이나 자극에 대해 답하는 행동.", 
+                      example: "그의 농담에 아무도 반응이 없었어요.",
+                      meaning_vi: "Hành động đáp lại một hành động hoặc kích thích nào đó.",
+                      example_vi: "Không ai phản ứng với câu nói đùa của anh ấy.",
+                      meaning_ja: "ある行動や刺激に対して応える行動。",
+                      example_ja: "彼の冗談に誰も反応がありませんでした。" },
+                    { word: "도대체", 
+                      meaning: "(강조) 정말, 어째서.", 
+                      example: "도대체 무슨 일이에요?",
+                      meaning_vi: "(Nhấn mạnh) Thực sự, tại sao.",
+                      example_vi: "Rốt cuộc là có chuyện gì vậy?",
+                      meaning_ja: "（強調）本当に、一体。",
+                      example_ja: "一体何事ですか？" },
+                    { word: "발끈하다", 
+                      meaning: "갑자기 화를 내다.", 
+                      example: "그는 작은 일에도 발끈하는 성격이에요.",
+                      meaning_vi: "Đột nhiên nổi giận.",
+                      example_vi: "Anh ấy có tính cách hay nổi nóng vì những chuyện nhỏ nhặt.",
+                      meaning_ja: "急に怒り出す。",
+                      example_ja: "彼は小さなことにもカッとなる性格です。" },
+                    { word: "성격", 
+                      meaning: "그 사람이 가진 마음의 특징.", 
+                      example: "제 친구는 성격이 밝아요.",
+                      meaning_vi: "Đặc điểm về tấm lòng mà người đó có.",
+                      example_vi: "Bạn tôi có tính cách vui vẻ.",
+                      meaning_ja: "その人が持つ心の特徴。",
+                      example_ja: "私の友達は性格が明るいです。" },
+                    { word: "눈물을 흘리다", 
+                      meaning: "울다.", 
+                      example: "영화가 너무 슬퍼서 눈물을 흘렸어요.",
+                      meaning_vi: "Khóc.",
+                      example_vi: "Bộ phim quá buồn nên tôi đã khóc.",
+                      meaning_ja: "泣く。",
+                      example_ja: "映画がとても悲しくて涙を流しました。" },
+                    { word: "상상하다", 
+                      meaning: "머릿속으로 그림을 그리거나 생각하다.", 
+                      example: "10년 뒤의 내 모습을 상상해 보세요.",
+                      meaning_vi: "Vẽ tranh hoặc suy nghĩ trong đầu.",
+                      example_vi: "Hãy thử tưởng tượng hình ảnh của tôi 10 năm sau.",
+                      meaning_ja: "頭の中で絵を描いたり、考えたりする。",
+                      example_ja: "10年後の自分の姿を想像してみてください。" }
+                ]
+            }
+        ];
+
+        // --- 스크립트 로직 ---
+        
+        // DOM 요소 가져오기
+        const sliderContainer = document.getElementById('slider-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slide-counter');
+        const langSwitcher = document.getElementById('lang-switcher');
+        const langButtons = document.querySelectorAll('.lang-btn');
+        const body = document.body;
+
+        let currentSlideIndex = 0; // 현재 슬라이드 인덱스
+        let currentLang = 'ko'; // 현재 선택된 언어
+
+        // 번역 라벨
+        const labels = {
+            ko: { meaning: "쉬운 설명:", example: "예문:" },
+            vi: { meaning: "Giải thích:", example: "Ví dụ:" },
+            ja: { meaning: "簡単な説明:", example: "例文:" }
+        };
+
+        // 슬라이드를 렌더링하는 함수
+        function renderSlide(index, lang) {
+            // 1. 데이터 가져오기
+            const data = vocabularyData[index];
+            
+            // 2. 컨테이너 비우기
+            sliderContainer.innerHTML = '';
+
+            // 3. 슬라이드 요소 생성
+            const slide = document.createElement('div');
+            slide.className = 'slide';
+
+            // 4. 슬라이드 제목 생성 (제목은 항상 한국어로 유지)
+            const title = document.createElement('h2');
+            title.className = 'text-xl md:text-2xl font-semibold mb-6 text-blue-700 border-b-2 border-blue-200 pb-3';
+            title.textContent = data.title;
+            slide.appendChild(title);
+
+            // 5. 어휘 목록 컨테이너 생성
+            const wordList = document.createElement('div');
+            wordList.className = 'space-y-4 max-h-[500px] overflow-y-auto pr-2'; // 스크롤바 추가
+
+            // 6. 어휘 카드 생성 및 추가
+            data.words.forEach(wordData => {
+                const card = document.createElement('div');
+                card.className = 'border border-gray-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300';
+
+                // 단어 (항상 한국어)
+                const word = document.createElement('h3');
+                word.className = 'text-lg md:text-xl font-bold text-gray-900';
+                word.textContent = wordData.word;
+
+                // 번역된 '의미'
+                const meaningKey = lang === 'ko' ? 'meaning' : `meaning_${lang}`;
+                const meaningLabel = labels[lang].meaning;
+                const meaning = document.createElement('p');
+                meaning.className = 'text-gray-700 mt-1';
+                meaning.innerHTML = `<span class="font-medium text-gray-800">${meaningLabel}</span> ${wordData[meaningKey]}`;
+
+                // 번역된 '예문'
+                const exampleKey = lang === 'ko' ? 'example' : `example_${lang}`;
+                const exampleLabel = labels[lang].example;
+                const example = document.createElement('p');
+                example.className = 'text-gray-600 italic mt-1';
+                example.innerHTML = `<span class="font-medium text-gray-800">${exampleLabel}</span> ${wordData[exampleKey]}`;
+
+                card.appendChild(word);
+                card.appendChild(meaning);
+                card.appendChild(example);
+                wordList.appendChild(card);
+            });
+
+            slide.appendChild(wordList);
+            sliderContainer.appendChild(slide);
+
+            // 7. 슬라이드 카운터 업데이트
+            slideCounter.textContent = `${index + 1} / ${vocabularyData.length}`;
+
+            // 8. 버튼 활성/비활성 상태 업데이트
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === vocabularyData.length - 1;
+
+            // 9. body의 lang 속성 변경 (폰트 적용용)
+            body.setAttribute('lang', lang);
+        }
+
+        // --- 이벤트 리스너 ---
+
+        // 언어 변경 버튼
+        langSwitcher.addEventListener('click', (e) => {
+            if (e.target.classList.contains('lang-btn')) {
+                const selectedLang = e.target.dataset.lang;
+                if (selectedLang === currentLang) return;
+
+                currentLang = selectedLang;
+                
+                // 버튼 스타일 업데이트
+                langButtons.forEach(btn => {
+                    if (btn.dataset.lang === currentLang) {
+                        btn.classList.add('bg-blue-600', 'text-white');
+                        btn.classList.remove('bg-white', 'text-blue-600', 'border', 'border-blue-600', 'hover:bg-blue-50');
+                    } else {
+                        btn.classList.remove('bg-blue-600', 'text-white');
+                        btn.classList.add('bg-white', 'text-blue-600', 'border', 'border-blue-600', 'hover:bg-blue-50');
+                    }
+                });
+
+                // 현재 슬라이드 다시 렌더링
+                renderSlide(currentSlideIndex, currentLang);
+            }
+        });
+
+        // 다음 버튼 클릭
+        nextBtn.addEventListener('click', () => {
+            if (currentSlideIndex < vocabularyData.length - 1) {
+                currentSlideIndex++;
+                renderSlide(currentSlideIndex, currentLang);
+            }
+        });
+
+        // 이전 버튼 클릭
+        prevBtn.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide(currentSlideIndex, currentLang);
+            }
+        });
+
+        // 초기 슬라이드 렌더링
+        renderSlide(currentSlideIndex, currentLang);
+
+    </script>
+</body>
+</html>
+
