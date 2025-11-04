@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인생 음식 어휘 학습</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Noto Sans KR 폰트 우선 적용 */
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        /* 커스텀 스타일 */
+        .card {
+            min-height: 200px;
+            backface-visibility: hidden;
+            transition: transform 0.6s;
+        }
+        .quiz-option {
+            transition: background-color 0.2s;
+        }
+        .quiz-option.correct {
+            background-color: #22c55e; /* green-500 */
+            color: white;
+            border-color: #16a34a; /* green-600 */
+        }
+        .quiz-option.incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            border-color: #dc2626; /* red-600 */
+        }
+        /* 스크롤바 숨기기 (Tailwind) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        /* 테이블 카드 스타일 */
+        .table-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .table-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .table-card-details {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .table-card-details.show {
+            max-height: 150px; /* 충분한 높이 */
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb; /* gray-200 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md mx-auto">
+        <!-- 1. 언어 선택 화면 -->
+        <div id="language-selection-screen" class="bg-white p-8 rounded-xl shadow-lg text-center">
+            <h1 class="text-2xl font-bold mb-6 text-gray-800">학습 언어 선택</h1>
+            <p class="text-gray-600 mb-8">한국어 어휘를 어떤 언어로 학습하시겠습니까?</p>
+            <div class="space-y-4">
+                <button onclick="selectLanguage('en')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    English (영어)
+                </button>
+                <button onclick="selectLanguage('vi')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Tiếng Việt (베트남어)
+                </button>
+                <button onclick="selectLanguage('ja')" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    日本語 (일본어)
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. 앱 메인 컨테이너 (처음엔 숨김) -->
+        <div id="app-container" class="hidden w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+            <!-- 헤더 -->
+            <header class="bg-orange-500 p-4 text-white flex justify-between items-center">
+                <h1 class="text-xl font-bold">인생 음식 어휘 학습</h1>
+                <button onclick="changeLanguage()" class="text-sm bg-white text-orange-500 font-semibold px-3 py-1 rounded-full hover:bg-gray-100">
+                    언어 변경
+                </button>
+            </header>
+
+            <!-- 카테고리 네비게이션 -->
+            <nav class="p-2 bg-orange-100">
+                <div id="category-nav" class="flex space-x-2 overflow-x-auto no-scrollbar">
+                    <!-- 카테고리 버튼은 JS로 생성 -->
+                </div>
+            </nav>
+
+            <!-- 메인 컨텐츠 영역 -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+                <!-- 2-1. 학습 모드 -->
+                <div id="study-mode">
+                    <div class="card bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                        <div id="card-korean">
+                            <h2 id="korean-word" class="text-3xl font-bold text-blue-600 mb-2"></h2>
+                            <p id="korean-example" class="text-gray-700 text-lg"></p>
+                        </div>
+                        <hr class="my-4 border-gray-300">
+                        <div id="card-translation" class="hidden">
+                            <h3 id="translated-word" class="text-2xl font-semibold text-gray-800 mb-2"></h3>
+                            <p id="translated-example" class="text-gray-600 text-md"></p>
+                            <p id="food-example" class="text-md font-semibold text-orange-600 mt-2"></p>
+                        </div>
+                    </div>
+                    
+                    <button id="toggle-translation-btn" onclick="toggleTranslation()" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow-md transition">
+                        번역 보기
+                    </button>
+
+                    <div class="flex justify-between mt-4 space-x-4">
+                        <button onclick="navigateCard(-1)" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                            이전
+                        </button>
+                        <button onclick="navigateCard(1)" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                            다음
+                        </button>
+                    </div>
+                    <div id="card-counter" class="text-center text-gray-500 mt-3 text-sm"></div>
+                </div>
+
+                <!-- 2-2. 퀴즈 모드 -->
+                <div id="quiz-mode" class="hidden">
+                    <div id="quiz-question-container" class="mb-6">
+                        <p class="text-gray-600 mb-1 text-sm">다음 단어/표현의 번역으로 알맞은 것은?</p>
+                        <h2 id="quiz-question" class="text-2xl font-bold text-gray-800 text-center py-4"></h2>
+                    </div>
+                    
+                    <div id="quiz-options" class="space-y-3">
+                        <!-- 퀴즈 옵션 버튼은 JS로 생성 -->
+                    </div>
+
+                    <div id="quiz-feedback" class="mt-4 text-center font-bold"></div>
+
+                    <button id="next-quiz-btn" onclick="nextQuizQuestion()" class="hidden mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md">
+                        다음 문제
+                    </button>
+
+                    <div id="quiz-result" class="hidden text-center mt-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">퀴즈 완료!</h2>
+                        <p id="quiz-score" class="text-xl text-gray-700 mb-4"></p>
+                        <button onclick="startQuiz()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md">
+                            다시 풀기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2-3. 테이블 모드 -->
+                <div id="table-mode" class="hidden">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">전체 어휘 보기</h2>
+                    <div id="table-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <!-- 테이블 카드는 JS로 생성 -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 모드 전환 탭 -->
+            <footer class="flex border-t border-gray-200">
+                <button id="study-mode-btn" onclick="changeMode('study')" class="flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100">
+                    학습 모드
+                </button>
+                <button id="table-mode-btn" onclick="changeMode('table')" class="flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 border-l border-r border-gray-200">
+                    테이블 모드
+                </button>
+                <button id="quiz-mode-btn" onclick="changeMode('quiz')" class="flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100">
+                    퀴즈 모드
+                </button>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 데이터베이스 ---
+        const vocabulary = {
+            '맛 (Taste)': [
+                {
+                    korean: "달콤하다",
+                    example_ko: "이 케이크는 정말 달콤해요.",
+                    example_food: "케이크, 꿀, 초콜릿",
+                    translation: {
+                        en: "Sweet",
+                        vi: "Ngọt",
+                        ja: "甘い (あまい)",
+                        example_en: "This cake is really sweet.",
+                        example_vi: "Cái bánh này thật ngọt.",
+                        example_ja: "このケーキは本当に甘いです。"
+                    }
+                },
+                {
+                    korean: "새콤하다",
+                    example_ko: "레몬이 들어가서 새콤한 맛이 나요.",
+                    example_food: "레몬, 식초, 요거트",
+                    translation: {
+                        en: "Sour / Tart",
+                        vi: "Chua (dễ chịu)",
+                        ja: "甘酸っぱい (あまずっぱい)",
+                        example_en: "It tastes sour because of the lemon.",
+                        example_vi: "Có vị chua vì có chanh.",
+                        example_ja: "レモンが入っていて甘酸っぱいです。"
+                    }
+                },
+                {
+                    korean: "짭짤하다",
+                    example_ko: "감자칩이 짭짤해서 맛있어요.",
+                    example_food: "감자칩, 젓갈, 소금빵",
+                    translation: {
+                        en: "Salty (pleasantly)",
+                        vi: "Mằn mặn",
+                        ja: "塩気がある (しおけがある)",
+                        example_en: "The chips are delicious because they're salty.",
+                        example_vi: "Khoai tây chiên mằn mặn nên ngon.",
+                        example_ja: "ポテトチップスが塩気があっておいしいです。"
+                    }
+                },
+                {
+                    korean: "매콤하다",
+                    example_ko: "떡볶이가 살짝 매콤해서 좋아요.",
+                    example_food: "떡볶이, 짬뽕, 불닭볶음면",
+                    translation: {
+                        en: "Spicy (pleasantly)",
+                        vi: "Cay (nhẹ)",
+                        ja: "ピリ辛だ (ぴりからだ)",
+                        example_en: "I like Tteokbokki because it's a little spicy.",
+                        example_vi: "Tôi thích Tteokbokki vì nó hơi cay.",
+                        example_ja: "トッポッキがピリ辛でおいしいです。"
+                    }
+                },
+                {
+                    korean: "고소하다",
+                    example_ko: "참기름 냄새가 정말 고소해요.",
+                    example_food: "참기름, 아몬드, 깨",
+                    translation: {
+                        en: "Nutty / Savory",
+                        vi: "Bùi / Thơm ngậy",
+                        ja: "香ばしい (こうばしい)",
+                        example_en: "The sesame oil smells very nutty.",
+                        example_vi: "Mùi dầu mè thật thơm.",
+                        example_ja: "ごま油の匂いが本当に香ばしいです。"
+                    }
+                },
+                {
+                    korean: "담백하다",
+                    example_ko: "두부는 맛이 담백해서 부담 없어요.",
+                    example_food: "두부, 닭가슴살, 콩나물국",
+                    translation: {
+                        en: "Light / Clean-tasting",
+                        vi: "Thanh đạm",
+                        ja: "淡白だ (たんぱくだ)",
+                        example_en: "Tofu has a light taste, so it's not heavy.",
+                        example_vi: "Đậu phụ vị thanh đạm nên không bị ngán.",
+                        example_ja: "豆腐は味が淡白で負担になりません。"
+                    }
+                },
+                {
+                    korean: "감칠맛이 있다",
+                    example_ko: "국물에 감칠맛이 있어서 계속 먹게 돼요.",
+                    example_food: "다시마 육수, 멸치 국물, 버섯",
+                    translation: {
+                        en: "Has umami / Savory",
+                        vi: "Có vị ngọt thịt (Umami)",
+                        ja: "旨味がある (うまみがある)",
+                        example_en: "The soup has umami, so I keep eating it.",
+                        example_vi: "Nước dùng có vị ngọt thịt nên tôi cứ ăn mãi.",
+                        example_ja: "スープに旨味があって、ずっと食べてしまいます。"
+                    }
+                }
+            ],
+            '식감 (Texture)': [
+                {
+                    korean: "부드럽다",
+                    example_ko: "이 빵은 정말 부드러워요.",
+                    example_food: "순두부, 계란찜, 푸딩",
+                    translation: {
+                        en: "Soft / Tender",
+                        vi: "Mềm",
+                        ja: "柔らかい (やわらかい)",
+                        example_en: "This bread is really soft.",
+                        example_vi: "Bánh mì này thật mềm.",
+                        example_ja: "このパンは本当に柔らかいです。"
+                    }
+                },
+                {
+                    korean: "바삭하다",
+                    example_ko: "치킨은 겉이 바삭해야 맛있어요.",
+                    example_food: "치킨 껍질, 튀김, 누룽지",
+                    translation: {
+                        en: "Crispy",
+                        vi: "Giòn (rụm)",
+                        ja: "サクサクだ",
+                        example_en: "Chicken tastes best when it's crispy on the outside.",
+                        example_vi: "Gà phải giòn bên ngoài mới ngon.",
+                        example_ja: "チキンは外がサクサクじゃないと美味しくないです。"
+                    }
+                },
+                {
+                    korean: "쫄깃하다",
+                    example_ko: "떡이 아주 쫄깃해요.",
+                    example_food: "떡, 젤리, 곱창",
+                    translation: {
+                        en: "Chewy (elastic)",
+                        vi: "Dai (dẻo)",
+                        ja: "もちもちだ",
+                        example_en: "The rice cake is very chewy.",
+                        example_vi: "Bánh gạo rất dẻo.",
+                        example_ja: "お餅がとてももちもちです。"
+                    }
+                },
+                {
+                    korean: "촉촉하다",
+                    example_ko: "케이크 시트가 아주 촉촉해요.",
+                    example_food: "브라우니, 수육, 잘 익은 과일",
+                    translation: {
+                        en: "Moist",
+                        vi: "Ẩm (mềm)",
+                        ja: "しっとりしている",
+                        example_en: "The cake layer is very moist.",
+                        example_vi: "Lớp bánh kem rất ẩm.",
+                        example_ja: "ケーキの生地がとてもしっとりしています。"
+                    }
+                },
+                {
+                    korean: "아삭하다",
+                    example_ko: "신선한 사과가 아삭하게 씹혀요.",
+                    example_food: "사과, 오이, 콩나물",
+                    translation: {
+                        en: "Crunchy (fresh)",
+                        vi: "Giòn (sần sật)",
+                        ja: "シャキシャキだ",
+                        example_en: "The fresh apple is crunchy.",
+                        example_vi: "Táo tươi nhai giòn sần sật.",
+                        example_ja: "新鮮なりんごがシャキシャキと噛めます。"
+                    }
+                }
+            ],
+            '냄새 (Smell)': [
+                {
+                    korean: "향기롭다",
+                    example_ko: "꽃에서 향기로운 냄새가 나요.",
+                    example_food: "허브, 과일 차, 꽃 비빔밥",
+                    translation: {
+                        en: "Fragrant",
+                        vi: "Thơm ngát",
+                        ja: "香り高い (かおりたかい)",
+                        example_en: "The flowers smell fragrant.",
+                        example_vi: "Hoa tỏa mùi thơm ngát.",
+                        example_ja: "花から香り高い匂いがします。"
+                    }
+                },
+                {
+                    korean: "불향이 나다",
+                    example_ko: "고기에서 맛있는 불향이 나요.",
+                    example_food: "숯불고기, 짬뽕, 훈제 연어",
+                    translation: {
+                        en: "Has a smoky/charcoal smell",
+                        vi: "Có mùi khói (mùi nướng)",
+                        ja: "火の香りがする (ひのこうりがする)",
+                        example_en: "The meat has a delicious smoky smell.",
+                        example_vi: "Thịt có mùi nướng thơm ngon.",
+                        example_ja: "お肉から美味しい火の香りがします。"
+                    }
+                },
+                {
+                    korean: "식욕을 돋우다",
+                    example_ko: "이 냄새는 식욕을 돋워요.",
+                    example_food: "카레, 빵 굽는 냄새, 삼겹살",
+                    translation: {
+                        en: "To stimulate the appetite",
+                        vi: "Kích thích vị giác",
+                        ja: "食欲をそそる (しょくよくをそそる)",
+                        example_en: "This smell stimulates the appetite.",
+                        example_vi: "Mùi này kích thích vị giác.",
+                        example_ja: "この匂いは食욕をそそります。"
+                    }
+                }
+            ],
+            '모양 (Appearance)': [
+                {
+                    korean: "먹음직스럽다",
+                    example_ko: "음식이 아주 먹음직스러워요.",
+                    example_food: "잘 차려진 한정식, 딸기 케이크",
+                    translation: {
+                        en: "Looks delicious",
+                        vi: "Trông ngon mắt",
+                        ja: "美味しそうだ (おいしそうだ)",
+                        example_en: "The food looks delicious.",
+                        example_vi: "Thức ăn trông rất ngon mắt.",
+                        example_ja: "食べ物がとても美味しそうです。"
+                    }
+                },
+                {
+                    korean: "군침이 돌다",
+                    example_ko: "보기만 해도 군침이 돌아요.",
+                    example_food: "스테이크, 라면, 피자",
+                    translation: {
+                        en: "To make one's mouth water",
+                        vi: "Làm chảy nước miếng",
+                        ja: "よだれが出る",
+                        example_en: "Just looking at it makes my mouth water.",
+                        example_vi: "Chỉ nhìn thôi cũng chảy nước miếng.",
+                        example_ja: "見るだけでよだれが出ます。"
+                    }
+                },
+                {
+                    korean: "김이 모락모락 나다",
+                    example_ko: "따뜻한 국에서 김이 모락모락 나요.",
+                    example_food: "국밥, 찐빵, 갓 지은 밥",
+                    translation: {
+                        en: "To be steaming hot",
+                        vi: "Bốc khói nghi ngút",
+                        ja: "湯気がほかほかと立つ (ゆげがほかほかとたつ)",
+                        example_en: "The hot soup is steaming.",
+                        example_vi: "Canh nóng bốc khói nghi ngút.",
+                        example_ja: "温かいスープから湯気がほかほかと立っています。"
+                    }
+                },
+                {
+                    korean: "푸짐하다",
+                    example_ko: "양이 정말 푸짐해요.",
+                    example_food: "해물탕, 뷔페, 잔치국수",
+                    translation: {
+                        en: "To be plentiful / Hearty",
+                        vi: "Đầy đặn / Nhiều",
+                        ja: "ボリュームがある",
+                        example_en: "The portion is really hearty.",
+                        example_vi: "Phần ăn thật sự rất đầy đặn.",
+                        example_ja: "量が本当にボリュームがあります。"
+                    }
+                }
+            ],
+            '기분 (Feeling)': [
+                {
+                    korean: "행복해지다",
+                    example_ko: "맛있는 걸 먹으면 행복해져요.",
+                    example_food: "좋아하는 아이스크림, 엄마가 해준 밥",
+                    translation: {
+                        en: "To become happy",
+                        vi: "Trở nên hạnh phúc",
+                        ja: "幸せになる (しあわせになる)",
+                        example_en: "I become happy when I eat delicious food.",
+                        example_vi: "Tôi trở nên hạnh phúc khi ăn đồ ăn ngon.",
+                        example_ja: "美味しいものを食べると幸せになります。"
+                    }
+                },
+                {
+                    korean: "위로를 받는 느낌이다",
+                    example_ko: "따뜻한 수프를 먹으니 위로를 받는 느낌이에요.",
+                    example_food: "따뜻한 핫초코, 닭죽, 어묵탕",
+                    translation: {
+                        en: "To feel comforted",
+                        vi: "Cảm thấy được an ủi",
+                        ja: "癒やされる感じだ (いやされるかんじだ)",
+                        example_en: "Eating this warm soup makes me feel comforted.",
+                        example_vi: "Ăn món súp nóng này làm tôi cảm thấy được an ủi.",
+                        example_ja: "温かいスープを食べたら、癒やされる感じです。"
+                    }
+                },
+                {
+                    korean: "스트레스가 풀리다",
+                    example_ko: "매운 음식을 먹으면 스트레스가 풀려요.",
+                    example_food: "매운 닭발, 얼큰한 마라탕",
+                    translation: {
+                        en: "To relieve stress",
+                        vi: "Giải tỏa căng thẳng",
+                        ja: "ストレスが解消される (ストレスがかいしょうされる)",
+                        example_en: "Eating spicy food relieves my stress.",
+                        example_vi: "Ăn đồ cay giúp tôi giải tỏa căng thẳng.",
+                        example_ja: "辛い食べ物を食べるとストレスが解消されます。"
+                    }
+                },
+                {
+                    korean: "고향이 생각나다",
+                    example_ko: "이 음식을 먹으면 고향이 생각나요.",
+                    example_food: "명절 음식, 된장찌개",
+                    translation: {
+                        en: "To be reminded of one's hometown",
+                        vi: "Nhớ về quê hương",
+                        ja: "故郷を思い出す (こきょうをおもいだす)",
+                        example_en: "This food reminds me of my hometown.",
+                        example_vi: "Món ăn này làm tôi nhớ về quê hương.",
+                        example_ja: "この食べ物を食べると故郷を思い出します。"
+                    }
+                },
+                {
+                    korean: "든든하다",
+                    example_ko: "아침을 먹으니 속이 든든해요.",
+                    example_food: "삼계탕, 국밥, 밥 한 끼",
+                    translation: {
+                        en: "To feel full and reassured",
+                        vi: "No bụng / Chắc dạ",
+                        ja: "お腹がいっぱいで満足だ (おなかがいっぱい)",
+                        example_en: "I feel full after eating breakfast.",
+                        example_vi: "Ăn sáng xong tôi cảm thấy no bụng.",
+                        example_ja: "朝ごはんを食べたら、お腹がいっぱいです。"
+                    }
+                }
+            ]
+        };
+
+        // --- 앱 상태 변수 ---
+        let selectedLanguage = 'en';
+        let currentCategory = Object.keys(vocabulary)[0];
+        let currentIndex = 0;
+        let currentMode = 'study'; // 'study', 'table', or 'quiz'
+        
+        // 퀴즈용 변수
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        // --- DOM 요소 ---
+        const langScreen = document.getElementById('language-selection-screen');
+        const appContainer = document.getElementById('app-container');
+        const categoryNav = document.getElementById('category-nav');
+        
+        // 학습 모드 요소
+        const studyModeDiv = document.getElementById('study-mode');
+        const koreanWordEl = document.getElementById('korean-word');
+        const koreanExampleEl = document.getElementById('korean-example');
+        const cardTranslation = document.getElementById('card-translation');
+        const translatedWordEl = document.getElementById('translated-word');
+        const translatedExampleEl = document.getElementById('translated-example');
+        const foodExampleEl = document.getElementById('food-example');
+        const toggleTranslationBtn = document.getElementById('toggle-translation-btn');
+        const cardCounterEl = document.getElementById('card-counter');
+
+        // 퀴즈 모드 요소
+        const quizModeDiv = document.getElementById('quiz-mode');
+        const quizQuestionEl = document.getElementById('quiz-question');
+        const quizOptionsEl = document.getElementById('quiz-options');
+        const quizFeedbackEl = document.getElementById('quiz-feedback');
+        const nextQuizBtn = document.getElementById('next-quiz-btn');
+        const quizResultDiv = document.getElementById('quiz-result');
+        const quizScoreEl = document.getElementById('quiz-score');
+
+        // 테이블 모드 요소
+        const tableModeDiv = document.getElementById('table-mode');
+        const tableGridEl = document.getElementById('table-grid');
+
+        // 모드 전환 버튼
+        const studyModeBtn = document.getElementById('study-mode-btn');
+        const tableModeBtn = document.getElementById('table-mode-btn');
+        const quizModeBtn = document.getElementById('quiz-mode-btn');
+
+        // --- 함수 ---
+
+        // 1. 언어 선택
+        function selectLanguage(lang) {
+            selectedLanguage = lang;
+            langScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            initializeApp();
+        }
+
+        // 2. 언어 변경
+        function changeLanguage() {
+            appContainer.classList.add('hidden');
+            langScreen.classList.remove('hidden');
+            // 모든 카드 닫기 (테이블 모드)
+            document.querySelectorAll('.table-card-details').forEach(el => {
+                el.classList.remove('show');
+            });
+        }
+
+        // 3. 앱 초기화 (언어 선택 후)
+        function initializeApp() {
+            // 카테고리 버튼 생성
+            categoryNav.innerHTML = '';
+            Object.keys(vocabulary).forEach((category, index) => {
+                const button = document.createElement('button');
+                button.textContent = category;
+                button.dataset.category = category;
+                button.className = `px-4 py-2 rounded-full font-semibold whitespace-nowrap text-sm transition ${index === 0 ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-200'}`;
+                button.onclick = () => selectCategory(category);
+                categoryNav.appendChild(button);
+            });
+            
+            // 첫 번째 카테고리로 학습 모드 시작
+            selectCategory(Object.keys(vocabulary)[0]);
+            changeMode('study'); // 기본 모드는 학습 모드
+        }
+
+        // 4. 카테고리 선택
+        function selectCategory(category) {
+            currentCategory = category;
+            currentIndex = 0;
+            
+            // 카테고리 버튼 활성화/비활성화
+            Array.from(categoryNav.children).forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('bg-orange-500', 'text-white');
+                    btn.classList.remove('bg-white', 'text-orange-600', 'hover:bg-orange-200');
+                } else {
+                    btn.classList.remove('bg-orange-500', 'text-white');
+                    btn.classList.add('bg-white', 'text-orange-600', 'hover:bg-orange-200');
+                }
+            });
+
+            // 현재 모드에 따라 UI 업데이트
+            if (currentMode === 'study') {
+                updateStudyCard();
+            } else if (currentMode === 'table') {
+                renderTableCards();
+            } else {
+                startQuiz();
+            }
+        }
+
+        // 5. 모드 변경 (학습/테이블/퀴즈)
+        function changeMode(mode) {
+            currentMode = mode;
+            
+            // 모든 모드 숨기기
+            studyModeDiv.classList.add('hidden');
+            quizModeDiv.classList.add('hidden');
+            tableModeDiv.classList.add('hidden');
+            
+            // 모든 탭 버튼 비활성화
+            studyModeBtn.className = "flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100";
+            tableModeBtn.className = "flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 border-l border-r border-gray-200";
+            quizModeBtn.className = "flex-1 py-4 text-center font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100";
+            
+            const activeClass = "flex-1 py-4 text-center font-semibold text-orange-600 bg-orange-50";
+
+            if (mode === 'study') {
+                studyModeDiv.classList.remove('hidden');
+                studyModeBtn.className = `${activeClass} border-r border-orange-200`;
+                updateStudyCard();
+            } else if (mode === 'table') {
+                tableModeDiv.classList.remove('hidden');
+                tableModeBtn.className = `${activeClass} border-l border-r border-orange-200`;
+                renderTableCards();
+            } else {
+                quizModeDiv.classList.remove('hidden');
+                quizModeBtn.className = `${activeClass} border-l border-orange-200`;
+                startQuiz();
+            }
+        }
+
+        // 6. [학습] 카드 내용 업데이트
+        function updateStudyCard() {
+            const wordData = vocabulary[currentCategory][currentIndex];
+            const trans = wordData.translation[selectedLanguage];
+
+            koreanWordEl.textContent = wordData.korean;
+            koreanExampleEl.textContent = wordData.example_ko;
+            
+            translatedWordEl.textContent = trans;
+            translatedExampleEl.textContent = wordData.translation[`example_${selectedLanguage}`];
+            foodExampleEl.innerHTML = `<strong class="text-orange-700">추천 음식:</strong> ${wordData.example_food}`;
+
+            // 카드 넘길 때마다 번역 숨기기
+            cardTranslation.classList.add('hidden');
+            toggleTranslationBtn.textContent = '번역 보기';
+
+            // 카운터 업데이트
+            cardCounterEl.textContent = `${currentIndex + 1} / ${vocabulary[currentCategory].length}`;
+        }
+
+        // 7. [학습] 번역 보기/숨기기
+        function toggleTranslation() {
+            if (cardTranslation.classList.contains('hidden')) {
+                cardTranslation.classList.remove('hidden');
+                toggleTranslationBtn.textContent = '번역 숨기기';
+            } else {
+                cardTranslation.classList.add('hidden');
+                toggleTranslationBtn.textContent = '번역 보기';
+            }
+        }
+
+        // 8. [학습] 카드 넘기기
+        function navigateCard(direction) {
+            const categorySize = vocabulary[currentCategory].length;
+            currentIndex += direction;
+
+            if (currentIndex < 0) {
+                currentIndex = categorySize - 1; // 마지막 카드로
+            } else if (currentIndex >= categorySize) {
+                currentIndex = 0; // 첫 카드로
+            }
+
+            updateStudyCard();
+        }
+
+        // --- 테이블 모드 함수 ---
+
+        // 9. [테이블] 카드 생성
+        function renderTableCards() {
+            tableGridEl.innerHTML = ''; // 그리드 비우기
+            const currentVocabList = vocabulary[currentCategory];
+
+            currentVocabList.forEach(wordData => {
+                const trans = wordData.translation[selectedLanguage];
+                
+                const card = document.createElement('div');
+                card.className = "table-card bg-white p-4 rounded-lg border border-gray-200";
+                
+                card.innerHTML = `
+                    <h3 class="text-lg font-bold text-blue-600 text-center">${wordData.korean}</h3>
+                    <div class="table-card-details text-sm">
+                        <p class="font-semibold text-gray-800">${trans}</p>
+                        <p class="text-orange-600 mt-2">
+                            <strong class="text-orange-700">추천:</strong> ${wordData.example_food}
+                        </p>
+                    </div>
+                `;
+                
+                // 클릭 이벤트: 세부 정보 토글
+                card.onclick = () => {
+                    const details = card.querySelector('.table-card-details');
+                    details.classList.toggle('show');
+                };
+                
+                tableGridEl.appendChild(card);
+            });
+        }
+
+
+        // --- 퀴즈 모드 함수 ---
+
+        // 10. [퀴즈] 퀴즈 시작
+        function startQuiz() {
+            quizScore = 0;
+            currentQuizIndex = 0;
+            quizQuestions = generateQuizQuestions();
+            
+            quizResultDiv.classList.add('hidden');
+            quizOptionsEl.classList.remove('hidden');
+            nextQuizBtn.classList.add('hidden');
+            quizFeedbackEl.textContent = '';
+            
+            showQuizQuestion();
+        }
+
+        // 11. [퀴즈] 퀴즈 질문 생성
+        function generateQuizQuestions() {
+            const currentVocabList = vocabulary[currentCategory];
+            // 단어 목록 복사 후 섞기
+            const shuffledList = [...currentVocabList].sort(() => 0.5 - Math.random());
+            
+            return shuffledList.map(wordData => {
+                const questionType = Math.random() < 0.5 ? 'ko_to_lang' : 'lang_to_ko';
+                const correctAnswer = wordData.translation[selectedLanguage];
+                const correctKorean = wordData.korean;
+
+                // 오답 옵션 생성
+                let wrongAnswers = [];
+                const allWords = vocabulary[currentCategory];
+                while(wrongAnswers.length < 3) {
+                    const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                    const wrongAnswer = randomWord.translation[selectedLanguage];
+                    const wrongKorean = randomWord.korean;
+                    
+                    if(questionType === 'ko_to_lang' && wrongAnswer !== correctAnswer) {
+                        wrongAnswers.push(wrongAnswer);
+                    } else if (questionType === 'lang_to_ko' && wrongKorean !== correctKorean) {
+                        wrongAnswers.push(wrongKorean);
+                    }
+                    // 중복 제거
+                    wrongAnswers = [...new Set(wrongAnswers)];
+                }
+
+                if (questionType === 'ko_to_lang') {
+                    return {
+                        question: wordData.korean,
+                        options: [correctAnswer, ...wrongAnswers].sort(() => 0.5 - Math.random()),
+                        correct: correctAnswer
+                    };
+                } else {
+                     return {
+                        question: wordData.translation[selectedLanguage],
+                        options: [correctKorean, ...wrongAnswers].sort(() => 0.5 - Math.random()),
+                        correct: correctKorean
+                    };
+                }
+            });
+        }
+
+        // 12. [퀴즈] 퀴즈 질문 표시
+        function showQuizQuestion() {
+            if (currentQuizIndex >= quizQuestions.length) {
+                showQuizResult();
+                return;
+            }
+
+            const q = quizQuestions[currentQuizIndex];
+            quizQuestionEl.textContent = q.question;
+            quizOptionsEl.innerHTML = '';
+            quizAnswered = false;
+
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = "w-full quiz-option border-2 border-gray-300 bg-white hover:bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg transition";
+                button.onclick = () => checkAnswer(button, option, q.correct);
+                quizOptionsEl.appendChild(button);
+            });
+
+            quizFeedbackEl.textContent = '';
+            nextQuizBtn.classList.add('hidden');
+        }
+
+        // 13. [퀴즈] 정답 확인
+        function checkAnswer(button, selectedOption, correctAnswer) {
+            if (quizAnswered) return; // 중복 클릭 방지
+            quizAnswered = true;
+
+            const buttons = quizOptionsEl.querySelectorAll('button');
+            
+            if (selectedOption === correctAnswer) {
+                quizScore++;
+                button.classList.add('correct');
+                quizFeedbackEl.textContent = '정답입니다!';
+                quizFeedbackEl.className = 'mt-4 text-center font-bold text-green-600';
+            } else {
+                button.classList.add('incorrect');
+                quizFeedbackEl.textContent = `틀렸습니다. (정답: ${correctAnswer})`;
+                quizFeedbackEl.className = 'mt-4 text-center font-bold text-red-600';
+                
+                // 정답 버튼 표시
+                buttons.forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            nextQuizBtn.classList.remove('hidden');
+        }
+
+        // 14. [퀴즈] 다음 문제로
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            showQuizQuestion();
+        }
+
+        // 15. [퀴즈] 결과 표시
+        function showQuizResult() {
+            quizOptionsEl.classList.add('hidden');
+            quizQuestionEl.textContent = '';
+            quizFeedbackEl.textContent = '';
+            nextQuizBtn.classList.add('hidden');
+            
+            quizResultDiv.classList.remove('hidden');
+            quizScoreEl.textContent = `총 ${quizQuestions.length}문제 중 ${quizScore}문제를 맞혔습니다!`;
+        }
+
+    </script>
+</body>
+</html>
+
