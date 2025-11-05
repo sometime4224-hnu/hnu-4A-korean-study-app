@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새로운 어휘 퀴즈</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Inter 폰트 추가 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+        /* 선택 옵션 스타일 */
+        .option.selected {
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #60a5fa; /* blue-400 */
+        }
+        /* 정답 스타일 */
+        .option.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #4ade80; /* green-400 */
+            color: #166534; /* green-800 */
+        }
+        /* 오답 스타일 */
+        .option.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #f87171; /* red-400 */
+            color: #991b1b; /* red-800 */
+        }
+        /* 옵션 비활성화 */
+        .options-disabled .option {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        /* 피드백 아이템 스타일 */
+        .feedback-item {
+            background-color: #f9fafb; /* gray-50 */
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .feedback-item .question {
+            font-weight: 600;
+            color: #374151; /* gray-700 */
+            margin-bottom: 8px;
+        }
+        .feedback-item .incorrect-answer {
+            color: #dc2626; /* red-600 */
+        }
+        .feedback-item .correct-answer {
+            color: #16a34a; /* green-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-6 md:p-10 rounded-2xl shadow-xl w-full max-w-2xl">
+        
+        <!-- 1. 시작 컨테이너 -->
+        <div id="start-container">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">🧐 새로운 어휘 퀴즈</h1>
+            <p class="text-gray-600 my-6 text-center text-lg">총 15개의 문제가 준비되어 있습니다.<br>준비가 되면 퀴즈를 시작하세요!</p>
+            <button id="start-btn" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">
+                퀴즈 시작하기
+            </button>
+            
+            <div id="history-container" class="mt-10">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">이전 응시 기록</h2>
+                <ul id="history-list" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                    <!-- JavaScript로 기록이 동적 생성됩니다 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 2. 퀴즈 컨테이너 (기본 숨김) -->
+        <div id="quiz-container" class="hidden">
+            <!-- 헤더 -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">🧐 새로운 어휘 퀴즈</h1>
+                <div id="score-container" class="text-lg font-semibold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">
+                    <span id="current-question-number">1</span> / <span id="total-questions">15</span>
+                </div>
+            </div>
+            
+            <!-- 질문 -->
+            <div id="question-container" class="mb-6">
+                <p id="question-text" class="text-xl md:text-2xl font-medium text-gray-700 leading-relaxed"></p>
+            </div>
+            
+            <!-- 선택지 -->
+            <ul id="options-list" class="space-y-3">
+                <!-- JavaScript로 옵션이 동적 생성됩니다 -->
+            </ul>
+            
+            <!-- 다음 버튼 -->
+            <button id="next-btn" class="hidden mt-8 w-full bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">
+                다음 문제
+            </button>
+        </div>
+        
+        <!-- 3. 결과 컨테이너 (기본 숨김) -->
+        <div id="results-container" class="hidden text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">퀴즈 완료!</h2>
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                <p class="text-xl text-gray-700">총 <span id="total-questions-result" class="font-bold text-blue-600">15</span>문제 중</p>
+                <p id="final-score" class="text-6xl font-extrabold text-blue-600 my-4">0</p>
+                <p class="text-xl text-gray-700">문제를 맞혔습니다!</p>
+            </div>
+
+            <!-- 틀린 문제 피드백 -->
+            <div id="incorrect-feedback-container" class="mt-6 text-left">
+                <!-- JavaScript로 피드백이 동적 생성됩니다 -->
+            </div>
+
+            <button id="restart-btn" class="mt-8 w-full bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">
+                메인으로 돌아가기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 새로운 퀴즈 데이터
+        const quizData = [
+            {
+                question: "그가 범인이라는 주장은 증거가 하나도 없으니 ( ).",
+                options: ["말이 안 된다", "문제가 안 된다", "방해가 된다", "배려를 한다"],
+                answer: 0
+            },
+            {
+                question: "매일 10시간씩 공부해서 일주일 만에 시험에 합격하겠다는 계획은 ( ).",
+                options: ["논란이 된다", "현실성이 없다", "앞뒤가 안 맞다", "양심이 없다"],
+                answer: 1
+            },
+            {
+                question: "어제는 찬성한다더니 오늘은 반대하는 걸 보니, 너는 말이 ( ).",
+                options: ["방해가 안 된다", "문제가 안 된다", "앞뒤가 안 맞다", "현실성이 없다"],
+                answer: 2
+            },
+            {
+                question: "그 정치인의 발언은 많은 사람들 사이에서 ( ).",
+                options: ["논란이 되었다", "배려를 하였다", "양해를 구했다", "딸꾹질을 했다"],
+                answer: 0
+            },
+            {
+                question: "늦게 와도 미리 연락만 주면 크게 ( ).",
+                options: ["논란이 안 된다", "문제가 안 된다", "방해가 안 된다", "앞뒤가 안 맞다"],
+                answer: 1
+            },
+            {
+                question: "어른들께 먼저 자리를 양보하는 것은 다른 사람을 ( ) 행동입니다.",
+                options: ["방해를 하는", "배려를 하는", "손가락질하는", "도둑질하는"],
+                answer: 1
+            },
+            {
+                question: "공사로 인해 소음이 발생할 수 있으니 주민 여러분의 ( ).",
+                options: ["양해를 구합니다", "방해가 됩니다", "양심이 없습니다", "불편을 줍니다"],
+                answer: 0
+            },
+            {
+                question: "도서관에서는 조용히 해야 다른 사람에게 ( ).",
+                options: ["배려가 되지 않는다", "방해가 되지 않는다", "양해가 되지 않는다", "문제가 되지 않는다"],
+                answer: 1
+            },
+            {
+                question: "늦은 밤에 시끄럽게 음악을 트는 것은 이웃에게 ( ).",
+                options: ["양심을 주는 것이다", "배려를 하는 것이다", "불편을 주는 것이다", "양해를 구하는 것이다"],
+                answer: 2
+            },
+            {
+                question: "줄을 서지 않고 새치기를 하는 사람은 ( ).",
+                options: ["양심이 없는 사람이다", "현실성이 없는 사람이다", "논란이 되는 사람이다", "배려를 하는 사람이다"],
+                answer: 0
+            },
+            {
+                question: "저 외국인은 ( )을/를 아주 잘해서 콩도 잘 집는다.",
+                options: ["망치질", "손가락질", "도둑질", "젓가락질"],
+                answer: 3
+            },
+            {
+                question: "아버지가 벽에 못을 박기 위해 ( )을/를 하고 계신다.",
+                options: ["망치질", "젓가락질", "딸꾹질", "손가락질"],
+                answer: 0
+            },
+            {
+                question: "남의 물건을 훔치는 ( )은/는 나쁜 범죄입니다.",
+                options: ["손가락질", "망치질", "도둑질", "젓가락질"],
+                answer: 2
+            },
+            {
+                question: "다른 사람을 비난하며 ( )을/를 하는 것은 좋지 않습니다.",
+                options: ["딸꾹질", "젓가락질", "망치질", "손가락질"],
+                answer: 3
+            },
+            {
+                question: "밥을 급하게 먹었더니 ( )이/가 자꾸 나와서 곤란하다.",
+                options: ["딸꾹질", "도둑질", "손가락질", "망치질"],
+                answer: 0
+            }
+        ];
+
+        // DOM 요소
+        const startContainer = document.getElementById('start-container');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        
+        const startBtn = document.getElementById('start-btn');
+        const historyList = document.getElementById('history-list');
+
+        const questionText = document.getElementById('question-text');
+        const optionsList = document.getElementById('options-list');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const restartBtn = document.getElementById('restart-btn');
+        const currentQuestionNumberEl = document.getElementById('current-question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const totalQuestionsResultEl = document.getElementById('total-questions-result');
+        const finalScoreEl = document.getElementById('final-score');
+        const incorrectFeedbackContainer = document.getElementById('incorrect-feedback-container');
+
+        // 퀴즈 상태 변수
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let incorrectQuestions = []; // 틀린 문제 추적 배열
+
+        // --- 1. 시작 화면 관련 ---
+
+        // 시작 화면 표시
+        function showStartScreen() {
+            startContainer.classList.remove('hidden');
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            loadHistory();
+        }
+
+        // localStorage에서 기록 불러오기 (quizHistory_new 키 사용)
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('quizHistory_new')) || [];
+            historyList.innerHTML = ''; // 목록 초기화
+            if (history.length === 0) {
+                historyList.innerHTML = '<li class="text-gray-500 italic">아직 응시 기록이 없습니다.</li>';
+            } else {
+                const historyHtml = history.map(record => `
+                    <li class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <span class="text-sm text-gray-700">${record.date}</span>
+                        <span class="font-bold text-blue-600">${record.score} / ${record.total} 점</span>
+                    </li>
+                `).join('');
+                historyList.innerHTML = historyHtml;
+            }
+        }
+
+        // --- 2. 퀴즈 진행 관련 ---
+        
+        // 퀴즈 초기화 및 시작
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            incorrectQuestions = []; // 틀린 문제 배열 초기화
+            
+            startContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+
+            totalQuestionsEl.textContent = quizData.length;
+            totalQuestionsResultEl.textContent = quizData.length;
+            loadQuestion();
+        }
+
+        // 질문 로드
+        function loadQuestion() {
+            // 이전 상태 초기화
+            optionsList.innerHTML = '';
+            optionsList.classList.remove('options-disabled');
+            nextBtn.classList.add('hidden');
+
+            // 현재 질문 데이터 가져오기
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // 질문 텍스트 설정
+            questionText.textContent = currentQuestion.question;
+            
+            // 문제 번호 업데이트
+            currentQuestionNumberEl.textContent = currentQuestionIndex + 1;
+
+            // 선택지 생성
+            currentQuestion.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.textContent = option;
+                li.classList.add('option', 'p-4', 'border-2', 'border-gray-300', 'rounded-lg', 'cursor-pointer', 'hover:bg-blue-50', 'transition', 'duration-200', 'text-gray-700', 'text-lg');
+                li.dataset.index = index;
+                li.addEventListener('click', selectOption);
+                optionsList.appendChild(li);
+            });
+        }
+
+        // 선택지 클릭 이벤트 핸들러
+        function selectOption(e) {
+            const selectedOption = e.target;
+            const selectedIndex = parseInt(selectedOption.dataset.index);
+            const currentQuestion = quizData[currentQuestionIndex];
+            const correctIndex = currentQuestion.answer;
+
+            // 모든 옵션 비활성화
+            optionsList.classList.add('options-disabled');
+
+            // 정답/오답 확인 및 스타일 적용
+            if (selectedIndex === correctIndex) {
+                selectedOption.classList.add('correct');
+                score++;
+            } else {
+                selectedOption.classList.add('incorrect');
+                // 오답일 경우 정답 표시
+                const correctOptionEl = optionsList.querySelector(`[data-index="${correctIndex}"]`);
+                correctOptionEl.classList.add('correct');
+                
+                // 틀린 문제 정보 저장
+                incorrectQuestions.push({
+                    question: currentQuestion.question,
+                    selected: currentQuestion.options[selectedIndex],
+                    correct: currentQuestion.options[correctIndex]
+                });
+            }
+
+            // 다음 버튼 표시
+            nextBtn.classList.remove('hidden');
+        }
+
+        // 다음 문제로 이동
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // --- 3. 결과 화면 관련 ---
+
+        // 결과 표시
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            finalScoreEl.textContent = score;
+
+            saveHistory();
+            displayFeedback();
+        }
+
+        // 결과 localStorage에 저장 (quizHistory_new 키 사용)
+        function saveHistory() {
+            const newRecord = {
+                date: new Date().toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }),
+                score: score,
+                total: quizData.length
+            };
+            let history = JSON.parse(localStorage.getItem('quizHistory_new')) || [];
+            history.unshift(newRecord); // 새 기록을 맨 앞에 추가
+            history = history.slice(0, 10); // 최근 10개만 저장
+            localStorage.setItem('quizHistory_new', JSON.stringify(history));
+        }
+
+        // 틀린 문제 피드백 표시
+        function displayFeedback() {
+            incorrectFeedbackContainer.innerHTML = ''; // 초기화
+
+            if (incorrectQuestions.length === 0) {
+                incorrectFeedbackContainer.innerHTML = '<p class="text-lg text-green-600 font-semibold mt-6">🎉 완벽해요! 틀린 문제가 없습니다.</p>';
+            } else {
+                incorrectFeedbackContainer.innerHTML = '<h3 class="text-xl font-bold text-gray-800 mt-8 mb-4">틀린 문제 다시보기</h3>';
+                const feedbackHtml = incorrectQuestions.map(item => `
+                    <div class="feedback-item">
+                        <p class="question">${item.question}</p>
+                        <p class="incorrect-answer"><b>나의 오답:</b> ${item.selected}</p>
+                        <p class="correct-answer"><b>정답:</b> ${item.correct}</p>
+                    </div>
+                `).join('');
+                incorrectFeedbackContainer.innerHTML += feedbackHtml;
+            }
+        }
+
+
+        // --- 4. 이벤트 리스너 연결 ---
+        startBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', showStartScreen); // 메인으로 돌아가기
+
+        // 퀴즈 시작 (페이지 로드 시)
+        showStartScreen();
+    </script>
+</body>
+</html>
