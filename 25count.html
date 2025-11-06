@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오답 문제 카운터</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 사용자 선택(드래그) 방지 */
+        .prevent-select {
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
+        }
+        /* 터치 시 파란색 하이라이트 제거 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-4 font-sans">
+
+    <div class="w-full max-w-md mx-auto">
+        <!-- 제목 -->
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
+            오답 문제 카운터
+        </h1>
+
+        <!-- 1-25번 카운터 그리드 -->
+        <div id="counter-grid" class="grid grid-cols-5 gap-3 prevent-select">
+            <!-- JavaScript로 카운터 버튼을 생성합니다 -->
+        </div>
+
+        <!-- 초기화 버튼 -->
+        <button id="reset-button" class="w-full mt-6 bg-red-500 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform active:scale-95 active:bg-red-600 focus:outline-none">
+            모두 초기화
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('counter-grid');
+            const resetButton = document.getElementById('reset-button');
+            const counters = []; // 카운터 DOM 요소를 저장할 배열
+
+            // 1번부터 25번까지 버튼 생성
+            for (let i = 1; i <= 25; i++) {
+                // 버튼 컨테이너
+                const button = document.createElement('div');
+                button.className = 'bg-white rounded-lg shadow-md p-3 flex flex-col items-center justify-center cursor-pointer transition-transform active:scale-90';
+                
+                // 문제 번호
+                const numberEl = document.createElement('span');
+                numberEl.className = 'text-sm font-medium text-gray-500';
+                numberEl.textContent = `${i}번`;
+                
+                // 카운트 숫자
+                const countEl = document.createElement('span');
+                countEl.className = 'text-3xl font-bold text-blue-600 mt-1';
+                countEl.textContent = '0';
+                countEl.id = `count-${i}`; // 초기화를 위해 ID 부여
+                
+                counters.push(countEl); // 배열에 카운트 요소 추가
+
+                button.appendChild(numberEl);
+                button.appendChild(countEl);
+
+                // 클릭(터치) 이벤트 리스너 추가
+                button.addEventListener('click', () => {
+                    let currentCount = parseInt(countEl.textContent);
+                    currentCount++;
+                    countEl.textContent = currentCount;
+                });
+
+                grid.appendChild(button);
+            }
+
+            // 초기화 버튼 이벤트 리스너
+            resetButton.addEventListener('click', () => {
+                // 모든 카운터 요소를 0으로 설정
+                counters.forEach(counter => {
+                    counter.textContent = '0';
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
