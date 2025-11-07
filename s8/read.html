@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모소족 학습 앱</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Noto Sans KR 폰트 우선 적용 */
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        /* Tailwind 'prose'의 기본 글꼴도 재정의 */
+        .prose {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        /* 활성 탭 스타일 */
+        .active-tab {
+            border-bottom-color: #3B82F6; /* blue-600 */
+            color: #3B82F6; /* blue-600 */
+            font-weight: 600;
+        }
+        /* 라디오 버튼 커스텀 스타일 */
+        .form-radio:checked {
+            background-color: #3B82F6; /* blue-600 */
+        }
+        .form-radio:focus {
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container max-w-3xl mx-auto p-4 sm:p-8 my-10 bg-white rounded-2xl shadow-lg">
+        
+        <!-- 앱 제목 -->
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">
+            아버지가 없는 모소족
+        </h1>
+
+        <!-- 탭 네비게이션 -->
+        <div class="flex justify-center border-b-2 border-gray-200 mb-6">
+            <button id="tab-reading" class="tab-btn active-tab py-3 px-6 text-lg focus:outline-none transition-colors duration-300">
+                읽기 자료
+            </button>
+            <button id="tab-quiz" class="tab-btn py-3 px-6 text-lg text-gray-500 focus:outline-none transition-colors duration-300">
+                퀴즈 풀기
+            </button>
+        </div>
+
+        <!-- 1. 읽기 자료 (콘텐츠) -->
+        <div id="content-reading" class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+            <div class="flex flex-col md:flex-row gap-6 mb-6">
+                <!-- 이미지 플레이스홀더 -->
+                <img src="https://placehold.co/600x400/E2E8F0/64748B?text=모소족+여성들" 
+                     alt="모소족 여성들"
+                     class="w-full md:w-1/2 rounded-lg shadow-md object-cover"
+                     onerror="this.src='https://placehold.co/600x400?text=이미지+로드+실패'">
+                <img src="https://placehold.co/300x200/E2E8F0/64748B?text=로고호+지도" 
+                     alt="로고호 지도"
+                     class="w-full md:w-1/2 rounded-lg shadow-md object-cover"
+                     onerror="this.src='https://placehold.co/300x200?text=이미지+로드+실패'">
+            </div>
+            
+            <p>현대인들은 대부분 부모가 중심이 되어 자식과 함께 가정을 이루며 살아간다. 그런데 현대인과는 다른 방식으로 살아가는 사람들이 있다. 중국의 모소족이 그 대표적인 예이다. 중국에는 인구의 대부분을 구성하는 한족과 함께 황족을 비롯한 다수의 소수 민족이 살고 있는데 모소족은 그중 하나이다.</p>
+            
+            <p>중국 남서부 로고호 주변에 사는 모소족은 집안의 가장이 여자이다. 가족은 할머니를 중심으로 구성되며 집안에 아버지는 존재하지 않는다. 할머니, 어머니, 이모, 그리고 손녀들이 모여 살고 집안의 남자는 할아버지나 아버지가 아니라 외삼촌이나 외손자이다. 아이들은 어머니의 성을 따르며 집안의 모든 재산도 딸이 물려받는다.</p>
+            
+            <p>남녀가 만나 가정을 구성하지 않기 때문에 결혼도 이혼도 없다. 여자는 16세가 되면 성인식을 하고 마음에 드는 남자를 만나면 사랑을 나눌 수 있지만 함께 살지는 않는다. 남자들은 가족에 대한 경제적인 책임이나 자식을 키울 의무가 없다. 여자들은 할머니를 중심으로 농사일과 집안일을 하며 아이들을 키우고 교육시킨다. 외삼촌들은 산에서 야크를 치거나 말을 타고 돌아다니면서 물건을 가져다가 팔고 생활에 필요한 물건을 사다가 가족에게 준다.</p>
+            
+            <p>이처럼 모소족은 오랜 세월 동안 자신들만의 전통을 지켜 왔다. 그러나 최근 현대 사회의 영향을 받아 그들의 가족 형태도 점점 변해가고 있다.</p>
+        </div>
+
+        <!-- 2. 퀴즈 풀기 (콘텐츠) -->
+        <div id="content-quiz" class="hidden">
+            <form id="quiz-form">
+                
+                <!-- 문제 1 -->
+                <div id="q1" class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">1. 이 글의 내용에 따르면, 모소족은 주로 어디에 살고 있나요?</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q1" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">중국 베이징 근처</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q1" value="2" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">몽골의 초원 지역</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q1" value="3" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">중국 남서부 로고호 주변</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q1" value="4" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">러시아 국경 지역</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 문제 2 -->
+                <div id="q2" class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">2. 모소족 가정을 이끄는 중심인물(가장)은 누구인가요?</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q2" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">아버지</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q2" value="2" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">할머니</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q2" value="3" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">외삼촌</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q2" value="4" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">외손자</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 문제 3 -->
+                <div id="q3" class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">3. 모소족의 아이들에 대한 설명으로 *옳은* 것은 무엇인가요?</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q3" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">아이들은 아버지의 성을 따른다.</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q3" value="2" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">아들이 집안의 모든 재산을 물려받는다.</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q3" value="3" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">아이들은 외삼촌이 주로 교육시킨다.</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q3" value="4" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">아이들은 어머니, 이모, 할머니와 함께 산다.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 문제 4 -->
+                <div id="q4" class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">4. 모소족에게 결혼이나 이혼이 없는 가장 큰 이유는 무엇인가요?</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q4" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">16세에 성인식을 하기 때문에</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q4" value="2" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">남녀가 만나 함께 살며 가정을 구성하지 않기 때문에</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q4" value="3" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">남자들의 경제적인 책임이 없기 때문에</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q4" value="4" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">여자들의 농사일과 집안일을 하기 때문에</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 문제 5 -->
+                <div id="q5" class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">5. 모소족 남자들(외삼촌)의 주된 역할로 알맞은 것은 무엇인가요?</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q5" value="1" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">자식을 키우고 교육시키는 일</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q5" value="2" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">농사일과 집안일을 하는 일</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q5" value="3" class="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">밖에서 물건을 팔거나 사와서 가족을 돕는 일</span>
+                        </label>
+                        <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <input type="radio" name="q5" value="4" class_name="form-radio h-5 w-5 text-blue-600 mr-3">
+                            <span class="text-gray-700">집안의 가장이 되어 가족을 이끄는 일</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 채점 결과 표시 -->
+                <div id="quiz-results" class="hidden text-center p-6 bg-gray-50 rounded-lg">
+                    <p class="text-2xl font-bold text-gray-800"></p>
+                </div>
+
+                <!-- 제출/다시 풀기 버튼 -->
+                <button type="submit" id="submit-btn" class="w-full mt-6 py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    채점하기
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM 요소 선택 ---
+        const tabReading = document.getElementById('tab-reading');
+        const tabQuiz = document.getElementById('tab-quiz');
+        const contentReading = document.getElementById('content-reading');
+        const contentQuiz = document.getElementById('content-quiz');
+        const quizForm = document.getElementById('quiz-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultsDiv = document.getElementById('quiz-results');
+
+        // 퀴즈 정답 (문제 번호 순서대로 값)
+        const correctAnswers = ['3', '2', '4', '2', '3'];
+        
+        // 퀴즈 제출 상태
+        let isQuizSubmitted = false;
+
+        // --- 탭 전환 로직 ---
+        function showReading() {
+            contentReading.classList.remove('hidden');
+            contentQuiz.classList.add('hidden');
+            tabReading.classList.add('active-tab');
+            tabReading.classList.remove('text-gray-500');
+            tabQuiz.classList.remove('active-tab');
+            tabQuiz.classList.add('text-gray-500');
+        }
+
+        function showQuiz() {
+            contentReading.classList.add('hidden');
+            contentQuiz.classList.remove('hidden');
+            tabReading.classList.remove('active-tab');
+            tabReading.classList.add('text-gray-500');
+            tabQuiz.classList.add('active-tab');
+            tabQuiz.classList.remove('text-gray-500');
+        }
+
+        tabReading.addEventListener('click', showReading);
+        tabQuiz.addEventListener('click', showQuiz);
+
+        // --- 퀴즈 채점 및 리셋 로직 ---
+        quizForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // 폼 기본 제출 방지
+
+            if (isQuizSubmitted) {
+                // --- 퀴즈 리셋 로직 ---
+                resetQuiz();
+            } else {
+                // --- 퀴즈 채점 로직 ---
+                checkAnswers();
+            }
+        });
+
+        function checkAnswers() {
+            let score = 0;
+            const formData = new FormData(quizForm);
+
+            // 모든 정답/오답 표시 초기화
+            clearFeedback();
+
+            // 라디오 버튼 비활성화
+            const allRadios = quizForm.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => radio.disabled = true);
+
+            // 각 문제 채점
+            for (let i = 0; i < correctAnswers.length; i++) {
+                const questionNum = i + 1;
+                const userAnswer = formData.get(`q${questionNum}`);
+                const correctAnswer = correctAnswers[i];
+                
+                const labels = document.querySelectorAll(`input[name="q${questionNum}"]`);
+                
+                // 정답 옵션 레이블
+                const correctLabel = document.querySelector(`input[name="q${questionNum}"][value="${correctAnswer}"]`).closest('label');
+                // 사용자가 선택한 옵션 레이블
+                let selectedLabel = null;
+                if (userAnswer) {
+                    selectedLabel = document.querySelector(`input[name="q${questionNum}"][value="${userAnswer}"]`).closest('label');
+                }
+
+                if (userAnswer === correctAnswer) {
+                    // 정답
+                    score++;
+                    if (selectedLabel) {
+                        selectedLabel.classList.add('bg-green-100', 'border-green-400', 'ring-2', 'ring-green-300');
+                    }
+                } else {
+                    // 오답
+                    if (selectedLabel) {
+                        // 사용자가 선택한 오답 표시
+                        selectedLabel.classList.add('bg-red-100', 'border-red-400', 'ring-2', 'ring-red-300');
+                    }
+                    // 실제 정답 표시
+                    if (correctLabel) {
+                        correctLabel.classList.add('bg-green-100', 'border-green-400');
+                    }
+                }
+            }
+
+            // 결과 표시
+            resultsDiv.querySelector('p').innerHTML = `총 5문제 중 <span class="text-blue-600 font-bold">${score}</span>문제 정답입니다!`;
+            resultsDiv.classList.remove('hidden');
+            
+            // 버튼 텍스트 변경
+            submitBtn.textContent = '다시 풀기';
+            submitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            submitBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            
+            isQuizSubmitted = true;
+        }
+
+        function resetQuiz() {
+            // 폼 리셋
+            quizForm.reset();
+
+            // 라디오 버튼 활성화
+            const allRadios = quizForm.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => radio.disabled = false);
+
+            // 결과 숨기기
+            resultsDiv.classList.add('hidden');
+            resultsDiv.querySelector('p').textContent = '';
+
+            // 피드백 스타일 초기화
+            clearFeedback();
+
+            // 버튼 텍스트 변경
+            submitBtn.textContent = '채점하기';
+            submitBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+            submitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+            isQuizSubmitted = false;
+        }
+
+        function clearFeedback() {
+            const allLabels = quizForm.querySelectorAll('label');
+            allLabels.forEach(label => {
+                label.classList.remove(
+                    'bg-green-100', 'border-green-400', 'ring-2', 'ring-green-300',
+                    'bg-red-100', 'border-red-400', 'ring-2', 'ring-red-300'
+                );
+            });
+        }
+    </script>
+
+</body>
+</html>
+
