@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 어휘 퀴즈 (v3 - 게임 포함)</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Inter 폰트 적용 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 화면 전환을 위한 기본 스타일 */
+        .screen {
+            display: none; /* 기본적으로 모든 화면 숨김 */
+        }
+        .screen.active {
+            display: block; /* active 클래스가 있는 화면만 표시 */
+        }
+        /* 커스텀 라디오 버튼 스타일 */
+        .option-label {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-input:checked + .option-label {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-color: #3b82f6; /* border-blue-500 */
+        }
+        /* 정답/오답 피드백 스타일 */
+        .feedback-correct {
+            background-color: #d1fae5; /* bg-green-100 */
+            border-left: 4px solid #10b981; /* border-green-500 */
+        }
+        .feedback-incorrect {
+            background-color: #fee2e2; /* bg-red-100 */
+            border-left: 4px solid #ef4444; /* border-red-500 */
+        }
+        /* 그룹핑 게임 스타일 */
+        .game-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .game-card.selected {
+            background-color: #93c5fd; /* bg-blue-300 */
+            transform: scale(1.05);
+            ring: 2px solid #3b82f6;
+        }
+        .game-card.assigned {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #9ca3af; /* text-gray-400 */
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+        .game-bucket {
+            transition: all 0.2s ease-in-out;
+            min-height: 120px;
+        }
+        .game-bucket:hover {
+            background-color: #f9fafb; /* bg-gray-50 */
+        }
+        .game-bucket-card {
+            cursor: pointer;
+        }
+        .game-bucket-card:hover {
+            text-decoration: line-through;
+            color: #ef4444; /* text-red-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen py-8">
+
+    <div class="container w-full max-w-2xl mx-auto p-4 md:p-8 bg-white shadow-2xl rounded-lg">
+
+        <!-- 1. 메인 화면 -->
+        <div id="main-screen" class="screen active text-center">
+            <h1 class="text-3xl font-bold text-blue-600 mb-6">한국어 어휘 퀴즈</h1>
+            <p class="text-lg text-gray-700 mb-8">연습 1~3의 어휘를 복습해 봅시다.</p>
+            <button id="start-quiz-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-xl transition duration-300 shadow-md">
+                퀴즈 시작하기
+            </button>
+            <button id="show-history-btn" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg text-xl transition duration-300">
+                퀴즈 기록 보기
+            </button>
+            <div id="history-container" class="mt-6 text-left hidden">
+                <h2 class="text-2xl font-semibold mb-4 text-center">퀴즈 기록</h2>
+                <div id="history-list" class="space-y-3 max-h-64 overflow-y-auto">
+                    <!-- 기록이 여기에 동적으로 추가됩니다 -->
+                </div>
+                <button id="clear-history-btn" class="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    기록 모두 삭제
+                </button>
+            </div>
+            <!-- 상세 기록 모달 -->
+            <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[80vh] overflow-hidden">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h3 class="text-xl font-bold">상세 기록</h3>
+                        <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                    </div>
+                    <div id="modal-content" class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+                        <!-- 상세 피드백이 여기에 표시됩니다 -->
+                    </div>
+                    <div class="p-4 border-t bg-gray-50 text-right">
+                        <button id="close-modal-btn-bottom" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 퀴즈 화면 -->
+        <div id="quiz-screen" class="screen">
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-lg font-semibold text-blue-600">문제 <span id="question-number">1</span> / <span id="total-questions">11</span></span>
+                    <!-- 힌트 버튼과 텍스트 -->
+                    <div class="text-right">
+                        <button id="hint-btn" class="text-sm font-medium bg-yellow-300 hover:bg-yellow-400 text-yellow-800 px-3 py-1 rounded-full transition duration-300 shadow-sm">
+                            💡 힌트 보기
+                        </button>
+                        <span id="hint-text" class="hidden text-sm font-semibold text-yellow-800 bg-yellow-100 px-3 py-1 rounded-full ml-2"></span>
+                    </div>
+                </div>
+                <!-- 진행률 바 -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <h2 id="question-text" class="text-xl md:text-2xl font-semibold text-gray-900 mb-6 min-h-[60px]"></h2>
+            
+            <!-- 4지선다/OX 선택지 영역 -->
+            <div id="options-container" class="space-y-3"></div>
+            <div id="ox-options-container" class="flex space-x-4 mt-4"></div>
+
+            <!-- 그룹핑 게임 영역 -->
+            <div id="game-container" class="hidden space-y-4">
+                <p id="game-instructions" class="text-lg font-semibold text-center text-blue-600"></p>
+                <!-- 게임 카드 (인물) -->
+                <div id="game-cards-container" class="flex flex-wrap justify-center gap-2 p-3 bg-gray-100 rounded-lg">
+                    <!-- 인물 카드가 여기에 동적으로 생성됩니다 -->
+                </div>
+                <!-- 게임 버킷 (그룹) -->
+                <div id="game-buckets-container" class="grid grid-cols-3 gap-3">
+                    <!-- 그룹 버킷이 여기에 동적으로 생성됩니다 -->
+                </div>
+                <!-- 게임 네비게이션 -->
+                <div id="game-nav-container" class="flex justify-between items-center mt-4">
+                    <button id="game-prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">이전 단계</button>
+                    <span id="game-stage-indicator" class="text-sm font-medium">1 / 5</span>
+                    <button id="game-next-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">다음 단계</button>
+                    <button id="game-submit-btn" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">제출</button>
+                </div>
+            </div>
+
+            <button id="next-question-btn" class="w-full mt-8 bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-lg text-lg transition duration-300 cursor-not-allowed" disabled>
+                다음
+            </button>
+        </div>
+
+        <!-- 3. 결과 화면 -->
+        <div id="results-screen" class="screen text-center">
+            <h1 class="text-3xl font-bold text-blue-600 mb-4">퀴즈 완료!</h1>
+            <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-6">
+                <h2 class="text-2xl font-semibold mb-2">당신의 점수</h2>
+                <p class="text-5xl font-bold text-blue-600"><span id="score">0</span> / <span id="total-score">11</span></p>
+            </div>
+            
+            <div class="text-left mb-6">
+                <h3 class="text-2xl font-semibold mb-4">상세 피드백</h3>
+                <div id="feedback-container" class="space-y-4 max-h-80 overflow-y-auto p-4 bg-gray-50 rounded-lg border">
+                    <!-- 피드백이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <button id="save-results-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 shadow-md">
+                결과 저장하기
+            </button>
+            <button id="restart-quiz-btn" class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300">
+                다시 풀기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. 퀴즈 데이터 ---
+        const questions = [
+            // 연습 1 어휘 (5개)
+            {
+                vocab: '대표적이다',
+                type: 'mc',
+                question: '불고기는 한국을 ________-는 음식입니다.',
+                options: ['대표적인', '공통적인', '차이가 있는', '영향을 받은'],
+                answer: '대표적인'
+            },
+            {
+                vocab: '공통점이 있다',
+                type: 'ox',
+                question: '문장이 바릅니까?: "한국과 서양의 결혼식은 아무런 공통점이 없다."',
+                hint: '두 문화 모두 \'결혼\'이라는 중요한 의식입니다.',
+                answer: 'x'
+            },
+            {
+                vocab: '차이가 있다',
+                type: 'dialogue',
+                question: 'A: 두 나라의 문화는 비슷한가요?\nB: 아니요, 여러 면에서 ________.',
+                options: ['차이가 있어요', '공통점이 있어요', '영향을 받았어요', '전통을 지켰어요'],
+                answer: '차이가 있어요'
+            },
+            {
+                vocab: '전통을 지키다',
+                type: 'mc',
+                question: '요즘에도 한복을 입고 결혼하는 것은 ________-는 것입니다.',
+                options: ['전통을 지키는', '영향을 받는', '차이가 있는', '대표적인'],
+                answer: '전통을 지키는'
+            },
+            {
+                vocab: '영향을 받다',
+                type: 'ox',
+                question: '문장이 바릅니까?: "한국의 결혼 문화는 서양 문화에 전혀 영향을 받지 않았다."',
+                answer: 'x'
+            },
+            // 연습 2 어휘 (5개)
+            {
+                vocab: '독특하다',
+                type: 'dialogue',
+                question: 'A: 이 티셔츠 어때요?\nB: 무늬가 아주 ________-네요. 다른 데서 본 적이 없어요.',
+                options: ['독특하', '평범하', '단순하', '흔하']
+                ,
+                answer: '독특하'
+            },
+            {
+                vocab: '흥미롭다',
+                type: 'mc',
+                question: '처음 듣는 이야기가 아주 ________.',
+                options: ['흥미로웠다', '단순했다', '평범했다', '흔했다'],
+                answer: '흥미로웠다'
+            },
+            {
+                vocab: '단순하다',
+                type: 'ox',
+                question: '문장이 바릅니까?: "그림이 아주 복잡하고 무늬가 많아서 단순하다."',
+                answer: 'x'
+            },
+            {
+                vocab: '평범하다',
+                type: 'mc',
+                question: 'A: 지연 씨 생일 선물로 뭐가 좋을까요?\nB: ________-ㄴ 목도리보다는 좀 특별한 게 좋지 않을까요?',
+                options: ['평범하', '독특하', '흥미롭', '단순하'],
+                answer: '평범하'
+            },
+            {
+                vocab: '흔하다',
+                type: 'ox',
+                question: '문장이 바릅니까?: "이런 디자인은 어디서나 볼 수 있어서 아주 흔하다."',
+                answer: 'o'
+            },
+            // 연습 3 - 그룹핑 게임 (1개)
+            {
+                vocab: '그룹핑 게임',
+                type: 'game',
+                question: '연습 3: 인물 그룹핑 게임',
+                characters: ['루즈', '마크', '영수', '유리', '마리', '유타'],
+                stages: [
+                    {
+                        criterion: '나이별',
+                        buckets: ['어린이', '청소년', '성인'],
+                        answer: { '어린이': ['루즈', '유리', '유타'], '청소년': ['영수', '마리'], '성인': ['마크'] }
+                    },
+                    {
+                        criterion: '나라별',
+                        buckets: ['한국', '미국', '일본'],
+                        answer: { '한국': ['영수', '유리'], '미국': ['루즈', '마크'], '일본': ['마리', '유타'] }
+                    },
+                    {
+                        criterion: '직업별',
+                        buckets: ['학생', '요리사', '신문 기자'],
+                        answer: { '학생': ['루즈', '영수', '마리', '유타'], '요리사': ['유리'], '신문 기자': ['마크'] }
+                    },
+                    {
+                        criterion: '관심 분야별',
+                        buckets: ['노래', '사진', '간식'],
+                        answer: { '노래': ['루즈', '마리'], '사진': ['마크', '유타'], '간식': ['영수', '유리'] }
+                    },
+                    {
+                        criterion: '활동 지역별',
+                        buckets: ['고향 마을', '전국', '전 세계'],
+                        answer: { '고향 마을': ['루즈', '유리'], '전국': ['영수', '마리'], '전 세계': ['마크', '유타'] }
+                    }
+                ],
+                answer: 'game_correct' // 정답으로 간주될 값
+            }
+        ];
+
+        // --- 2. 전역 변수 ---
+        const mainScreen = document.getElementById('main-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const screens = [mainScreen, quizScreen, resultsScreen];
+
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const restartQuizBtn = document.getElementById('restart-quiz-btn');
+        // ... (기존 변수들) ...
+        const historyModal = document.getElementById('history-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const closeModalBtnBottom = document.getElementById('close-modal-btn-bottom');
+        const saveResultsBtn = document.getElementById('save-results-btn');
+        const showHistoryBtn = document.getElementById('show-history-btn');
+        const historyContainer = document.getElementById('history-container');
+        const historyList = document.getElementById('history-list');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const hintBtn = document.getElementById('hint-btn');
+        const hintTextEl = document.getElementById('hint-text');
+        const progressBar = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const oxOptionsContainer = document.getElementById('ox-options-container');
+
+        // 게임용 변수
+        const gameContainer = document.getElementById('game-container');
+        const gameInstructions = document.getElementById('game-instructions');
+        const gameCardsContainer = document.getElementById('game-cards-container');
+        const gameBucketsContainer = document.getElementById('game-buckets-container');
+        const gameNavContainer = document.getElementById('game-nav-container');
+        const gamePrevBtn = document.getElementById('game-prev-btn');
+        const gameNextBtn = document.getElementById('game-next-btn');
+        const gameSubmitBtn = document.getElementById('game-submit-btn');
+        const gameStageIndicator = document.getElementById('game-stage-indicator');
+
+        const scoreEl = document.getElementById('score');
+        const totalScoreEl = document.getElementById('total-score');
+        const feedbackContainer = document.getElementById('feedback-container');
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let feedbackDetails = [];
+
+        // 게임 상태 변수
+        let currentGameStage = 0;
+        let gameAssignments = {}; // { 0: {'버킷1': ['인물1'], ...}, 1: {...} }
+        let selectedCard = null;
+        let totalGameStages = 5;
+
+        // --- 3. 화면 전환 함수 ---
+        function showScreen(screenId) {
+            screens.forEach(screen => {
+                if (screen.id === screenId) {
+                    screen.classList.add('active');
+                } else {
+                    screen.classList.remove('active');
+                }
+            });
+        }
+
+        // --- 4. 퀴즈 로직 함수 ---
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            score = 0;
+            feedbackDetails = [];
+            totalQuestionsEl.textContent = questions.length;
+            totalScoreEl.textContent = questions.length;
+
+            // 게임 상태 초기화
+            currentGameStage = 0;
+            gameAssignments = {};
+            selectedCard = null;
+
+            // '결과 저장하기' 버튼 초기화
+            saveResultsBtn.textContent = '결과 저장하기';
+            saveResultsBtn.disabled = false;
+            saveResultsBtn.classList.replace('bg-gray-400', 'bg-green-500');
+
+            showScreen('quiz-screen');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // 모든 컨테이너 숨기기
+            optionsContainer.innerHTML = '';
+            optionsContainer.style.display = 'none';
+            oxOptionsContainer.innerHTML = '';
+            oxOptionsContainer.style.display = 'none';
+            gameContainer.style.display = 'none';
+            hintBtn.style.display = 'block'; // 힌트 버튼 표시
+            hintTextEl.classList.add('hidden');
+            
+            disableNextButton();
+
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            questionTextEl.innerHTML = question.question.replace(/\n/g, '<br>');
+            
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // 힌트 설정
+            let hint = question.vocab;
+            if (question.hint) hint = question.hint;
+            hintTextEl.textContent = hint;
+
+            if (question.type === 'mc' || question.type === 'dialogue') {
+                optionsContainer.style.display = 'block';
+                const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+                shuffledOptions.forEach(option => {
+                    const optionId = `q${currentQuestionIndex}_${option.replace(/\s+/g, '_')}`;
+                    optionsContainer.innerHTML += `
+                        <div>
+                            <input type="radio" name="option" id="${optionId}" value="${option}" class="option-input hidden">
+                            <label for="${optionId}" class="option-label block w-full text-left p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                ${option}
+                            </label>
+                        </div>`;
+                });
+            } else if (question.type === 'ox') {
+                oxOptionsContainer.style.display = 'flex';
+                const options = ['o', 'x'];
+                options.forEach(option => {
+                    const optionId = `q${currentQuestionIndex}_${option}`;
+                    const optionText = option === 'o' ? 'O (맞다)' : 'X (틀리다)';
+                    oxOptionsContainer.innerHTML += `
+                        <div class="flex-1">
+                            <input type="radio" name="option" id="${optionId}" value="${option}" class="option-input hidden">
+                            <label for="${optionId}" class="option-label block w-full text-center p-4 border-2 ${option === 'o' ? 'border-blue-400' : 'border-red-400'} rounded-lg cursor-pointer hover:bg-gray-50 text-xl font-bold">
+                                ${optionText}
+                            </label>
+                        </div>`;
+                });
+            } else if (question.type === 'game') {
+                gameContainer.style.display = 'block';
+                hintBtn.style.display = 'none'; // 게임 중에는 힌트 숨기기
+                loadGame(question);
+            }
+
+            // 라디오 버튼 이벤트 리스너 (게임이 아닐 때만)
+            if (question.type !== 'game') {
+                document.querySelectorAll('input[name="option"]').forEach(input => {
+                    input.addEventListener('change', () => {
+                        userAnswers[currentQuestionIndex] = input.value;
+                        enableNextButton();
+                    });
+                });
+            }
+        }
+
+        function enableNextButton() {
+            nextQuestionBtn.disabled = false;
+            nextQuestionBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            nextQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextQuestionBtn.textContent = '결과 보기';
+            } else {
+                nextQuestionBtn.textContent = '다음';
+            }
+        }
+
+        function disableNextButton() {
+            nextQuestionBtn.disabled = true;
+            nextQuestionBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            nextQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        // --- 5. 게임 로직 함수 ---
+        function loadGame(question) {
+            totalGameStages = question.stages.length;
+            // gameAssignments 초기화 (각 스테이지별로)
+            if (Object.keys(gameAssignments).length === 0) {
+                question.stages.forEach((stage, index) => {
+                    gameAssignments[index] = {};
+                    stage.buckets.forEach(bucket => {
+                        gameAssignments[index][bucket] = [];
+                    });
+                });
+            }
+            loadGameStage(currentGameStage);
+        }
+
+        function loadGameStage(stageIndex) {
+            const question = questions[currentQuestionIndex];
+            const stage = question.stages[stageIndex];
+            const characters = question.characters;
+            const currentAssignments = gameAssignments[stageIndex];
+
+            gameInstructions.textContent = `단계 ${stageIndex + 1}/${totalGameStages}: 인물들을 '${stage.criterion}'(으)로 그룹핑하세요.`;
+            gameStageIndicator.textContent = `${stageIndex + 1} / ${totalGameStages}`;
+
+            // 인물 카드 렌더링
+            gameCardsContainer.innerHTML = '';
+            characters.forEach(char => {
+                // 이 인물이 이 스테이지의 버킷에 이미 배정되었는지 확인
+                const isAssigned = Object.values(currentAssignments).some(arr => arr.includes(char));
+                
+                const cardEl = document.createElement('div');
+                cardEl.textContent = char;
+                cardEl.className = 'game-card p-3 border rounded-lg shadow-sm cursor-pointer font-medium';
+                if (isAssigned) {
+                    cardEl.classList.add('assigned');
+                } else if (selectedCard === char) {
+                    cardEl.classList.add('selected');
+                }
+                
+                cardEl.addEventListener('click', () => {
+                    if (isAssigned) return; // 이미 배정된 카드는 클릭 X
+                    handleCardClick(char, cardEl);
+                });
+                gameCardsContainer.appendChild(cardEl);
+            });
+
+            // 버킷 렌더링
+            gameBucketsContainer.innerHTML = '';
+            stage.buckets.forEach(bucketName => {
+                const bucketEl = document.createElement('div');
+                bucketEl.className = 'game-bucket w-full p-3 border-2 border-dashed border-gray-400 rounded-lg';
+                
+                let bucketHTML = `<h4 class="font-semibold text-center pb-2 border-b">${bucketName}</h4><div class="mt-2 space-y-1">`;
+                currentAssignments[bucketName].forEach(char => {
+                    bucketHTML += `<div class="game-bucket-card p-1.5 bg-blue-100 text-blue-800 rounded text-sm" data-char="${char}" data-bucket="${bucketName}">
+                                    ${char} (클릭하여 빼기)
+                                   </div>`;
+                });
+                bucketHTML += `</div>`;
+                bucketEl.innerHTML = bucketHTML;
+
+                // 버킷 클릭 (인물 배정)
+                bucketEl.addEventListener('click', () => {
+                    handleBucketClick(bucketName, stageIndex);
+                });
+
+                // 버킷 안의 인물 클릭 (인물 빼기)
+                bucketEl.querySelectorAll('.game-bucket-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        e.stopPropagation(); // 버킷 클릭 이벤트 전파 방지
+                        handleRemoveCardFromBucket(card.dataset.char, card.dataset.bucket, stageIndex);
+                    });
+                });
+
+                gameBucketsContainer.appendChild(bucketEl);
+            });
+
+            // 네비게이션 버튼 업데이트
+            gamePrevBtn.style.display = stageIndex === 0 ? 'none' : 'block';
+            gameNextBtn.style.display = stageIndex === totalGameStages - 1 ? 'none' : 'block';
+            gameSubmitBtn.style.display = stageIndex === totalGameStages - 1 ? 'block' : 'none';
+        }
+
+        function handleCardClick(char, cardEl) {
+            // 이미 선택된 카드를 다시 클릭하면 선택 해제
+            if (selectedCard === char) {
+                selectedCard = null;
+                cardEl.classList.remove('selected');
+            } else {
+                selectedCard = char;
+                // 모든 카드에서 'selected' 제거 후 현재 카드에 추가
+                document.querySelectorAll('.game-card').forEach(c => c.classList.remove('selected'));
+                cardEl.classList.add('selected');
+            }
+        }
+
+        function handleBucketClick(bucketName, stageIndex) {
+            if (!selectedCard) return; // 선택된 카드가 없으면 무시
+
+            // 이 스테이지의 할당정보에 카드 추가
+            gameAssignments[stageIndex][bucketName].push(selectedCard);
+            selectedCard = null; // 카드 선택 해제
+
+            // 현재 스테이지 새로고침
+            loadGameStage(stageIndex);
+        }
+        
+        function handleRemoveCardFromBucket(char, bucketName, stageIndex) {
+            const bucketArray = gameAssignments[stageIndex][bucketName];
+            const index = bucketArray.indexOf(char);
+            if (index > -1) {
+                bucketArray.splice(index, 1);
+            }
+            // 현재 스테이지 새로고침
+            loadGameStage(stageIndex);
+        }
+
+        // 게임 네비게이션 이벤트
+        gamePrevBtn.addEventListener('click', () => {
+            if (currentGameStage > 0) {
+                currentGameStage--;
+                loadGameStage(currentGameStage);
+            }
+        });
+
+        gameNextBtn.addEventListener('click', () => {
+            if (currentGameStage < totalGameStages - 1) {
+                currentGameStage++;
+                loadGameStage(currentGameStage);
+            }
+        });
+
+        gameSubmitBtn.addEventListener('click', () => {
+            // 게임 정답 채점
+            const isCorrect = checkGameAnswer();
+            userAnswers[currentQuestionIndex] = isCorrect ? 'game_correct' : 'game_incorrect';
+            enableNextButton(); // '결과 보기' 버튼 활성화
+            
+            // 게임 UI 비활성화
+            gameContainer.querySelectorAll('button, .game-card, .game-bucket-card').forEach(el => el.disabled = true);
+            gameContainer.style.opacity = 0.7;
+            gameInstructions.textContent = "게임 완료! '결과 보기' 버튼을 눌러주세요.";
+        });
+
+        function checkGameAnswer() {
+            const question = questions[currentQuestionIndex];
+            for (let i = 0; i < totalGameStages; i++) {
+                const stage = question.stages[i];
+                const userAnswer = gameAssignments[i];
+                const correctAnswer = stage.answer;
+
+                // 정답과 사용자의 답이 같은지 비교 (배열 정렬 후 비교)
+                const userKeys = Object.keys(userAnswer);
+                const correctKeys = Object.keys(correctAnswer);
+
+                if (userKeys.length !== correctKeys.length) return false;
+
+                for (const key of correctKeys) {
+                    if (!userAnswer[key] || 
+                        userAnswer[key].slice().sort().join(',') !== correctAnswer[key].slice().sort().join(',')) {
+                        return false; // 하나라도 틀리면 false
+                    }
+                }
+            }
+            return true; // 모든 스테이지가 맞으면 true
+        }
+
+
+        // --- 6. 결과 및 기록 함수 ---
+        function showResults() {
+            score = 0;
+            feedbackDetails = [];
+            feedbackContainer.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const correctAnswer = q.answer;
+                const isCorrect = userAnswer === correctAnswer;
+
+                if (isCorrect) {
+                    score++;
+                }
+
+                const feedback = {
+                    question: q.question,
+                    vocab: q.vocab,
+                    userAnswer: userAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect,
+                    type: q.type
+                };
+                feedbackDetails.push(feedback);
+
+                const feedbackElement = document.createElement('div');
+                feedbackElement.className = `p-4 rounded-lg ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+                
+                let answerText, userAnswerText;
+
+                if (q.type === 'ox') {
+                    answerText = correctAnswer === 'o' ? 'O (맞다)' : 'X (틀리다)';
+                    userAnswerText = userAnswer === 'o' ? 'O (맞다)' : 'X (틀리다)';
+                } else if (q.type === 'game') {
+                    answerText = "게임 성공";
+                    userAnswerText = isCorrect ? "게임 성공" : "게임 실패";
+                } else {
+                    answerText = correctAnswer;
+                    userAnswerText = userAnswer;
+                }
+
+                feedbackElement.innerHTML = `
+                    <p class="font-semibold text-gray-800">${index + 1}. [${q.vocab}] ${q.question.replace(/\n/g, '<br>')}</p>
+                    <p class="mt-2 text-sm"><strong>정답:</strong> ${answerText || 'N/A'}</p>
+                    <p class="text-sm"><strong>선택:</strong> ${userAnswerText || 'N/A'} ${isCorrect ? '👍' : '👎'}</p>
+                `;
+                feedbackContainer.appendChild(feedbackElement);
+            });
+
+            scoreEl.textContent = score;
+            showScreen('results-screen');
+        }
+
+        function restartQuiz() {
+            showScreen('main-screen');
+        }
+
+        function saveResults() {
+            const history = JSON.parse(localStorage.getItem('quizHistory_v3') || '[]');
+            const resultData = {
+                date: new Date().toLocaleString('ko-KR'),
+                score: score,
+                total: questions.length,
+                feedback: feedbackDetails
+            };
+            history.push(resultData);
+            localStorage.setItem('quizHistory_v3', JSON.stringify(history));
+            
+            saveResultsBtn.textContent = '저장 완료!';
+            saveResultsBtn.disabled = true;
+            saveResultsBtn.classList.replace('bg-green-500', 'bg-gray-400');
+            
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('quizHistory_v3') || '[]');
+            historyList.innerHTML = '';
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-500 text-center">저장된 기록이 없습니다.</p>';
+                historyContainer.classList.add('hidden');
+                return;
+            }
+
+            historyContainer.classList.remove('hidden');
+            
+            history.reverse().forEach((record, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'p-3 bg-white border rounded-lg flex justify-between items-center cursor-pointer hover:bg-gray-50';
+                historyItem.innerHTML = `
+                    <span>
+                        <span class="font-semibold">${record.date}</span>
+                        <span class="ml-2 text-blue-600 font-bold">${record.score} / ${record.total} 점</span>
+                    </span>
+                    <span class="text-sm text-gray-500">상세보기 &gt;</span>
+                `;
+                historyItem.addEventListener('click', () => showHistoryDetail(record));
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function showHistoryDetail(record) {
+            modalContent.innerHTML = '';
+            
+            modalContent.innerHTML += `
+                <h4 class="text-lg font-bold">${record.date}</h4>
+                <p class="text-2xl font-bold text-blue-600 mb-4">총점: ${record.score} / ${record.total}</p>
+            `;
+
+            record.feedback.forEach((fb, index) => {
+                let answerText, userAnswerText;
+
+                if (fb.type === 'ox') {
+                    answerText = fb.correctAnswer === 'o' ? 'O (맞다)' : 'X (틀리다)';
+                    userAnswerText = fb.userAnswer === 'o' ? 'O (맞다)' : 'X (틀리다)';
+                } else if (fb.type === 'game') {
+                    answerText = "게임 성공";
+                    userAnswerText = fb.isCorrect ? "게임 성공" : "게임 실패";
+                } else {
+                    answerText = fb.correctAnswer;
+                    userAnswerText = fb.userAnswer;
+                }
+
+                modalContent.innerHTML += `
+                    <div class="p-4 rounded-lg mb-3 ${fb.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}">
+                        <p class="font-semibold text-gray-800">${index + 1}. [${fb.vocab}] ${fb.question.replace(/\n/g, '<br>')}</p>
+                        <p class="mt-2 text-sm"><strong>정답:</strong> ${answerText || 'N/A'}</p>
+                        <p class="text-sm"><strong>선택:</strong> ${userAnswerText || 'N/A'} ${fb.isCorrect ? '👍' : '👎'}</p>
+                    </div>
+                `;
+            });
+
+            historyModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            historyModal.classList.add('hidden');
+        }
+
+        function clearHistory() {
+            if (window.confirm('정말로 모든 기록을 삭제하시겠습니까?')) {
+                localStorage.removeItem('quizHistory_v3');
+                loadHistory();
+            }
+        }
+
+        // --- 7. 이벤트 리스너 연결 ---
+        startQuizBtn.addEventListener('click', startQuiz);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        restartQuizBtn.addEventListener('click', restartQuiz);
+        saveResultsBtn.addEventListener('click', saveResults);
+        
+        showHistoryBtn.addEventListener('click', () => {
+            loadHistory();
+            historyContainer.classList.toggle('hidden');
+        });
+        
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        
+        closeModalBtn.addEventListener('click', closeModal);
+        closeModalBtnBottom.addEventListener('click', closeModal);
+
+        hintBtn.addEventListener('click', () => {
+            hintTextEl.classList.remove('hidden');
+            hintBtn.style.display = 'none';
+        });
+
+        // 초기 화면 설정
+        showScreen('main-screen');
+    </script>
+</body>
+</html>
