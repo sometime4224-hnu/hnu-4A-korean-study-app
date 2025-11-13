@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빈칸 추론 학습기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .word-span {
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            margin: 0 1px;
+            border-radius: 4px;
+            user-select: none; /* 텍스트 선택 방지 (클릭 꼬임 방지) */
+        }
+        
+        /* 가려진 상태의 스타일 */
+        .hidden-word {
+            background-color: #9ca3af; /* gray-400 */
+            color: transparent !important;
+            position: relative;
+        }
+        
+        /* 가려진 상태에서 마우스 올렸을 때 힌트 느낌 (선택 사항, 현재는 뺌) */
+        .word-span:hover {
+            background-color: #e5e7eb; /* gray-200 */
+        }
+        .hidden-word:hover {
+            background-color: #6b7280; /* gray-500 (더 진하게) */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- 헤더 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">빈칸 추론 학습기</h1>
+            <p class="text-gray-600">단어를 클릭하여 빈칸을 만들거나 정답을 확인해 보세요.</p>
+        </header>
+
+        <!-- 콘텐츠 컨테이너 -->
+        <div id="content-area" class="space-y-8">
+            <!-- 자바스크립트로 여기에 카드가 생성됩니다 -->
+        </div>
+
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>수업용 학습 도구</p>
+        </footer>
+    </div>
+
+    <script>
+        // 데이터 정의
+        const studyData = [
+            {
+                id: 1,
+                title: "텍스트 1: 영화배우 인터뷰",
+                content: "요즘 최고의 인기를 얻고 있는 영화배우 송지호 씨와 강남의 한 카페에서 인터뷰를 했다. 젊은 사람이든지 나이가 많은 사람이든지 누구나 다 송지호 씨를 좋아하는 이유에 대해 물어보았다."
+            },
+            {
+                id: 2,
+                title: "텍스트 2: 인터뷰 (계속)",
+                content: "“솔직히 제가 아주 잘생긴 얼굴은 아니잖아요. 그렇지만 어디선가 본 듯한 얼굴이라는 말을 많이 듣습니다. 어르신들은 제 연기를 보고 내 어린 시절을 보는 듯하다는 이야기도 자주 해 주시고요. 편하게 느껴져서 좋아하시나 봐요.”"
+            },
+            {
+                id: 3,
+                title: "텍스트 3: 인터뷰 (마무리)",
+                content: "영화배우가 되지 않았더라면 무슨 일을 했을 것 같으냐는 질문을 하자 이번 영화를 보면 아실 수 있을 듯하다고 은근히 영화 홍보를 하며 재치 있게 대답했다. “저를 이렇게 사랑해 주셔서 감사합니다. 이런 관심을 받으니까 에너지가 더 생기는 듯합니다. 영화 재미있게 봐 주시길 바랍니다.” 송지호 씨의 다음 작품도 기대가 된다."
+            },
+            {
+                id: 4,
+                title: "텍스트 4: 첫 만남",
+                content: "그 사람과 나는 처음에 대학 축제에서 우연히 만났다. 그 사람은 캠퍼스에서 흔히 볼 수 있는 평범한 옷차림에 두꺼운 안경을 끼고 있었다."
+            },
+            {
+                id: 5,
+                title: "텍스트 5: 고백",
+                content: "솔직히 내가 좋아하는 타입은 아니었다. 그래서 처음에 그 사람이 먼저 나에게 좋아한다고 고백했을 때 당연히 그 고백을 받아 주지 않았다. 그러나 그 사람은 나에게 계속 연락을 했고 나는 그의 연락을 은근히 기다리게 되었다."
+            },
+            {
+                id: 6,
+                title: "텍스트 6: 기다림",
+                content: "어느 날 그 사람에게서 연락이 오지 않았고 나는 걱정이 되었다. 일주일 되던 날 그 사람이 병원에 있다는 연락을 받고 나는 급히 집을 나섰다."
+            },
+            {
+                id: 7,
+                title: "텍스트 7: 결혼식 문화",
+                content: "한국은 20세기에 서양 문화의 영향을 받으면서 많은 변화를 겪었다. 그중에서 결혼식 문화는 오랫동안 이어져 오던 한국의 문화가 갑자기 서양식으로 바뀐 대표적인 예이다."
+            },
+            {
+                id: 8,
+                title: "텍스트 8: 문화 (계속)",
+                content: "전통을 지키려는 사람들은 한복을 입고 결혼식을 하기도 하지만 대부분의 사람들은 한복 대신 웨딩드레스와 턱시도*를 입고 결혼하는 것을 당연하게 생각한다."
+            }
+        ];
+
+        const contentArea = document.getElementById('content-area');
+
+        // 각 텍스트 블록 생성 함수
+        function createCard(data) {
+            const card = document.createElement('div');
+            card.className = "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-100";
+
+            // 카드 헤더 (제목 + 컨트롤 버튼)
+            const header = document.createElement('div');
+            header.className = "bg-indigo-50 p-4 flex flex-col sm:flex-row justify-between items-center border-b border-indigo-100";
+            
+            const title = document.createElement('h2');
+            title.className = "text-xl font-bold text-indigo-900 mb-2 sm:mb-0";
+            title.textContent = data.title;
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = "flex gap-2";
+
+            const hideAllBtn = document.createElement('button');
+            hideAllBtn.textContent = "모두 가리기";
+            hideAllBtn.className = "px-3 py-1 text-sm bg-white text-indigo-600 border border-indigo-200 rounded hover:bg-indigo-100 transition";
+            
+            const showAllBtn = document.createElement('button');
+            showAllBtn.textContent = "모두 보이기";
+            showAllBtn.className = "px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition shadow-sm";
+
+            btnGroup.appendChild(hideAllBtn);
+            btnGroup.appendChild(showAllBtn);
+            header.appendChild(title);
+            header.appendChild(btnGroup);
+
+            // 본문 영역
+            const body = document.createElement('div');
+            body.className = "p-6 text-lg leading-9 text-gray-800"; // leading-9으로 줄 간격 넉넉하게
+
+            // 텍스트를 단어 단위로 쪼개서 span으로 만듦
+            const words = data.content.split(' ');
+            const spanElements = [];
+
+            words.forEach((word, index) => {
+                const span = document.createElement('span');
+                span.textContent = word;
+                span.className = "word-span text-gray-800"; // 기본 텍스트 색상 명시
+                
+                // 클릭 이벤트: 가리기/보이기 토글
+                span.onclick = () => {
+                    span.classList.toggle('hidden-word');
+                };
+
+                spanElements.push(span);
+                body.appendChild(span);
+                
+                // 단어 사이에 띄어쓰기 추가 (마지막 단어 제외)
+                if (index < words.length - 1) {
+                    body.appendChild(document.createTextNode(' '));
+                }
+            });
+
+            // 전체 조작 버튼 이벤트 연결
+            hideAllBtn.onclick = () => {
+                spanElements.forEach(span => span.classList.add('hidden-word'));
+            };
+
+            showAllBtn.onclick = () => {
+                spanElements.forEach(span => span.classList.remove('hidden-word'));
+            };
+
+            card.appendChild(header);
+            card.appendChild(body);
+            return card;
+        }
+
+        // 초기화 및 렌더링
+        function init() {
+            contentArea.innerHTML = ''; // 초기화
+            studyData.forEach(data => {
+                const card = createCard(data);
+                contentArea.appendChild(card);
+            });
+        }
+
+        // 실행
+        init();
+
+    </script>
+</body>
+</html>
