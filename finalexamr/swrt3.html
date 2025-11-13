@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 빈칸 채우기 퀴즈</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter 폰트 설정 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Noto Sans KR 폰트를 기본으로 사용하고, Inter 폰트를 fallback으로 지정 */
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        /* 정답/오답 피드백을 위한 CSS */
+        .correct {
+            border: 2px solid #10B981; /* Green-500 */
+            background-color: #F0FDF4; /* Green-50 */
+        }
+        .incorrect {
+            border: 2px solid #EF4444; /* Red-500 */
+            background-color: #FEF2F2; /* Red-50 */
+        }
+        .feedback-text {
+            font-size: 0.875rem; /* 14px */
+            font-weight: 600;
+            margin-left: 0.75rem; /* 12px */
+        }
+        .correct-text {
+            color: #059669; /* Green-600 */
+        }
+        .incorrect-text {
+            color: #DC2626; /* Red-600 */
+        }
+        /* 라디오 버튼 커스텀 스타일 */
+        input[type="radio"] {
+            accent-color: #2563EB; /* Blue-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 sm:p-6">
+
+    <div class="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 sm:p-8 md:p-10">
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-blue-700 mb-8">
+            한국어 빈칸 채우기 퀴즈
+        </h1>
+        
+        <p class="text-center text-gray-600 mb-8 sm:mb-10">
+            각 지문을 읽고 빈칸에 들어갈 가장 알맞은 어휘를 고르세요.
+        </p>
+
+        <form id="quizForm" class="space-y-10">
+
+            <!-- 문제 1 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    1. 요즘 최고의 인기를 얻고 있는 영화배우 송지호 씨와 강남의 한 카페에서 인터뷰를 했다. 젊은 사람이든지 [ <strong>(1)</strong> ] 누구나 다 송지호 씨를 좋아하는 이유에 대해 물어보았다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q1" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">나이가 많은 사람이든지</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q1" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">돈이 많은 사람이든지</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q1" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">인기가 많은 사람이든지</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q1" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">힘이 센 사람이든지</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 2 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    2. “[ <strong>(2)</strong> ] 제가 아주 잘생긴 얼굴은 아니잖아요. 그렇지만 어디선가 본 듯한 얼굴이라는 말을 많이 듣습니다. 어르신들은 제 연기를 보고 내 어린 시절을 보는 듯하다는 이야기도 자주 해 주시고요. 편하게 느껴져서 좋아하시나 봐요.”
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q2" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">확실히</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q2" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">아마도</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q2" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">솔직히</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q2" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">사실은</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 3 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    3. 영화배우가 되지 않았더라면 무슨 일을 했을 것 같으냐는 질문을 하자 이번 영화를 보면 [ <strong>(3)</strong> ] 듯하다고 은근히 영화 홍보를 하며 재치 있게 대답했다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q3" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">보실 수 있을</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q3" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">아실 수 있을</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q3" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">이해하실 수 있을</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q3" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">느끼실 수 있을</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 4 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    4. 그 사람과 나는 처음에 대학 축제에서 우연히 만났다. 그 사람은 캠퍼스에서 [ <strong>(4)</strong> ] 볼 수 있는 평범한 옷차림에 두꺼운 안경을 끼고 있었다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q4" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">가끔</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q4" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">자주</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q4" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">흔히</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q4" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">항상</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 5 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    5. 솔직히 내가 좋아하는 타입은 아니었다. 그래서 처음에 그 사람이 먼저 나에게 좋아한다고 고백했을 때 [ <strong>(5)</strong> ] 그 고백을 받아 주지 않았다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q5" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">결국</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q5" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">어쩔 수 없이</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q5" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">다행히</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q5" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">당연히</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 6 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    6. 어느 날 그 사람에게서 연락이 오지 않았고 나는 [ <strong>(6)</strong> ]. 일주일 되던 날 그 사람이 병원에 있다는 연락을 받고 나는 급히 집을 나섰다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q6" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">걱정이 되었다</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q6" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">기분이 좋았다</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q6" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">궁금해졌다</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q6" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">마음이 아팠다</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 7 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    7. 한국은 20세기에 서양 문화의 영향을 받으면서 많은 변화를 겪었다. 그중에서 결혼식 문화는 오랫동안 이어져 오던 한국의 문화가 갑자기 서양식으로 바뀐 [ <strong>(7)</strong> ] 예이다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q7" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">이상적인</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q7" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">일반적인</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q7" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">대표적인</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q7" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">전통적인</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 문제 8 -->
+            <div class="question-block p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-lg leading-relaxed text-gray-800 mb-5">
+                    8. 전통을 지키려는 사람들은 한복을 입고 결혼식을 하기도 하지만 [ <strong>(8)</strong> ] 사람들은 한복 대신 웨딩드레스와 턱시도를 입고 결혼하는 것을 당연하게 생각한다.
+                </p>
+                <div class="options-container space-y-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q8" value="1" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">소수의</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q8" value="2" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">대부분의</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q8" value="3" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">각각의</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <input type="radio" name="q8" value="4" class="mr-3 w-5 h-5">
+                        <span class="text-gray-900">일부의</span>
+                    </label>
+                </div>
+                <div class="feedback-container mt-3 h-6"></div>
+            </div>
+
+            <!-- 결과 표시 영역 -->
+            <div id="result" class="text-center text-2xl font-bold mt-10 mb-6 h-8"></div>
+
+            <!-- 버튼 -->
+            <button type="submit" class="w-full bg-blue-600 text-white text-xl font-bold py-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 shadow-lg">
+                정답 확인하기
+            </button>
+        </form>
+
+    </div>
+
+    <script>
+        // 정답 객체 (문제 번호: 정답 value)
+        const correctAnswers = {
+            q1: '1',
+            q2: '3',
+            q3: '2',
+            q4: '3',
+            q5: '4',
+            q6: '1',
+            q7: '3',
+            q8: '2'
+        };
+
+        const quizForm = document.getElementById('quizForm');
+        const resultDiv = document.getElementById('result');
+
+        quizForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // 폼 기본 제출 동작 방지
+
+            let score = 0;
+            const totalQuestions = Object.keys(correctAnswers).length;
+
+            // 모든 문제 블록과 피드백 초기화
+            const allQuestionBlocks = document.querySelectorAll('.question-block');
+            allQuestionBlocks.forEach(block => {
+                block.classList.remove('correct', 'incorrect');
+                const feedbackDiv = block.querySelector('.feedback-container');
+                feedbackDiv.innerHTML = '';
+                
+                // 선택지 테두리 초기화
+                const optionLabels = block.querySelectorAll('label');
+                optionLabels.forEach(label => {
+                    label.classList.remove('correct', 'incorrect');
+                });
+            });
+
+            // 각 문제 채점
+            for (const questionName in correctAnswers) {
+                const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                const questionBlock = selectedOption ? selectedOption.closest('.question-block') : document.querySelector(`input[name="${questionName}"]`).closest('.question-block');
+                const feedbackDiv = questionBlock.querySelector('.feedback-container');
+                
+                if (selectedOption) {
+                    const selectedLabel = selectedOption.closest('label');
+                    if (selectedOption.value === correctAnswers[questionName]) {
+                        score++;
+                        selectedLabel.classList.add('correct'); // 선택한 정답 옵션
+                        feedbackDiv.innerHTML = '<span class="feedback-text correct-text">정답입니다!</span>';
+                    } else {
+                        selectedLabel.classList.add('incorrect'); // 선택한 오답 옵션
+                        feedbackDiv.innerHTML = `<span class="feedback-text incorrect-text">오답입니다.</span>`;
+                        
+                        // 정답 옵션 표시
+                        const correctOption = questionBlock.querySelector(`input[value="${correctAnswers[questionName]}"]`);
+                        if (correctOption) {
+                            correctOption.closest('label').classList.add('correct');
+                        }
+                    }
+                } else {
+                    // 답을 선택하지 않은 경우
+                    feedbackDiv.innerHTML = '<span class="feedback-text incorrect-text">답을 선택해 주세요.</span>';
+                    questionBlock.classList.add('incorrect'); // 전체 블록에 오답 표시
+                }
+            }
+
+            // 최종 점수 표시
+            resultDiv.textContent = `총 ${totalQuestions}문제 중 ${score}문제를 맞혔습니다!`;
+            if (score === totalQuestions) {
+                resultDiv.classList.add('text-green-600');
+                resultDiv.classList.remove('text-red-600', 'text-gray-800');
+            } else if (score > 0) {
+                resultDiv.classList.add('text-gray-800');
+                resultDiv.classList.remove('text-green-600', 'text-red-600');
+            } else {
+                resultDiv.classList.add('text-red-600');
+                resultDiv.classList.remove('text-green-600', 'text-gray-800');
+            }
+            
+            // 결과 영역으로 스크롤
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+
+</body>
+</html>
