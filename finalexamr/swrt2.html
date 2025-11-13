@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빈칸 추론 학습기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .word-span {
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0 2px;
+            margin: 0 1px;
+            border-radius: 4px;
+            user-select: none; /* 텍스트 선택 방지 (클릭 꼬임 방지) */
+        }
+        
+        /* 가려진 상태의 스타일 */
+        .hidden-word {
+            background-color: #9ca3af; /* gray-400 */
+            color: transparent !important;
+            position: relative;
+        }
+        
+        /* 가려진 상태에서 마우스 올렸을 때 힌트 느낌 (선택 사항, 현재는 뺌) */
+        .word-span:hover {
+            background-color: #e5e7eb; /* gray-200 */
+        }
+        .hidden-word:hover {
+            background-color: #6b7280; /* gray-500 (더 진하게) */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- 헤더 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">빈칸 추론 학습기</h1>
+            <p class="text-gray-600">단어를 클릭하여 빈칸을 만들거나 정답을 확인해 보세요.</p>
+        </header>
+
+        <!-- 콘텐츠 컨테이너 -->
+        <div id="content-area" class="space-y-8">
+            <!-- 자바스크립트로 여기에 카드가 생성됩니다 -->
+        </div>
+
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>수업용 학습 도구</p>
+        </footer>
+    </div>
+
+    <script>
+        // 데이터 정의
+        const studyData = [
+            {
+                id: 1,
+                title: "텍스트 1: 하이서울 페스티벌",
+                content: "하이서울 페스티벌 (Hi Seoul Festival) 서울 시민들의 가장 큰 축제인 하이서울페스티벌이 서울 시내 곳곳에서 일주일 동안 진행됩니다. 어린이든지 외국 사람이든지 누구나 참여하고 감상할 수 있는 신나는 잔치입니다. 특히 어느 때보다 화려하게 열릴 불꽃놀이야말로 이번 축제에서 가장 멋진 볼거리가 될 것입니다."
+            },
+            {
+                id: 2,
+                title: "텍스트 2: 국악 축제",
+                content: "국악 축제 (Gugak Festival) 한국을 대표하는 사물놀이 연주팀과 국립국악원, 그리고 세계적인 비보이들이 한자리에 모였습니다. 이번 공연이야말로 전통 문화와 현대 문화가 함께 어우러지는 축제가 될 것입니다. 이렇게 수준 높은 공연을 한꺼번에 만나는 것은 여간 어려운 일이 아닙니다. 이번 기회를 놓치지 마십시오."
+            },
+            {
+                id: 3,
+                title: "텍스트 3: 지하철 에티켓",
+                content: "얼마 전에 지하철에서 음식을 먹는 사람을 보았습니다. 복잡한 지하철에서 문에 기대 채로 김밥을 먹고 있는 그 사람을 보고 기분이 별로 안 좋았습니다. 사람들이 함께 이용하는 공공장소에서 다른 사람을 배려하지 않고 냄새가 나는 음식을 먹는 것이 이해가 안 됐습니다. 지하철에서 음식을 먹는 것이 옳은 일인지 그른 일인지 잘 모르겠습니다. 여러분은 어떻게 생각하십니까?"
+            },
+            {
+                id: 4,
+                title: "텍스트 4: 실뜨기",
+                content: "실뜨기는 아시아를 비롯한 세계 여러 나라 아이들이 즐겨하는 대표적인 놀이입니다. 나라별로 이름이나 방법은 조금씩 차이가 있지만 실 하나만 있으면 어디에서나 쉽게 할 수 있다는 공통점이 있습니다. 보통에는 단순하고 평범해 보이지만 손을 많이 사용해서 두뇌 발달에 효과가 있으며 두 사람이 같이 하기 때문에 서로 친해지는 데에도 좋습니다."
+            }
+        ];
+
+        const contentArea = document.getElementById('content-area');
+
+        // 각 텍스트 블록 생성 함수
+        function createCard(data) {
+            const card = document.createElement('div');
+            card.className = "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-100";
+
+            // 카드 헤더 (제목 + 컨트롤 버튼)
+            const header = document.createElement('div');
+            header.className = "bg-indigo-50 p-4 flex flex-col sm:flex-row justify-between items-center border-b border-indigo-100";
+            
+            const title = document.createElement('h2');
+            title.className = "text-xl font-bold text-indigo-900 mb-2 sm:mb-0";
+            title.textContent = data.title;
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = "flex gap-2";
+
+            const hideAllBtn = document.createElement('button');
+            hideAllBtn.textContent = "모두 가리기";
+            hideAllBtn.className = "px-3 py-1 text-sm bg-white text-indigo-600 border border-indigo-200 rounded hover:bg-indigo-100 transition";
+            
+            const showAllBtn = document.createElement('button');
+            showAllBtn.textContent = "모두 보이기";
+            showAllBtn.className = "px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition shadow-sm";
+
+            btnGroup.appendChild(hideAllBtn);
+            btnGroup.appendChild(showAllBtn);
+            header.appendChild(title);
+            header.appendChild(btnGroup);
+
+            // 본문 영역
+            const body = document.createElement('div');
+            body.className = "p-6 text-lg leading-9 text-gray-800"; // leading-9으로 줄 간격 넉넉하게
+
+            // 텍스트를 단어 단위로 쪼개서 span으로 만듦
+            const words = data.content.split(' ');
+            const spanElements = [];
+
+            words.forEach((word, index) => {
+                const span = document.createElement('span');
+                span.textContent = word;
+                span.className = "word-span text-gray-800"; // 기본 텍스트 색상 명시
+                
+                // 클릭 이벤트: 가리기/보이기 토글
+                span.onclick = () => {
+                    span.classList.toggle('hidden-word');
+                };
+
+                spanElements.push(span);
+                body.appendChild(span);
+                
+                // 단어 사이에 띄어쓰기 추가 (마지막 단어 제외)
+                if (index < words.length - 1) {
+                    body.appendChild(document.createTextNode(' '));
+                }
+            });
+
+            // 전체 조작 버튼 이벤트 연결
+            hideAllBtn.onclick = () => {
+                spanElements.forEach(span => span.classList.add('hidden-word'));
+            };
+
+            showAllBtn.onclick = () => {
+                spanElements.forEach(span => span.classList.remove('hidden-word'));
+            };
+
+            card.appendChild(header);
+            card.appendChild(body);
+            return card;
+        }
+
+        // 초기화 및 렌더링
+        function init() {
+            contentArea.innerHTML = ''; // 초기화
+            studyData.forEach(data => {
+                const card = createCard(data);
+                contentArea.appendChild(card);
+            });
+        }
+
+        // 실행
+        init();
+
+    </script>
+</body>
+</html>
+
