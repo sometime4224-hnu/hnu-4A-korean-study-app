@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기 연습: 모소족</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 폰트를 Inter로 설정하고, 한국어는 시스템 폰트가 자연스럽게 적용되도록 함 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 라디오 버튼 기본 스타일 숨기기 */
+        input[type="radio"] {
+            display: none;
+        }
+        /* 선택된 라디오 버튼의 라벨 스타일 */
+        input[type="radio"]:checked + label {
+            border-color: #3B82F6; /* blue-500 */
+            background-color: #EFF6FF; /* blue-50 */
+            color: #2563EB; /* blue-600 */
+            font-weight: 600;
+        }
+        /* 정답/오답 피드백 스타일 */
+        .correct-answer {
+            border-color: #10B981; /* green-500 */
+            background-color: #D1FAE5; /* green-100 */
+            color: #047857; /* green-700 */
+        }
+        .wrong-answer {
+            border-color: #EF4444; /* red-500 */
+            background-color: #FEE2E2; /* red-100 */
+            color: #B91C1C; /* red-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <main class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10">
+        
+        <header class="mb-8 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-900 text-center">한국어 읽기 연습</h1>
+            <p class="text-lg text-gray-600 text-center mt-2">아버지가 없는 모소족</p>
+        </header>
+
+        <!-- 읽기 지문 섹션 -->
+        <section id="reading-passage" aria-labelledby="passage-title">
+            <h2 id="passage-title" class="text-2xl font-semibold text-gray-800 mb-4">읽기 지문</h2>
+            <article class="bg-gray-50 rounded-lg p-6 space-y-4 text-gray-700 leading-relaxed text-base md:text-lg">
+                <p>현대인들은 대부분 부모가 중심이 되어 자식과 함께 가정을 이루며 살아간다. 그런데 현대인과는 다른 방식으로 살아가는 사람들이 있다. 중국의 모소족이 그 대표적인 예이다. 중국에는 인구의 대부분을 구성하는 한족과 함께 짱족을 비롯한 다수의 소수 민족이 살고 있는데 모소족은 그중 하나이다.</p>
+                
+                <p>중국 남서부 루고호 주변에 사는 모소족은 집안의 가장이 여자이다. 가족은 할머니를 중심으로 구성되며 집안에 아버지는 존재하지 않는다. 할머니, 어머니, 이모, 그리고 손녀들이 모여 살고 집안의 남자는 할아버지나 아버지가 아니라 외삼촌이나 외손자이다. 아이들은 어머니의 성을 따르며 집안의 모든 재산도 딸이 물려받는다.</p>
+                
+                <p>남녀가 만나 가정을 구성하지 않기 때문에 결혼도 이혼도 없다. 여자는 16세가 되면 성인식을 하고 마음에 드는 남자를 만나면 사랑을 나눌 수 있지만 함께 살지는 않는다. 남자들은 가족에 대한 경제적인 책임이나 자식 키울 의무가 없다. 여자들은 할머니를 중심으로 농사일과 집안일을 하며 아이들을 키우고 교육시킨다. 외삼촌들은 산에서 야크를 치거나 말을 타고 돌아다니면서 물건을 가져다가 팔고 생활에 필요한 물건을 사다가 가족에게 준다.</p>
+                
+                <p>이처럼 모소족은 오랜 세월 동안 자신들만의 전통을 지켜 왔다. 그러나 최근 현대 사회의 영향을 받아 그들의 가족 형태도 점점 변해가고 있다.</p>
+            </article>
+        </section>
+
+        <!-- 연습 문제 섹션 -->
+        <section id="quiz-section" class="mt-10" aria-labelledby="quiz-title">
+            <h2 id="quiz-title" class="text-2xl font-semibold text-gray-800 mb-6">연습 문제</h2>
+            
+            <form id="quiz-form" class="space-y-8">
+                
+                <!-- 문제 1 -->
+                <fieldset class="question-block" data-question="q1">
+                    <legend class="text-lg font-semibold text-gray-900 mb-4">1. 모소족 가족의 중심이 되는 사람은 누구입니까?</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q1-1" name="q1" value="q1-1">
+                        <label for="q1-1" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 아버지
+                        </label>
+                        
+                        <input type="radio" id="q1-2" name="q1" value="q1-2">
+                        <label for="q1-2" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 할머니
+                        </label>
+                        
+                        <input type="radio" id="q1-3" name="q1" value="q1-3">
+                        <label for="q1-3" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 외삼촌
+                        </label>
+                        
+                        <input type="radio" id="q1-4" name="q1" value="q1-4">
+                        <label for="q1-4" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 남편
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- 문제 2 -->
+                <fieldset class="question-block" data-question="q2">
+                    <legend class="text-lg font-semibold text-gray-900 mb-4">2. 이 글의 내용과 다른 것(틀린 것)을 고르십시오.</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q2-1" name="q2" value="q2-1">
+                        <label for="q2-1" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 여자가 집안의 가장 역할을 한다.
+                        </label>
+                        
+                        <input type="radio" id="q2-2" name="q2" value="q2-2">
+                        <label for="q2-2" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 재산은 딸이 물려받는다.
+                        </label>
+                        
+                        <input type="radio" id="q2-3" name="q2" value="q2-3">
+                        <label for="q2-3" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 남자와 여자가 결혼하여 가정을 이룬다.
+                        </label>
+                        
+                        <input type="radio" id="q2-4" name="q2" value="q2-4">
+                        <label for="q2-4" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 아이들은 어머니의 성을 따른다.
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- 문제 3 -->
+                <fieldset class="question-block" data-question="q3">
+                    <legend class="text-lg font-semibold text-gray-900 mb-4">3. 모소족 외삼촌의 주된 역할은 무엇입니까?</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q3-1" name="q3" value="q3-1">
+                        <label for="q3-1" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 농사일과 집안일을 한다.
+                        </label>
+                        
+                        <input type="radio" id="q3-2" name="q3" value="q3-2">
+                        <label for="q3-2" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 자신의 자식을 키우는 의무가 있다.
+                        </label>
+                        
+                        <input type="radio" id="q3-3" name="q3" value="q3-3">
+                        <label for="q3-3" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 아이들 교육을 전담한다.
+                        </label>
+                        
+                        <input type="radio" id="q3-4" name="q3" value="q3-4">
+                        <label for="q3-4" class="block w-full p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 밖에서 물건을 팔아 생활에 필요한 것을 가져온다.
+                        </label>
+                    </div>
+                </fieldset>
+
+            </form>
+            
+            <!-- 채점 버튼 -->
+            <button id="submit-btn" class="w-full mt-10 py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                채점하기
+            </button>
+            
+            <!-- 결과 표시 영역 -->
+            <div id="results-container" class="hidden mt-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <!-- 결과 내용이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </section>
+        
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const submitBtn = document.getElementById('submit-btn');
+            const resultsContainer = document.getElementById('results-container');
+            const quizForm = document.getElementById('quiz-form');
+
+            // 정답 객체
+            const correctAnswers = {
+                q1: 'q1-2', // 1번 문제 정답: (2) 할머니
+                q2: 'q2-3', // 2번 문제 정답: (3) 남자와 여자가 결혼하여... (틀린 것)
+                q3: 'q3-4'  // 3번 문제 정답: (4) 밖에서 물건을 팔아...
+            };
+
+            const totalQuestions = Object.keys(correctAnswers).length;
+
+            submitBtn.addEventListener('click', () => {
+                let score = 0;
+                let resultsHTML = `<h3 class="text-2xl font-bold mb-4 text-gray-900">채점 결과</h3>`;
+                const formData = new FormData(quizForm);
+
+                // 이전 피드백 스타일 초기화
+                document.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('correct-answer', 'wrong-answer');
+                });
+                document.querySelectorAll('.feedback-message').forEach(msg => msg.remove());
+                document.querySelectorAll('.question-block legend').forEach(lg => lg.classList.remove('text-red-600'));
+
+
+                for (const [question, correctAnswer] of Object.entries(correctAnswers)) {
+                    const userAnswer = formData.get(question);
+                    const questionElement = document.querySelector(`.question-block[data-question="${question}"]`);
+
+                    if (!userAnswer) {
+                        // 답을 선택하지 않은 경우
+                        resultsHTML += `<p class="text-red-600 font-semibold">${question.toUpperCase().replace('Q','')}번: 답을 선택하지 않았습니다.</p>`;
+                        questionElement.querySelector('legend').classList.add('text-red-600');
+                    } else {
+                        const userLabel = document.querySelector(`label[for="${userAnswer}"]`);
+                        const correctLabel = document.querySelector(`label[for="${correctAnswer}"]`);
+
+                        if (userAnswer === correctAnswer) {
+                            // 정답인 경우
+                            score++;
+                            userLabel.classList.add('correct-answer');
+                            
+                            const feedback = document.createElement('span');
+                            feedback.textContent = ' (정답)';
+                            feedback.className = 'feedback-message text-green-600 font-semibold';
+                            userLabel.appendChild(feedback);
+
+                        } else {
+                            // 오답인 경우
+                            userLabel.classList.add('wrong-answer');
+                            correctLabel.classList.add('correct-answer');
+                            
+                            const wrongFeedback = document.createElement('span');
+                            wrongFeedback.textContent = ' (오답)';
+                            wrongFeedback.className = 'feedback-message text-red-600 font-semibold';
+                            userLabel.appendChild(wrongFeedback);
+                            
+                            const correctFeedback = document.createElement('span');
+                            correctFeedback.textContent = ' (정답)';
+                            correctFeedback.className = 'feedback-message text-green-600 font-semibold';
+                            correctLabel.appendChild(correctFeedback);
+                        }
+                    }
+                }
+
+                // 총점 표시
+                resultsHTML = `<h3 class="text-2xl font-bold mb-4 text-gray-900">채점 결과</h3>
+                               <p class="text-3xl font-bold text-center text-blue-600 my-4">${totalQuestions}문제 중 ${score}문제 정답!</p>` + resultsHTML;
+                
+                resultsContainer.innerHTML = resultsHTML;
+                resultsContainer.classList.remove('hidden');
+
+                // 결과 영역으로 스크롤
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
