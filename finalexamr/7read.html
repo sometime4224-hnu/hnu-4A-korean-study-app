@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기 연습: 음식 없는 영화관</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 폰트를 Inter로 설정하고, 한국어는 시스템 폰트가 자연스럽게 적용되도록 함 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 라디오 버튼 기본 스타일 숨기기 */
+        input[type="radio"] {
+            display: none;
+        }
+        /* 선택된 라디오 버튼의 라벨 스타일 */
+        input[type="radio"]:checked + label {
+            border-color: #3B82F6; /* blue-500 */
+            background-color: #EFF6FF; /* blue-50 */
+            color: #2563EB; /* blue-600 */
+            font-weight: 600;
+        }
+        /* 정답/오답 피드백 스타일 */
+        .correct-answer {
+            border-color: #10B981; /* green-500 */
+            background-color: #D1FAE5; /* green-100 */
+            color: #047857; /* green-700 */
+        }
+        .wrong-answer {
+            border-color: #EF4444; /* red-500 */
+            background-color: #FEE2E2; /* red-100 */
+            color: #B91C1C; /* red-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <main class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-5 sm:p-8 md:p-10">
+        
+        <header class="mb-6 border-b pb-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center">한국어 읽기 연습</h1>
+            <p class="text-base sm:text-lg text-gray-600 text-center mt-2">음식 없는 영화관을 만들어 주세요</p>
+        </header>
+
+        <!-- 읽기 지문 섹션 -->
+        <section id="reading-passage" aria-labelledby="passage-title">
+            <h2 id="passage-title" class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4">읽기 지문</h2>
+            <article class="bg-gray-50 rounded-lg p-4 sm:p-6 space-y-4 text-gray-700 leading-relaxed text-base">
+                <p class="font-semibold text-gray-800">영화관 관계자께</p>
+                <p>저는 영화를 공부하고 있는 학생입니다. 요즘 사람들 사이에 영화관에 음식을 가지고 들어갈 수 있게 한 것에 대해 옳은지 그런지 논란이 되고 있습니다. 저는 모든 음식물 반입을 금지하는 '깨끗한 상영관'을 만들어 주실 것을 건의하고 싶습니다.</p>
+                
+                <p>얼마 전에 정말 보고 싶은 영화가 개봉되어 잔뜩 기대를 하고 영화관에 들어갔습니다. 그러나 여기저기에서 들려오는 음식 먹는 소리 때문에 영화에 집중할 수 없었습니다. 어떤 사람들은 소리가 나지 않는 음식은 괜찮다고 합니다. 하지만 소리뿐만 아니라 음식에서 나는 냄새도 방해가 됩니다. 저는 십 분 동안 코를 막은 채로 영화를 보았습니다.</p>
+                
+                <p>배가 고파서 밥을 먹으면서 영화를 보고 싶다면 집에서 보면 됩니다. 적지 않은 돈을 내고 영화관에 오는 것은 큰 화면과 훌륭한 음향 시설을 통해 생생하게 영화를 즐기고 싶어서입니다. 팝콘 먹는 소리와 오징어 냄새를 참으면서 영화를 보려고 오는 것은 아닙니다. 또 먹다 남은 음식물 쓰레기와 팝콘 때문에 극장이 안이 더러워지는 것도 문제라고 생각합니다.</p>
+                
+                <p>그러나 당장 팝콘 없는 영화관을 만드는 것은 현실성이 없다고 봅니다. 그러니까 우선 영화관의 여러 상영관 중에서 하나를 '깨끗한 상영관'으로 지정해서 관객들이 선택할 수 있도록 해 주십시오. 많은 관객들이 그곳을 선택한다면 조금씩 그런 상영관 수를 늘려 갈 수 있을 것이라고 봅니다. 앞으로 좋은 영화를 편안하게 볼 수 있는 영화관이 되기를 기대합니다.</p>
+            </article>
+        </section>
+
+        <!-- 연습 문제 섹션 -->
+        <section id="quiz-section" class="mt-8 sm:mt-10" aria-labelledby="quiz-title">
+            <h2 id="quiz-title" class="text-xl sm:text-2xl font-semibold text-gray-800 mb-6">연습 문제</h2>
+            
+            <form id="quiz-form" class="space-y-6 sm:space-y-8">
+                
+                <!-- 문제 1 -->
+                <fieldset class="question-block" data-question="q1">
+                    <legend class="text-base sm:text-lg font-semibold text-gray-900 mb-4">1. 이 글을 쓴 학생의 주장으로 가장 알맞은 것을 고르십시오.</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q1-1" name="q1" value="q1-1">
+                        <label for="q1-1" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 영화관의 모든 음식물 반입을 금지해야 한다.
+                        </label>
+                        
+                        <input type="radio" id="q1-2" name="q1" value="q1-2">
+                        <label for="q1-2" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 영화관 음식 가격을 낮춰야 한다.
+                        </label>
+                        
+                        <input type="radio" id="q1-3" name="q1" value="q1-3">
+                        <label for="q1-3" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 관객이 선택할 수 있도록 음식 반입이 안 되는 상영관을 만들어야 한다.
+                        </label>
+                        
+                        <input type="radio" id="q1-4" name="q1" value="q1-4">
+                        <label for="q1-4" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 냄새가 나지 않는 음식만 허용해야 한다.
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- 문제 2 -->
+                <fieldset class="question-block" data-question="q2">
+                    <legend class="text-base sm:text-lg font-semibold text-gray-900 mb-4">2. 글쓴이가 영화관 내 음식물 반입을 반대하는 이유로 적절하지 않은 것은 무엇입니까?</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q2-1" name="q2" value="q2-1">
+                        <label for="q2-1" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 음식 먹는 소리와 냄새가 영화 감상을 방해하기 때문에
+                        </label>
+                        
+                        <input type="radio" id="q2-2" name="q2" value="q2-2">
+                        <label for="q2-2" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 남은 음식물 쓰레기로 극장이 더러워지기 때문에
+                        </label>
+                        
+                        <input type="radio" id="q2-3" name="q2" value="q2-3">
+                        <label for="q2-3" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 큰 화면과 좋은 음향으로 영화를 즐길 의미가 퇴색되기 때문에
+                        </label>
+                        
+                        <input type="radio" id="q2-4" name="q2" value="q2-4">
+                        <label for="q2-4" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 다른 모든 관객이 음식물 반입을 반대하고 있기 때문에
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!-- 문제 3 -->
+                <fieldset class="question-block" data-question="q3">
+                    <legend class="text-base sm:text-lg font-semibold text-gray-900 mb-4">3. 이 문제에 대해 학생이 제안하는 현실적인 해결책은 무엇입니까?</legend>
+                    <div class="space-y-3">
+                        <input type="radio" id="q3-1" name="q3" value="q3-1">
+                        <label for="q3-1" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (1) 모든 상영관에서 팝콘 판매를 즉시 중단한다.
+                        </label>
+                        
+                        <input type="radio" id="q3-2" name="q3" value="q3-2">
+                        <label for="q3-2" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (2) 여러 상영관 중 하나를 '깨끗한 상영관'으로 지정하여 운영한다.
+                        </label>
+                        
+                        <input type="radio" id="q3-3" name="q3" value="q3-3">
+                        <label for="q3-3" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (3) 소리와 냄새가 없는 음식만 개발하여 판매한다.
+                        </label>
+                        
+                        <input type="radio" id="q3-4" name="q3" value="q3-4">
+                        <label for="q3-4" class="block w-full p-3 sm:p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            (4) 영화관 내부에 전용 식사 공간을 따로 만든다.
+                        </slabel>
+                    </div>
+                </fieldset>
+
+            </form>
+            
+            <button id="submit-btn" class="w-full mt-8 sm:mt-10 py-3 px-5 bg-blue-600 text-white font-bold text-base sm:text-lg rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                채점하기
+            </button>
+            
+            <div id="results-container" class="hidden mt-8 p-4 sm:p-6 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl sm:text-2xl font-bold mb-4 text-gray-900">채점 결과</h3>
+                <p id="score-display" class="text-2xl sm:text-3xl font-bold text-center text-blue-600 my-4"></p>
+                <div id="detailed-results"></div>
+            </div>
+        </section>
+        
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const submitBtn = document.getElementById('submit-btn');
+            const resultsContainer = document.getElementById('results-container');
+            const scoreDisplay = document.getElementById('score-display');
+            const detailedResults = document.getElementById('detailed-results');
+            const quizForm = document.getElementById('quiz-form');
+
+            // 정답 객체 (새로운 지문에 맞게 수정)
+            const correctAnswers = {
+                q1: 'q1-3', // 1번 문제 정답: (3) 관객이 선택할 수 있도록...
+                q2: 'q2-4', // 2번 문제 정답: (4) 다른 모든 관객이... (적절하지 않은 이유)
+                q3: 'q3-2'  // 3번 문제 정답: (2) 여러 상영관 중 하나를...
+            };
+
+            const totalQuestions = Object.keys(correctAnswers).length;
+
+            submitBtn.addEventListener('click', () => {
+                let score = 0;
+                let resultsHTML = '';
+                const formData = new FormData(quizForm);
+
+                // 이전 피드백 스타일 초기화
+                document.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('correct-answer', 'wrong-answer');
+                    const feedback = label.querySelector('.feedback-message');
+                    if (feedback) {
+                        feedback.remove();
+                    }
+                });
+                document.querySelectorAll('.question-block legend').forEach(lg => lg.classList.remove('text-red-600'));
+
+
+                for (const [question, correctAnswer] of Object.entries(correctAnswers)) {
+                    const userAnswer = formData.get(question);
+                    const questionElement = document.querySelector(`.question-block[data-question="${question}"]`);
+                    const questionNumber = question.toUpperCase().replace('Q','');
+
+                    if (!userAnswer) {
+                        // 답을 선택하지 않은 경우
+                        resultsHTML += `<p class="text-red-600 font-semibold">${questionNumber}번: 답을 선택하지 않았습니다.</p>`;
+                        questionElement.querySelector('legend').classList.add('text-red-600');
+                    } else {
+                        const userLabel = document.querySelector(`label[for="${userAnswer}"]`);
+                        const correctLabel = document.querySelector(`label[for="${correctAnswer}"]`);
+
+                        if (userAnswer === correctAnswer) {
+                            // 정답인 경우
+                            score++;
+                            userLabel.classList.add('correct-answer');
+                            
+                            const feedback = document.createElement('span');
+                            feedback.textContent = ' (정답)';
+                            feedback.className = 'feedback-message text-green-600 font-semibold ml-2';
+                            userLabel.appendChild(feedback);
+
+                        } else {
+                            // 오답인 경우
+                            userLabel.classList.add('wrong-answer');
+                            correctLabel.classList.add('correct-answer');
+                            
+                            const wrongFeedback = document.createElement('span');
+                            wrongFeedback.textContent = ' (오답)';
+                            wrongFeedback.className = 'feedback-message text-red-600 font-semibold ml-2';
+                            userLabel.appendChild(wrongFeedback);
+                            
+                            const correctFeedback = document.createElement('span');
+                            correctFeedback.textContent = ' (정답)';
+                            correctFeedback.className = 'feedback-message text-green-600 font-semibold ml-2';
+                            correctLabel.appendChild(correctFeedback);
+                        }
+                    }
+                }
+
+                // 총점 표시
+                scoreDisplay.textContent = `${totalQuestions}문제 중 ${score}문제 정답!`;
+                detailedResults.innerHTML = resultsHTML;
+                
+                resultsContainer.classList.remove('hidden');
+
+                // 결과 영역으로 스크롤
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
