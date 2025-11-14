@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기 퀴즈: 아리랑</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Inter 폰트 적용 (Tailwind의 기본 sans 폰트 계열에 추가) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+        }
+        /* 라디오 버튼 선택 시 스타일 */
+        .quiz-option input[type="radio"]:checked + label {
+            background-color: #eff6ff; /* bg-blue-50 */
+            border-color: #3b82f6; /* border-blue-500 */
+            font-weight: 600; /* font-semibold */
+            color: #1d4ed8; /* text-blue-700 */
+        }
+        /* 정답/오답 피드백 스타일 */
+        .correct-answer {
+            background-color: #f0fdf4; /* bg-green-50 */
+            border-color: #22c55e; /* border-green-500 */
+            color: #15803d; /* text-green-700 */
+            font-weight: 600;
+        }
+        .incorrect-answer {
+            background-color: #fef2f2; /* bg-red-50 */
+            border-color: #ef4444; /* border-red-500 */
+            color: #b91c1c; /* text-red-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 sm:p-6">
+
+    <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl max-w-3xl w-full">
+
+        <!-- 1. 읽기 지문 섹션 -->
+        <div id="reading-passage">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">
+                한국어 읽기 연습: 재즈와 아리랑
+            </h1>
+            <div class="space-y-4 text-base sm:text-lg leading-relaxed text-gray-800">
+                <p>
+                    얼마 전, 재즈 콘서트를 보러 갔습니다. 공연이 진행될수록 수준 높은 연주에 흠뻑 빠져들었습니다. 드디어 마지막 순서가 되었고, 한 가수가 무대에 올라 노래를 부르기 시작했습니다.
+                </p>
+                <p>
+                    왠지 모르게 가슴이 뭉클해지고 아름다우면서도 슬픈 느낌이 드는 곡이었습니다. 다른 관객들도 조용히 노래를 따라 부르는 모습이 인상적이었습니다.
+                </p>
+                <p>
+                    공연이 끝난 후, 그 노래가 계속 생각나서 찾아보았습니다. 그 곡은 바로 한국의 전통 민요인 '아리랑'이었습니다. '아리랑'은 국내외 어디에 있든 한국인이라는 정체성을 느끼게 해주는 노래입니다. 지역마다 종류가 다른데, 제가 들었던 것은 가장 널리 알려진 '경기 아리랑'이었습니다.
+                </p>
+                <p>
+                    전통 민요를 재즈로 바꾸어 부른 방식이 매우 신선하고 새롭게 느껴졌습니다. 특히, '아리랑'이 
+                    <strong class="font-bold text-blue-600">유네스코 인류무형유산</strong>
+                    으로 등재되었다는 사실을 알고 나니, 왜 그 곡이 콘서트의 마지막을 장식했는지 깊이 이해할 수 있었습니다. '아리랑'이야말로 한국을 대표하는 민요라는 생각이 들었습니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. 퀴즈 섹션 -->
+        <div id="quiz-section" class="mt-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mt-8 mb-6 border-t border-gray-200 pt-6">
+                읽기 퀴즈
+            </h2>
+            <p class="text-base sm:text-lg text-gray-700 mb-6">다음 글을 읽고 질문에 알맞은 답을 고르세요.</p>
+
+            <form id="quiz-form" class="space-y-8">
+                <!-- 질문 1 -->
+                <div class="question-block" data-question="q1">
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+                        1. 이 글의 글쓴이가 마지막 곡을 듣고 느낀 감정으로 알맞지 <strong class="text-red-600">않은</strong> 것은 무엇입니까?
+                    </p>
+                    <div class="space-y-3">
+                        <div class="quiz-option">
+                            <input type="radio" id="q1-1" name="q1" value="1" class="hidden">
+                            <label for="q1-1" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ① 감동적이다
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q1-2" name="q1" value="2" class="hidden">
+                            <label for="q1-2" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ② 아름답다
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q1-3" name="q1" value="3" class="hidden">
+                            <label for="q1-3" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ③ 슬프다
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q1-4" name="q1" value="4" class="hidden">
+                            <label for="q1-4" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ④ 지루하다
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 질문 2 -->
+                <div class="question-block" data-question="q2">
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+                        2. 글쓴이가 공연에서 들었던 '아리랑'의 종류는 무엇입니까?
+                    </p>
+                    <div class="space-y-3">
+                        <div class="quiz-option">
+                            <input type="radio" id="q2-1" name="q2" value="1" class="hidden">
+                            <label for="q2-1" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ① 밀양 아리랑
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q2-2" name="q2" value="2" class="hidden">
+                            <label for="q2-2" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ② 진도 아리랑
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q2-3" name="q2" value="3" class="hidden">
+                            <label for="q2-3" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ③ 경기 아리랑
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q2-4" name="q2" value="4" class="hidden">
+                            <label for="q2-4" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ④ 정선 아리랑
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 질문 3 -->
+                <div class="question-block" data-question="q3">
+                    <p class="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+                        3. 글쓴이가 '아리랑'이 마지막 곡으로 선택된 이유를 이해하게 된 계기는 무엇입니까?
+                    </p>
+                    <div class="space-y-3">
+                        <div class="quiz-option">
+                            <input type="radio" id="q3-1" name="q3" value="1" class="hidden">
+                            <label for="q3-1" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ① 사람들이 노래를 따라 불렀기 때문에
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q3-2" name="q3" value="2" class="hidden">
+                            <label for="q3-2" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ② 재즈 편곡이 매우 신선했기 때문에
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q3-3" name="q3" value="3" class="hidden">
+                            <label for="q3-3" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ③ 한국을 대표하는 전통 민요이기 때문에
+                            </label>
+                        </div>
+                        <div class="quiz-option">
+                            <input type="radio" id="q3-4" name="q3" value="4" class="hidden">
+                            <label for="q3-4" class="flex items-center p-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 cursor-pointer text-base sm:text-lg">
+                                ④ 유네스코 인류무형유산으로 등재된 것을 알게 되었기 때문에
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 제출 버튼 -->
+                <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                    <button type="submit" id="submit-btn" class="w-full sm:w-1/2 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400">
+                        제출하기
+                    </button>
+                    <button type="button" id="reset-btn" class="w-full sm:w-1/2 bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition duration-300 text-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50" style="display: none;">
+                        다시 풀기
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 3. 결과 섹션 (초기에는 숨김) -->
+        <div id="results-section" class="hidden mt-8 p-6 rounded-lg bg-blue-50 border border-blue-200">
+            <h2 id="results-title" class="text-2xl font-bold text-center text-blue-800"></h2>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizForm = document.getElementById('quiz-form');
+            const submitButton = document.getElementById('submit-btn');
+            const resetButton = document.getElementById('reset-btn');
+            const resultsSection = document.getElementById('results-section');
+            const resultsTitle = document.getElementById('results-title');
+
+            const correctAnswers = {
+                q1: '4',
+                q2: '3',
+                q3: '4'
+            };
+
+            quizForm.addEventListener('submit', (event) => {
+                event.preventDefault(); // 폼 제출 기본 동작 방지
+
+                let score = 0;
+                const totalQuestions = Object.keys(correctAnswers).length;
+                const formData = new FormData(quizForm);
+
+                // 모든 라디오 버튼 비활성화
+                quizForm.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.disabled = true;
+                });
+
+                // 채점 및 피드백
+                for (const [question, correctAnswer] of Object.entries(correctAnswers)) {
+                    const userAnswer = formData.get(question);
+                    const questionBlock = document.querySelector(`.question-block[data-question="${question}"]`);
+                    const options = questionBlock.querySelectorAll('.quiz-option');
+
+                    options.forEach(option => {
+                        const input = option.querySelector('input');
+                        const label = option.querySelector('label');
+                        
+                        if (input.value === correctAnswer) {
+                            // 정답 옵션
+                            label.classList.add('correct-answer');
+                            if (userAnswer === correctAnswer) {
+                                score++;
+                            }
+                        } else if (input.value === userAnswer) {
+                            // 사용자가 선택한 오답 옵션
+                            label.classList.add('incorrect-answer');
+                        }
+                    });
+                }
+
+                // 결과 표시
+                resultsTitle.textContent = `퀴즈 결과: ${totalQuestions}문제 중 ${score}문제 정답!`;
+                if (score === totalQuestions) {
+                    resultsTitle.textContent = '🎉 퀴즈 결과: 만점입니다! 🎉';
+                }
+                resultsSection.classList.remove('hidden');
+
+                // 버튼 상태 변경
+                submitButton.disabled = true;
+                submitButton.classList.add('hidden'); // 제출 버튼 숨기기
+                resetButton.style.display = 'block'; // 다시 풀기 버튼 표시
+                
+                // 결과 섹션으로 스크롤
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            // 다시 풀기 버튼
+            resetButton.addEventListener('click', () => {
+                window.location.reload(); // 페이지 새로고침
+            });
+        });
+    </script>
+
+</body>
+</html>
+
