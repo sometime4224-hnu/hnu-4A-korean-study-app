@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 능력 평가 퀴즈 (서울대 4A)</title>
+    
+    <!-- Tailwind CSS (디자인용) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome (아이콘용) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 폰트 설정 (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        /* 애니메이션 효과 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-fade-in-up {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col text-gray-800">
+
+    <!-- 앱 컨테이너 -->
+    <div id="app" class="flex-grow flex flex-col items-center justify-center w-full">
+        <!-- 자바스크립트가 여기에 내용을 채워넣습니다 -->
+    </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // 데이터 (문제 목록)
+        // ---------------------------------------------------------
+        const questions = [
+            {
+                id: 1,
+                question: "이번에 새로 나온 텔레비전은 디자인이 (      ) 가격도 비싸지 않아 젊은 사람들에게 인기를 얻고 있다.",
+                options: ["흔하고", "신나고", "평범하며", "독특하며"],
+                answer: 3,
+                explanation: "'디자인이 ( ) 가격도 비싸지 않아 인기가 있다'는 문맥에서, 긍정적이고 차별화된 특징인 '독특하며'가 가장 적절합니다."
+            },
+            {
+                id: 2,
+                question: "도서관에서 큰 소리로 통화하는 사람 때문에 (      ). 전화 통화를 도서관 안에서 하는 것은 예의에 맞지 않는 행동이라고 본다.",
+                options: ["먼저 양해를 구했다", "공부에 방해가 된다", "서로 배려하는 것이 필요하다", "불편을 주지 않아야 한다"],
+                answer: 1,
+                explanation: "큰 소리로 통화하는 사람 때문에 생기는 부정적인 결과가 와야 하므로 '공부에 방해가 된다'가 가장 적절합니다."
+            },
+            {
+                id: 3,
+                question: "부산에 여행 갔다가 (      ) 대학교 때 친구를 만났다. 한국에서 고향 친구를 만날 거라고 생각해 본 적이 없었기 때문에 깜짝 놀랐다.",
+                options: ["급히", "솔직히", "우연히", "은근히"],
+                answer: 2,
+                explanation: "예상치 못하게 친구를 만난 상황이므로 '우연히'가 적절합니다."
+            },
+            {
+                id: 4,
+                question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n내 전자사전이 고장이 나는 바람에 친구에게 **사전을 빌려다가** 숙제를 끝냈다.",
+                options: ["사전을 빌리다가", "사전을 빌려와서", "사전을 빌린 채로", "사전을 빌렸더라면"],
+                answer: 1,
+                explanation: "'-아/어다가'는 장소를 이동하여 어떤 행동을 함을 나타냅니다. '빌려서 (집으로) 와서'라는 의미인 '빌려와서'가 가장 비슷합니다."
+            },
+            {
+                id: 5,
+                question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n하루 종일 집 안에만 있어서 밖에 날씨가 좋은지 나쁜지 **모르겠다**.",
+                options: ["날씨가 좋을 듯하다", "날씨가 좋지 않다고 본다", "날씨를 알 수가 없다", "날씨가 좋든지 나쁘든지 상관없다"],
+                answer: 2,
+                explanation: "'모르겠다'는 상황을 파악할 수 없다는 뜻이므로 '알 수가 없다'와 의미가 같습니다."
+            },
+            {
+                id: 6,
+                question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n그 친구의 도움이 **없었더라면** 무사히 대학을 졸업하지 못했을 것이다.",
+                options: ["없다가는", "없었으면", "없었다더니", "없으나 마나"],
+                answer: 1,
+                explanation: "가정법 과거 상황으로, 조건의 의미를 가진 '없었으면'이 가장 유사합니다."
+            },
+            {
+                id: 7,
+                question: "최근 50대 남자가 선풍기를 켜 놓은 채로 잠을 자다가 사망했다는 신문 기사가 (      ). 선풍기 때문에 사망할 수도 있다는 생각은 과학적으로 근거가 없다고 하는데...",
+                options: ["논란이 되고 있다", "현실성이 없다고 한다", "문제가 안 된다고 한다", "앞뒤가 안 맞는다고 한다"],
+                answer: 0,
+                explanation: "과학적 근거가 없는데도 기사가 계속 나와 사람들이 믿게 되는 상황은 사회적 '논란'이 되고 있는 상황입니다."
+            },
+            {
+                id: 8,
+                question: "김서영 작가의 소설 '비밀'이 영화로 만들어진다... 배우 이정민이 이 작품에 주인공으로 (      ).",
+                options: ["출연을 한다", "주목을 받는다", "반응을 얻었다", "인기를 끌었다"],
+                answer: 0,
+                explanation: "배우가 배역을 맡아 연기하는 것은 '출연을 한다'입니다."
+            },
+            {
+                id: 9,
+                question: "올해 동아리에 가입한 신입생을 위한 환영회가 열립니다... (      ) 회원 여러분께서는 꼭 참석해 주시기 바랍니다.",
+                options: ["바쁘시거든", "바쁘시며", "바쁘시더라도", "바쁘셨더라면"],
+                answer: 2,
+                explanation: "상황이 어렵더라도 행동을 요청할 때 쓰는 양보의 표현 '-더라도'가 적절합니다."
+            },
+            {
+                id: 10,
+                question: "아침에 급하게 나오는 바람에 깜박 잊고 창문을 (      ) 집을 나왔다.",
+                options: ["열어 놓다가", "열어 놓았다가", "열어 놓더라도", "열어 놓은 채로"],
+                answer: 3,
+                explanation: "어떤 상태가 지속됨을 나타내는 '-은 채로'가 적절합니다. (창문이 열려 있는 상태로)"
+            },
+            {
+                id: 11,
+                question: "(건의문) ...하지만 대출이 안 되기 때문에... 책을 (      ) 집에서도 읽을 수 있도록 해 주시면 좋겠습니다...",
+                options: ["빌려다가", "빌리거든", "빌리더라도", "빌리기는커녕"],
+                answer: 0,
+                explanation: "도서관의 책을 빌려서 장소를 이동(집)하여 읽기를 원하므로 '-어다가'가 쓰인 '빌려다가'가 맞습니다."
+            },
+            {
+                id: 12,
+                question: "노량진 수산 시장은 서울 동작구 노량진동에 위치한 시장이다. (      ) 다양한 수산물이 판매되는 곳인데...",
+                options: ["생선이라는", "생선이든지", "생선이야말로", "생선을 비롯한"],
+                answer: 3,
+                explanation: "대표적인 것을 예로 들고 그 외의 것들을 포함할 때 '-(을)를 비롯한'을 사용합니다."
+            }
+        ];
+
+        // ---------------------------------------------------------
+        // 상태 관리 (State)
+        // ---------------------------------------------------------
+        let state = {
+            screen: 'start', // start, quiz, result
+            currentIndex: 0,
+            score: 0,
+            answers: {}, // { 0: 1, 1: 2 ... } format: index: selectedOption
+            showFeedback: false
+        };
+
+        // ---------------------------------------------------------
+        // 렌더링 로직
+        // ---------------------------------------------------------
+        const appElement = document.getElementById('app');
+
+        function render() {
+            if (state.screen === 'start') {
+                appElement.innerHTML = renderStartScreen();
+            } else if (state.screen === 'quiz') {
+                appElement.innerHTML = renderQuizScreen();
+            } else if (state.screen === 'result') {
+                appElement.innerHTML = renderResultScreen();
+            }
+        }
+
+        // 1. 시작 화면 HTML
+        function renderStartScreen() {
+            return `
+                <div class="animate-fade-in w-full max-w-md p-4">
+                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
+                        <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-book-open text-3xl text-blue-600"></i>
+                        </div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">한국어 능력 평가</h1>
+                        <p class="text-gray-600 mb-8">서울대학교 한국어 4A Workbook<br/>기반 모의고사</p>
+                        
+                        <div class="space-y-3 text-left bg-gray-50 p-4 rounded-lg mb-8 text-sm text-gray-600">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-blue-200 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">문항</span>
+                                <span>총 ${questions.length}문제</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-green-200 text-green-700 px-2 py-0.5 rounded text-xs font-bold">내용</span>
+                                <span>어휘, 문법, 읽기, 기능</span>
+                            </div>
+                        </div>
+
+                        <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 transform active:scale-95">
+                            퀴즈 시작하기 <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. 퀴즈 화면 HTML
+        function renderQuizScreen() {
+            const q = questions[state.currentIndex];
+            const isAnswered = state.answers[state.currentIndex] !== undefined;
+            const userAnswer = state.answers[state.currentIndex];
+            const isCorrect = userAnswer === q.answer;
+
+            // 진행률 계산
+            const progress = ((state.currentIndex) / questions.length) * 100;
+
+            let optionsHtml = q.options.map((opt, idx) => {
+                let btnClass = "w-full p-4 text-left rounded-xl border-2 transition-all duration-200 font-medium flex justify-between items-center mb-3 ";
+                let numberClass = "w-6 h-6 rounded-full flex items-center justify-center text-xs border mr-3 ";
+                let icon = "";
+
+                if (!isAnswered) {
+                    btnClass += "border-gray-200 hover:border-blue-400 hover:bg-blue-50 bg-white text-gray-700 cursor-pointer";
+                    numberClass += "border-gray-300 text-gray-500";
+                } else {
+                    btnClass += "cursor-default ";
+                    if (idx === q.answer) {
+                        btnClass += "border-green-500 bg-green-50 text-green-700 shadow-sm";
+                        numberClass += "border-green-500 bg-green-500 text-white";
+                        icon = `<i class="fas fa-check text-green-600"></i>`;
+                    } else if (idx === userAnswer) {
+                        btnClass += "border-red-500 bg-red-50 text-red-700";
+                        numberClass += "border-red-500 bg-red-500 text-white";
+                        icon = `<i class="fas fa-times text-red-600"></i>`;
+                    } else {
+                        btnClass += "border-gray-100 bg-gray-50 text-gray-400 opacity-50";
+                        numberClass += "border-gray-200 text-gray-300";
+                    }
+                }
+
+                const onClickAttr = !isAnswered ? `onclick="handleAnswer(${idx})"` : "";
+
+                return `
+                    <button ${onClickAttr} class="${btnClass}">
+                        <div class="flex items-center">
+                            <span class="${numberClass}">${idx + 1}</span>
+                            <span>${opt}</span>
+                        </div>
+                        ${icon}
+                    </button>
+                `;
+            }).join('');
+
+            let feedbackHtml = '';
+            if (state.showFeedback) {
+                const feedbackClass = isCorrect ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100';
+                const feedbackTitleClass = isCorrect ? 'text-green-700' : 'text-red-700';
+                const feedbackIcon = isCorrect ? 'fa-check' : 'fa-times';
+                const feedbackText = isCorrect ? '정답입니다!' : '오답입니다.';
+                
+                const btnText = state.currentIndex < questions.length - 1 ? '다음 문제' : '결과 보기';
+
+                feedbackHtml = `
+                    <div class="mt-6 pt-6 border-t border-gray-100 animate-fade-in-up">
+                        <div class="p-4 rounded-lg mb-4 border ${feedbackClass}">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas ${feedbackIcon} ${feedbackTitleClass}"></i>
+                                <span class="font-bold ${feedbackTitleClass}">${feedbackText}</span>
+                            </div>
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                <span class="font-semibold text-gray-900">해설:</span> ${q.explanation}
+                            </p>
+                        </div>
+                        <button onclick="handleNext()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                            ${btnText} <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="w-full max-w-2xl p-4 min-h-screen flex flex-col">
+                    <!-- Progress Bar -->
+                    <div class="mb-6 bg-white rounded-full h-3 w-full overflow-hidden shadow-sm mt-4">
+                        <div class="bg-blue-500 h-full transition-all duration-500 ease-out" style="width: ${progress}%"></div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 flex-grow flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-bold text-blue-500 tracking-widest">QUESTION ${state.currentIndex + 1} / ${questions.length}</span>
+                            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-md">4A Workbook</span>
+                        </div>
+                        
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-8 whitespace-pre-wrap">${q.question.replace(/\n/g, '<br>')}</h2>
+
+                        <div class="space-y-1">
+                            ${optionsHtml}
+                        </div>
+
+                        ${feedbackHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. 결과 화면 HTML
+        function renderResultScreen() {
+            const percentage = Math.round((state.score / questions.length) * 100);
+            let message = "";
+            
+            if (percentage >= 90) message = "완벽해요! 뛰어난 한국어 실력입니다.";
+            else if (percentage >= 70) message = "훌륭해요! 조금만 더 노력하면 만점이겠네요.";
+            else message = "수고하셨습니다! 오답 노트를 확인해보세요.";
+
+            let reviewHtml = questions.map((q, idx) => {
+                const userAns = state.answers[idx];
+                const isCorrect = userAns === q.answer;
+                const cardClass = isCorrect ? 'bg-white border-gray-200' : 'bg-red-50 border-red-200';
+                const badgeClass = isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                const badgeText = isCorrect ? '정답' : '오답';
+
+                return `
+                    <div class="border rounded-xl p-5 mb-4 ${cardClass}">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${badgeClass}">
+                                ${idx + 1}
+                            </span>
+                            <span class="font-bold text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                                ${badgeText}
+                            </span>
+                        </div>
+                        <p class="text-gray-800 font-medium mb-3 pl-11 text-sm md:text-base">${q.question}</p>
+                        <div class="pl-11 text-sm space-y-1">
+                            <div class="text-gray-500">
+                                내가 고른 답: <span class="font-medium ${isCorrect ? 'text-green-600' : 'text-red-600 line-through'}">${q.options[userAns]}</span>
+                            </div>
+                            ${!isCorrect ? `<div class="text-blue-600 font-bold">정답: ${q.options[q.answer]}</div>` : ''}
+                            <div class="mt-3 bg-gray-50 p-3 rounded-lg text-gray-600 text-xs md:text-sm">
+                                <span class="font-bold text-gray-700">해설:</span> ${q.explanation}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="w-full max-w-3xl mx-auto p-4 animate-fade-in">
+                    <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
+                        <div class="bg-blue-600 p-8 text-center text-white">
+                            <div class="bg-white/20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                                <i class="fas fa-award text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold mb-2">퀴즈 결과</h2>
+                            <div class="text-6xl font-extrabold mb-2 tracking-tight">
+                                ${state.score}<span class="text-3xl text-blue-200 font-normal">/${questions.length}</span>
+                            </div>
+                            <p class="text-blue-100 font-medium">${message}</p>
+                        </div>
+                        
+                        <div class="p-8 bg-gray-50">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                <i class="fas fa-book-open text-blue-500"></i>
+                                문제 다시보기
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                ${reviewHtml}
+                            </div>
+
+                            <button onclick="startQuiz()" class="mt-8 w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 transform active:scale-95">
+                                <i class="fas fa-redo"></i> 다시 풀기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ---------------------------------------------------------
+        // 이벤트 핸들러
+        // ---------------------------------------------------------
+        
+        window.startQuiz = function() {
+            state.screen = 'quiz';
+            state.currentIndex = 0;
+            state.score = 0;
+            state.answers = {};
+            state.showFeedback = false;
+            render();
+            window.scrollTo(0, 0);
+        };
+
+        window.handleAnswer = function(optionIndex) {
+            if (state.showFeedback) return;
+
+            const currentQ = questions[state.currentIndex];
+            const isCorrect = optionIndex === currentQ.answer;
+
+            state.answers[state.currentIndex] = optionIndex;
+            if (isCorrect) {
+                state.score++;
+            }
+            state.showFeedback = true;
+            render();
+        };
+
+        window.handleNext = function() {
+            state.showFeedback = false;
+            if (state.currentIndex < questions.length - 1) {
+                state.currentIndex++;
+                render();
+                window.scrollTo(0, 0);
+            } else {
+                state.screen = 'result';
+                render();
+                window.scrollTo(0, 0);
+            }
+        };
+
+        // 초기 렌더링
+        render();
+
+    </script>
+</body>
+</html>
