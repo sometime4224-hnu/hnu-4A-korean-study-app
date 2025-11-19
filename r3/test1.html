@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Check, X, RefreshCw, ChevronRight, Award, BookOpen } from 'lucide-react';
 
 const App = () => {
@@ -104,7 +104,7 @@ const App = () => {
   };
 
   const handleAnswer = (optionIndex) => {
-    if (showFeedback) return; // Prevent clicking while feedback is shown
+    if (showFeedback) return;
 
     const isCorrect = optionIndex === questions[currentQuestionIndex].answer;
     setUserAnswers({
@@ -129,7 +129,7 @@ const App = () => {
   };
 
   const StartScreen = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 p-4 text-center animate-fade-in">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 p-4 text-center">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
         <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
           <BookOpen className="w-10 h-10 text-blue-600" />
@@ -154,7 +154,7 @@ const App = () => {
 
         <button 
           onClick={handleStart}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-105 shadow-md flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
         >
           퀴즈 시작하기
           <ChevronRight className="w-5 h-5" />
@@ -192,7 +192,7 @@ const App = () => {
 
             <div className="space-y-3">
               {currentQ.options.map((option, idx) => {
-                let btnClass = "w-full p-4 text-left rounded-xl border-2 transition-all duration-200 font-medium flex justify-between items-center ";
+                let btnClass = "w-full p-4 text-left rounded-xl border-2 font-medium flex justify-between items-center ";
                 
                 if (!isAnswered) {
                   btnClass += "border-gray-200 hover:border-blue-400 hover:bg-blue-50 bg-white text-gray-700";
@@ -233,7 +233,7 @@ const App = () => {
 
             {/* Feedback Section */}
             {showFeedback && (
-              <div className="mt-6 pt-6 border-t border-gray-100 animate-fade-in-up">
+              <div className="mt-6 pt-6 border-t border-gray-100">
                 <div className={`p-4 rounded-lg mb-4 ${isCorrect ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
                   <div className="flex items-center gap-2 mb-2">
                     {isCorrect ? 
@@ -352,18 +352,6 @@ const App = () => {
 
   return (
     <div className="font-sans">
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: fadeIn 0.3s ease-out forwards;
-        }
-      `}</style>
       {currentScreen === 'start' && <StartScreen />}
       {currentScreen === 'quiz' && <QuizScreen />}
       {currentScreen === 'result' && <ResultScreen />}
