@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, RefreshCw, ChevronRight, Award, BookOpen } from 'lucide-react';
 
-const QuizApp = () => {
+const App = () => {
   const [currentScreen, setCurrentScreen] = useState('start'); // start, quiz, result
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -352,11 +352,7 @@ const QuizApp = () => {
 
   return (
     <div className="font-sans">
-      {currentScreen === 'start' && <StartScreen />}
-      {currentScreen === 'quiz' && <QuizScreen />}
-      {currentScreen === 'result' && <ResultScreen />}
-      
-      <style jsx global>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -368,8 +364,11 @@ const QuizApp = () => {
           animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
+      {currentScreen === 'start' && <StartScreen />}
+      {currentScreen === 'quiz' && <QuizScreen />}
+      {currentScreen === 'result' && <ResultScreen />}
     </div>
   );
 };
 
-export default QuizApp;
+export default App;
