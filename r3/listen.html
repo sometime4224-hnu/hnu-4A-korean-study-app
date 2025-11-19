@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 듣기 복습 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 선택지 스타일 */
+        .option-label { transition: all 0.2s; }
+        .option-label:hover { background-color: #F3F4F6; }
+        .selected-option { background-color: #EFF6FF !important; border-color: #3B82F6 !important; ring: 2px; ring-color: #BFDBFE; }
+        
+        /* 정답/오답 스타일 */
+        .correct-answer { background-color: #ECFDF5 !important; border-color: #10B981 !important; color: #065F46; font-weight: 600; }
+        .wrong-answer { background-color: #FEF2F2 !important; border-color: #EF4444 !important; color: #991B1B; opacity: 0.8; }
+        
+        /* 8번 문제 집 구조도 스타일 */
+        .house-plan {
+            display: grid;
+            gap: 2px;
+            background-color: #374151;
+            border: 2px solid #374151;
+            padding: 2px;
+            width: 120px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        .room {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #4B5563;
+        }
+        .hallway {
+            background-color: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-20">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-headphones text-xl"></i>
+                <div>
+                    <h1 class="text-lg font-bold leading-none">듣기 복습 3</h1>
+                    <span class="text-xs opacity-80">서울대 한국어</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs opacity-80">내 점수</div>
+                <div id="score-display" class="text-xl font-bold font-mono">- / 12</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 탭 메뉴 -->
+    <div class="bg-white shadow-sm sticky top-14 z-10">
+        <div class="max-w-3xl mx-auto flex">
+            <button onclick="switchTab('test')" id="tab-test" class="flex-1 py-3 text-center font-bold text-indigo-700 border-b-2 border-indigo-700 hover:bg-gray-50 transition">
+                <i class="fas fa-pencil-alt mr-1"></i> 문제 풀기
+            </button>
+            <button onclick="switchTab('script')" id="tab-script" class="flex-1 py-3 text-center font-bold text-gray-500 border-b-2 border-transparent hover:text-indigo-600 hover:bg-gray-50 transition">
+                <i class="fas fa-file-alt mr-1"></i> 대본 보기
+            </button>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="flex-grow max-w-3xl mx-auto w-full p-4 pb-24">
+        
+        <!-- 문제 풀기 섹션 -->
+        <section id="test-section" class="space-y-8">
+            <div class="bg-blue-50 text-blue-800 p-4 rounded-lg text-sm border border-blue-200 flex items-start gap-2">
+                <i class="fas fa-info-circle mt-1"></i>
+                <div>
+                    <p class="font-bold">안내</p>
+                    <p>음원을 별도로 재생한 후 문제를 풀어보세요. 8번 그림 문제는 대본 내용을 바탕으로 재구성되었습니다.</p>
+                </div>
+            </div>
+
+            <div id="questions-wrapper">
+                <!-- 자바스크립트로 문제가 생성됩니다 -->
+            </div>
+        </section>
+
+        <!-- 대본 보기 섹션 -->
+        <section id="script-section" class="hidden space-y-6">
+            <!-- 자바스크립트로 대본이 생성됩니다 -->
+        </section>
+
+    </main>
+
+    <!-- 하단 채점 바 -->
+    <div id="bottom-bar" class="fixed bottom-0 left-0 w-full bg-white border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-30">
+        <div class="max-w-3xl mx-auto flex gap-3">
+            <button onclick="checkAnswers()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow transition transform active:scale-95">
+                채점하기
+            </button>
+            <button onclick="resetTest()" class="flex-none bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg shadow transition">
+                <i class="fas fa-redo-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 문제 데이터
+        const questions = [
+            {
+                id: 1,
+                header: "[1-2] 다음 대화를 잘 듣고 이어질 수 있는 말을 고르십시오.",
+                qText: "1.",
+                options: [
+                    "다음에 열리거든 저한테도 알려 주세요.",
+                    "지난주에 신기한 벼룩시장에 갔다면서요?",
+                    "제가 벼룩시장에 갔는지 안 갔는지 모르겠어요.",
+                    "집 근처에 있는 벼룩시장에 대해서 알려 줄게요."
+                ],
+                answer: 0 // 1번
+            },
+            {
+                id: 2,
+                header: "[1-2] 다음 대화를 잘 듣고 이어질 수 있는 말을 고르십시오.",
+                qText: "2.",
+                options: [
+                    "그 드라마 이름이 뭐예요?",
+                    "우리 형은 드라마를 안 봐요.",
+                    "다음 주말에 저도 한번 봐야겠네요.",
+                    "좋은 드라마가 있으면 추천해 주세요."
+                ],
+                answer: 2 // 3번
+            },
+            {
+                id: 3,
+                header: "[3] 다음 대화를 잘 듣고 여자가 이어서 할 행동으로 알맞은 것을 고르십시오.",
+                qText: "3.",
+                options: [
+                    "잠을 자지 않는다.",
+                    "경찰에게 전화한다.",
+                    "밤 11시에 계속 뛴다.",
+                    "윗집에 사는 사람과 이야기한다."
+                ],
+                answer: 3 // 4번
+            },
+            {
+                id: 4,
+                header: "[4-5] 다음을 듣고 내용과 일치하는 것을 고르십시오.",
+                qText: "4.",
+                options: [
+                    "종교인은 연예인에 비해서 평균 수명이 긴 편이다.",
+                    "남자는 평소에 좋은 생각을 많이 하려고 노력한다.",
+                    "두 사람은 직업별 일하는 시간에 대해 말하고 있다.",
+                    "교수는 다른 직업에 비해서 오래 살지 못하는 편이다."
+                ],
+                answer: 0 // 1번
+            },
+            {
+                id: 5,
+                header: "[4-5] 다음을 듣고 내용과 일치하는 것을 고르십시오.",
+                qText: "5.",
+                options: [
+                    "오늘 많은 가수들이 콘서트를 하러 왔다.",
+                    "여자는 연예인을 좋아하는 것에 대해 긍정적이다.",
+                    "남자는 학생들이 교복을 입는 것을 이해할 수 없다.",
+                    "남자는 여자의 말을 듣고 나서 자기의 생각을 바꿨다."
+                ],
+                answer: 1 // 2번
+            },
+            {
+                id: 6,
+                header: "[6] 다음을 듣고 남자의 중심 생각을 고르십시오.",
+                qText: "6.",
+                options: [
+                    "아무리 바쁘더라도 외국 여행을 꼭 해야 한다.",
+                    "보통 사람들의 생활 모습을 보면 문화를 이해할 수 있다.",
+                    "외국 여행을 가면 시장에서 파는 음식을 먹어 봐야 한다.",
+                    "여행을 갈 때 박물관이나 유명한 관광지는 별로 중요하지 않다."
+                ],
+                answer: 1 // 2번
+            },
+            {
+                id: 7,
+                header: "[7-8] 다음을 듣고 물음에 답하십시오.",
+                qText: "7. 들은 내용으로 맞는 것을 고르십시오.",
+                options: [
+                    "여자의 나라는 항상 날씨가 춥다.",
+                    "여자의 고향집은 바람이 잘 통한다.",
+                    "여자는 복도보다 방이 중요하다고 생각한다.",
+                    "여자의 고향집은 추운 날씨의 영향을 받았다."
+                ],
+                answer: 3 // 4번
+            },
+            {
+                id: 8,
+                header: "[7-8] 다음을 듣고 물음에 답하십시오.",
+                qText: "8. 고향에 있는 집의 모양으로 맞는 것을 고르십시오.",
+                isVisual: true, // 시각적 문제 플래그
+                options: [
+                    // 1번: 복도형 (방들이 떨어져 있음)
+                    `<div class="flex flex-col items-center gap-1"><div class="house-plan" style="grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;"><div class="room">방</div><div class="room">방</div><div class="hallway col-span-2">복도</div></div><div class="text-sm mt-1 text-gray-500">복도식 구조</div></div>`,
+                    // 2번: 거실 중심 분리형
+                    `<div class="flex flex-col items-center gap-1"><div class="house-plan" style="grid-template-areas: 'r1 l r2' 'k k k'; grid-template-columns: 1fr 1.5fr 1fr;"><div class="room" style="grid-area:r1">방</div><div class="hallway" style="grid-area:l">거실</div><div class="room" style="grid-area:r2">방</div><div class="room" style="grid-area:k">부엌</div></div><div class="text-sm mt-1 text-gray-500">거실 중심 분리</div></div>`,
+                    // 3번: 정답 (방과 방이 직접 연결 - 겹집 구조)
+                    `<div class="flex flex-col items-center gap-1"><div class="house-plan" style="grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:0; border: 2px solid #374151;"><div class="room border-r border-b border-gray-300">방</div><div class="room border-b border-gray-300">방</div><div class="room border-r border-gray-300">부엌</div><div class="room">거실</div></div><div class="text-sm mt-1 text-gray-500">직접 연결 (겹집)</div></div>`,
+                    // 4번: 일자형 분리
+                    `<div class="flex flex-col items-center gap-1"><div class="house-plan" style="display:flex; gap:2px;"><div class="room flex-1">방</div><div class="hallway w-4"></div><div class="room flex-1">방</div></div><div class="text-sm mt-1 text-gray-500">분리형 구조</div></div>`
+                ],
+                answer: 2 // 3번 (직접 연결)
+            },
+            {
+                id: 9,
+                header: "[9-10] 다음을 듣고 물음에 답하십시오.",
+                qText: "9. 프로그램에 대한 설명으로 맞는 것을 고르십시오.",
+                options: [
+                    "다른 나라의 인터넷 정보를 알려 주는 프로그램이다.",
+                    "시청자들이 직접 다른 나라에 가서 체험해 볼 수 있다.",
+                    "요즘 사람들의 관심거리를 흥미진진하게 보여 줄 것이다.",
+                    "누구나 다 알고 있는 단순한 정보와 문화를 확인할 수 있다."
+                ],
+                answer: 2 // 3번
+            },
+            {
+                id: 10,
+                header: "[9-10] 다음을 듣고 물음에 답하십시오.",
+                qText: "10. 이 프로그램에 어떤 사람들이 관심을 가질지 고르십시오.",
+                options: [
+                    "프로그램을 만드는 사람",
+                    "먼 나라에 살고 있는 사람",
+                    "외국 문화에 관심이 많은 사람",
+                    "컴퓨터나 인터넷을 잘하는 사람"
+                ],
+                answer: 2 // 3번
+            },
+            {
+                id: 11,
+                header: "[11-12] 다음을 듣고 물음에 답하십시오.",
+                qText: "11. 두 사람이 토론하는 주제로 맞는 것을 고르십시오.",
+                options: [
+                    "임신한 여성을 야단쳐도 될까?",
+                    "노약자석 양보를 강요할 수 있을까?",
+                    "할아버지의 실수를 항상 용서해야 할까?",
+                    "지하철 안에서 화를 내면 어떻게 해야 할까?"
+                ],
+                answer: 1 // 2번
+            },
+            {
+                id: 12,
+                header: "[11-12] 다음을 듣고 물음에 답하십시오.",
+                qText: "12. 들은 내용으로 맞는 것을 고르십시오.",
+                options: [
+                    "지하철 안에서 한 여성이 할아버지에게 화를 냈다.",
+                    "할아버지는 앉아 있던 여성이 임신한 것을 알고 있었다.",
+                    "남자는 할아버지가 지하철에서 한 일은 당연하다고 생각한다.",
+                    "여자는 노인들이 자리를 양보하라고 화를 내는 것을 이해하지 못한다."
+                ],
+                answer: 3 // 4번
+            }
+        ];
+
+        // 대본 데이터
+        const scripts = [
+            {
+                title: "문항 1-2",
+                content: `
+                    <strong>남:</strong> 이 물건 신기한데요.<br>
+                    <strong>여:</strong> 그렇죠? 집 근처에 벼룩시장이 열렸는데 거기에서 샀어요.<br>
+                    <hr class="my-3 border-gray-200">
+                    <strong>남:</strong> 요즘 무슨 드라마가 재미있어요?<br>
+                    <strong>여:</strong> 주말에 '우리 형'이라는 드라마를 봤는데 내용이 따뜻하고 좋던데요.
+                `
+            },
+            {
+                title: "문항 3",
+                content: `
+                    <strong>여:</strong> 윗집에 사는 아이가 밤 11시가 넘도록 계속 뛰는 바람에 잠을 못 자겠어요.<br>
+                    <strong>남:</strong> 아이고, 정말 힘들겠어요.<br>
+                    <strong>여:</strong> 어떡하지요? 경찰한테 전화하면 문제를 해결할 수 있을까요?<br>
+                    <strong>남:</strong> 그래도 이웃인데 경찰한테 전화하는 건 좀 심한 것 같아요. 아이 부모님과 한번 이야기해 보는 건 어때요?<br>
+                    <strong>여:</strong> 그럴까요?
+                `
+            },
+            {
+                title: "문항 4-5",
+                content: `
+                    <strong>여:</strong> 여기 좀 보세요. 재미있는 조사 결과가 있네요.<br>
+                    <strong>남:</strong> 무슨 조사인데요?<br>
+                    <strong>여:</strong> 직업별 평균 수명에 대한 조사예요. 가장 오래 사는 사람은 종교인이래요.<br>
+                    <strong>남:</strong> 그래요? 항상 좋은 생각을 많이 해서 그런 걸까요?<br>
+                    <strong>여:</strong> 그러게요. 교수와 정치인도 오래 사는 편이네요. 반면에 연예인들은 다른 직업에 비해서 오래 살지 못하는군요.<br>
+                    <hr class="my-3 border-gray-200">
+                    <strong>남:</strong> 오늘 여기에 왜 이렇게 사람이 많지요?<br>
+                    <strong>여:</strong> 못 들었어요? 인기 가수 허니가 콘서트를 한대요.<br>
+                    <strong>남:</strong> 그래요? 저기 교복을 입은 학생들도 보이는데 공부도 안 하고 가수를 보려고 여기 오다니 이해가 안 되네요.<br>
+                    <strong>여:</strong> 무슨 소리예요? 학생이라고 항상 공부만 할 수는 없잖아요. 저는 연예인을 좋아하는 게 공부에 방해가 되지는 않을 거라고 봐요.<br>
+                    <strong>남:</strong> 글쎄요. 정말 그럴까요?
+                `
+            },
+            {
+                title: "문항 6",
+                content: `
+                    <strong>남:</strong> 저는 외국에 여행 가면 시장에 꼭 가 봐요.<br>
+                    <strong>여:</strong> 시장이요? 전 박물관이나 유명한 관광지에 가는 게 좋던데... 왜 시장에 가는 거예요?<br>
+                    <strong>남:</strong> 시장에 가면 그 나라 사람들이 흔히 먹는 음식을 비롯해서 여러 가지 생활 모습을 한눈에 볼 수 있잖아요. 저는 사람들이 평범하게 사는 모습이야말로 그 나라의 진짜 문화라고 봐요.
+                `
+            },
+            {
+                title: "문항 7-8",
+                content: `
+                    <strong>발표자:</strong> 저는 제 고향에 있는 집의 특징에 대해서 말씀드리겠습니다. 제 고향은 우리 나라의 북쪽에 있는 날씨가 추운 지역입니다. 그래서 추운 겨울을 잘 지내기 위해 바람이 잘 통하지 않는 구조로 집을 지었습니다. 그리고 다른 지역의 집과 다르게 방과 방 사이에 복도를 만들지 않고 방과 방을 직접 연결했다는 점이 독특합니다. 복도를 만들지 않고 방을 서로 연결한 이유는 날씨가 추울 때 방 안의 따뜻한 열을 잃지 않기 위해서입니다.
+                `
+            },
+            {
+                title: "문항 9-10",
+                content: `
+                    <strong>성우:</strong> 새봄을 맞이하여 저희 KBC에서는 새로운 프로그램 '먼 나라 가까운 나라'를 시작합니다. 요즘 인터넷과 정보 통신의 발달로 나라 간의 교류가 점점 많아지면서 다른 나라 문화에 대한 관심도 높아지고 있습니다. 시청자 여러분들이 궁금해하시고 알고 싶어 하셨던 나라의 생생한 모습을 '먼 나라 가까운 나라'를 통해 흥미진진하게 보실 수 있습니다. 어디에서나 흔히 들을 수 있는 단순한 정보를 알려 드리는 것이 아니라 프로그램 PD가 직접 그 나라를 찾아가서 독특한 문화를 체험한다는 것이 다른 프로그램과의 차이점입니다. 매주 금요일 밤 9시 '먼 나라 가까운 나라'가 여러분의 안방을 찾아갑니다.
+                `
+            },
+            {
+                title: "문항 11-12",
+                content: `
+                    <strong>토론자 1:</strong> 얼마 전 지하철 노약자석에 앉아 있던 젊은 여성에게 한 할아버지가 자리에서 일어나라며 크게 야단을 친 일이 논란이 되고 있습니다. 알고 봤더니 그 젊은 여성은 임신을 해서 그 자리에 앉아 있었는데 그 할아버지가 그것을 모르고 화를 냈다고 합니다. 노약자석이라도 무조건 노인에게 양보하라고 말하는 것은 문제가 있다고 봅니다.<br>
+                    <strong>토론자 2:</strong> 물론 그 일은 할아버지가 실수를 하신 것입니다. 그렇지만 젊은 사람들이 마음대로 노약자석에 앉는 것은 옳지 않다고 봅니다. 노약자석은 힘이 없고 몸이 불편한 사람들을 배려하기 위해 만든 자리 아닙니까? 법으로 정해진 것은 아니지만 모두가 지켜야 한다고 생각합니다.<br>
+                    <strong>토론자 1:</strong> 그렇기는 하지만 젊은 사람들에게 양보하라고 강요할 권리는 없다고 생각합니다. 양보하고 배려하는 것은 스스로 해야 하는 일이지 하라고 강요할 수 있는 일은 아닙니다. 지하철이나 버스 안에서 젊은 사람에게 일어나라고 화를 내는 노인들을 볼 때마다 기분이 상하는 경우가 많습니다.
+                `
+            }
+        ];
+
+        // 상태 변수
+        let userAnswers = {};
+
+        // 초기화
+        function init() {
+            renderQuestions();
+            renderScripts();
+        }
+
+        // 문제 렌더링
+        function renderQuestions() {
+            const container = document.getElementById('questions-wrapper');
+            container.innerHTML = '';
+
+            questions.forEach(q => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden';
+                
+                // 헤더 (문제 범위)
+                if(q.header) {
+                    const header = document.createElement('div');
+                    header.className = 'bg-gray-50 px-6 py-3 border-b border-gray-100 text-sm font-bold text-indigo-600';
+                    header.innerText = q.header;
+                    questionCard.appendChild(header);
+                }
+
+                // 문제 내용
+                const body = document.createElement('div');
+                body.className = 'p-6';
+                
+                const qTitle = document.createElement('h3');
+                qTitle.className = 'text-lg font-bold text-gray-900 mb-4';
+                qTitle.innerText = q.qText;
+                body.appendChild(qTitle);
+
+                // 선택지
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = q.isVisual ? 'grid grid-cols-2 gap-4' : 'space-y-3';
+
+                q.options.forEach((opt, idx) => {
+                    const label = document.createElement('label');
+                    label.className = `option-label block rounded-lg border border-gray-200 cursor-pointer relative overflow-hidden ${q.isVisual ? 'h-full' : 'p-3 flex items-start'}`;
+                    label.id = `q${q.id}-opt${idx}`;
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `q${q.id}`;
+                    radio.value = idx;
+                    radio.className = 'absolute opacity-0 w-0 h-0'; // 숨김
+                    radio.onchange = () => selectOption(q.id, idx);
+
+                    if(q.isVisual) {
+                        // 그림 문제 레이아웃
+                        label.innerHTML = `
+                            <div class="p-3 text-center h-full flex flex-col">
+                                <div class="mb-2 font-bold text-indigo-500 bg-indigo-50 rounded-full w-6 h-6 flex items-center justify-center mx-auto text-xs">${idx + 1}</div>
+                                <div class="flex-grow flex items-center justify-center">${opt}</div>
+                            </div>
+                        `;
+                    } else {
+                        // 일반 텍스트 문제 레이아웃
+                        label.innerHTML = `
+                            <div class="flex-shrink-0 mr-3 mt-0.5 text-indigo-500 font-bold">①②③④`.charAt(idx) + `</div>
+                            <div class="text-gray-700 leading-relaxed">${opt}</div>
+                        `;
+                    }
+                    
+                    label.prepend(radio);
+                    optionsContainer.appendChild(label);
+                });
+
+                body.appendChild(optionsContainer);
+
+                // 피드백 영역
+                const feedback = document.createElement('div');
+                feedback.id = `feedback-${q.id}`;
+                feedback.className = 'mt-4 hidden p-3 rounded bg-gray-50 text-sm';
+                body.appendChild(feedback);
+
+                questionCard.appendChild(body);
+                container.appendChild(questionCard);
+            });
+        }
+
+        // 대본 렌더링
+        function renderScripts() {
+            const container = document.getElementById('script-section');
+            container.innerHTML = '';
+            
+            scripts.forEach(script => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-sm border border-gray-200 p-6';
+                card.innerHTML = `
+                    <h3 class="text-lg font-bold text-indigo-700 mb-4 border-b pb-2">${script.title}</h3>
+                    <div class="text-gray-700 leading-7 space-y-1 text-base">
+                        ${script.content}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 탭 전환
+        function switchTab(tabName) {
+            const testSec = document.getElementById('test-section');
+            const scriptSec = document.getElementById('script-section');
+            const tabTest = document.getElementById('tab-test');
+            const tabScript = document.getElementById('tab-script');
+
+            if(tabName === 'test') {
+                testSec.classList.remove('hidden');
+                scriptSec.classList.add('hidden');
+                tabTest.classList.add('text-indigo-700', 'border-indigo-700');
+                tabTest.classList.remove('text-gray-500', 'border-transparent');
+                tabScript.classList.remove('text-indigo-700', 'border-indigo-700');
+                tabScript.classList.add('text-gray-500', 'border-transparent');
+            } else {
+                testSec.classList.add('hidden');
+                scriptSec.classList.remove('hidden');
+                tabScript.classList.add('text-indigo-700', 'border-indigo-700');
+                tabScript.classList.remove('text-gray-500', 'border-transparent');
+                tabTest.classList.remove('text-indigo-700', 'border-indigo-700');
+                tabTest.classList.add('text-gray-500', 'border-transparent');
+            }
+            window.scrollTo(0,0);
+        }
+
+        // 답안 선택
+        function selectOption(qId, optIdx) {
+            userAnswers[qId] = optIdx;
+            
+            // 스타일 업데이트
+            const options = document.querySelectorAll(`[id^="q${qId}-opt"]`);
+            options.forEach((el, idx) => {
+                if(idx === optIdx) {
+                    el.classList.add('selected-option');
+                } else {
+                    el.classList.remove('selected-option');
+                }
+            });
+        }
+
+        // 채점하기
+        function checkAnswers() {
+            let score = 0;
+            
+            questions.forEach(q => {
+                const userPick = userAnswers[q.id];
+                const feedback = document.getElementById(`feedback-${q.id}`);
+                const correctOpt = document.getElementById(`q${q.id}-opt${q.answer}`);
+                
+                // 초기화
+                const options = document.querySelectorAll(`[id^="q${q.id}-opt"]`);
+                options.forEach(el => el.classList.remove('correct-answer', 'wrong-answer'));
+                
+                feedback.classList.remove('hidden');
+
+                if (userPick === undefined) {
+                    // 안 푼 문제
+                    feedback.className = 'mt-4 p-3 rounded bg-orange-50 text-orange-700 font-bold border border-orange-200';
+                    feedback.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> 문제를 풀지 않았습니다. 정답: ${q.answer + 1}번`;
+                    correctOpt.classList.add('correct-answer');
+                } else if (userPick === q.answer) {
+                    // 정답
+                    score++;
+                    const pickedOpt = document.getElementById(`q${q.id}-opt${userPick}`);
+                    pickedOpt.classList.add('correct-answer');
+                    feedback.className = 'mt-4 p-3 rounded bg-green-50 text-green-700 font-bold border border-green-200';
+                    feedback.innerHTML = `<i class="fas fa-check mr-1"></i> 정답입니다!`;
+                } else {
+                    // 오답
+                    const pickedOpt = document.getElementById(`q${q.id}-opt${userPick}`);
+                    pickedOpt.classList.add('wrong-answer');
+                    correctOpt.classList.add('correct-answer');
+                    feedback.className = 'mt-4 p-3 rounded bg-red-50 text-red-700 font-bold border border-red-200';
+                    feedback.innerHTML = `<i class="fas fa-times mr-1"></i> 오답입니다. 정답은 ${q.answer + 1}번입니다.`;
+                }
+            });
+
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.innerText = `${score} / ${questions.length}`;
+            scoreDisplay.classList.add('text-indigo-200'); // highlight animation hack
+            setTimeout(() => scoreDisplay.classList.remove('text-indigo-200'), 300);
+
+            alert(`채점 완료! 당신의 점수는 ${score}점입니다.`);
+        }
+
+        // 다시 풀기
+        function resetTest() {
+            if(confirm('모든 답안을 지우고 처음부터 다시 시작하시겠습니까?')) {
+                userAnswers = {};
+                document.getElementById('score-display').innerText = '- / 12';
+                renderQuestions();
+                window.scrollTo(0,0);
+            }
+        }
+
+        // 앱 시작
+        init();
+    </script>
+</body>
+</html>
+
