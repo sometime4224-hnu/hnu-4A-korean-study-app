@@ -1,362 +1,344 @@
-import React, { useState } from 'react';
-import { Check, X, RefreshCw, ChevronRight, Award, BookOpen } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울대 한국어 4A 퀴즈</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 글꼴 설정 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        /* 커스텀 스크롤바 (선택 사항) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #60a5fa;
+            border-radius: 4px;
+        }
+        .quiz-card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
 
-const App = () => {
-  const [currentScreen, setCurrentScreen] = useState('start'); // start, quiz, result
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [showFeedback, setShowFeedback] = useState(false);
+<div id="app" class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="quiz-card w-full max-w-2xl bg-white rounded-xl p-6 sm:p-8 lg:p-10 transition-all duration-300">
 
-  const questions = [
-    {
-      id: 1,
-      question: "이번에 새로 나온 텔레비전은 디자인이 (      ) 가격도 비싸지 않아 젊은 사람들에게 인기를 얻고 있다.",
-      options: ["흔하고", "신나고", "평범하며", "독특하며"],
-      answer: 3, // Index 3 -> 독특하며
-      explanation: "'디자인이 ( ) 가격도 비싸지 않아 인기가 있다'는 문맥에서, 긍정적이고 차별화된 특징인 '독특하며(unique)'가 가장 적절합니다."
-    },
-    {
-      id: 2,
-      question: "도서관에서 큰 소리로 통화하는 사람 때문에 (      ). 전화 통화를 도서관 안에서 하는 것은 예의에 맞지 않는 행동이라고 본다.",
-      options: ["먼저 양해를 구했다", "공부에 방해가 된다", "서로 배려하는 것이 필요하다", "불편을 주지 않아야 한다"],
-      answer: 1, // Index 1 -> 공부에 방해가 된다
-      explanation: "큰 소리로 통화하는 사람 때문에 생기는 부정적인 결과가 와야 하므로 '공부에 방해가 된다'가 가장 적절합니다."
-    },
-    {
-      id: 3,
-      question: "부산에 여행 갔다가 (      ) 대학교 때 친구를 만났다. 한국에서 고향 친구를 만날 거라고 생각해 본 적이 없었기 때문에 깜짝 놀랐다.",
-      options: ["급히", "솔직히", "우연히", "은근히"],
-      answer: 2, // Index 2 -> 우연히
-      explanation: "예상치 못하게 친구를 만난 상황이므로 '우연히(coincidentally)'가 적절합니다."
-    },
-    {
-      id: 4,
-      question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n내 전자사전이 고장이 나는 바람에 친구에게 **사전을 빌려다가** 숙제를 끝냈다.",
-      options: ["사전을 빌리다가", "사전을 빌려와서", "사전을 빌린 채로", "사전을 빌렸더라면"],
-      answer: 1, // Index 1 -> 사전을 빌려와서
-      explanation: "'-아/어다가'는 장소를 이동하여 어떤 행동을 함을 나타냅니다. '빌려서 (집으로) 와서'라는 의미인 '빌려와서'가 가장 비슷합니다."
-    },
-    {
-      id: 5,
-      question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n하루 종일 집 안에만 있어서 밖에 날씨가 좋은지 나쁜지 **모르겠다**.",
-      options: ["날씨가 좋을 듯하다", "날씨가 좋지 않다고 본다", "날씨를 알 수가 없다", "날씨가 좋든지 나쁘든지 상관없다"],
-      answer: 2, // Index 2 -> 날씨를 알 수가 없다
-      explanation: "'모르겠다'는 상황을 파악할 수 없다는 뜻이므로 '알 수가 없다'와 의미가 같습니다."
-    },
-    {
-      id: 6,
-      question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n그 친구의 도움이 **없었더라면** 무사히 대학을 졸업하지 못했을 것이다.",
-      options: ["없다가는", "없었으면", "없었다더니", "없으나 마나"],
-      answer: 1, // Index 1 -> 없었으면
-      explanation: "가정법 과거 상황으로, 조건의 의미를 가진 '없었으면(if not for)'이 가장 유사합니다."
-    },
-    {
-      id: 7,
-      question: "최근 50대 남자가 선풍기를 켜 놓은 채로 잠을 자다가 사망했다는 신문 기사가 (      ). 선풍기 때문에 사망할 수도 있다는 생각은 과학적으로 근거가 없다고 하는데...",
-      options: ["논란이 되고 있다", "현실성이 없다고 한다", "문제가 안 된다고 한다", "앞뒤가 안 맞는다고 한다"],
-      answer: 0, // Index 0 -> 논란이 되고 있다
-      explanation: "과학적 근거가 없는데도 기사가 계속 나와 사람들이 믿게 되는 상황은 사회적 '논란'이 되고 있는 상황입니다."
-    },
-    {
-      id: 8,
-      question: "김서영 작가의 소설 '비밀'이 영화로 만들어진다... 배우 이정민이 이 작품에 주인공으로 (      ).",
-      options: ["출연을 한다", "주목을 받는다", "반응을 얻었다", "인기를 끌었다"],
-      answer: 0, // Index 0 -> 출연을 한다
-      explanation: "배우가 배역을 맡아 연기하는 것은 '출연을 한다'입니다."
-    },
-    {
-      id: 9,
-      question: "올해 동아리에 가입한 신입생을 위한 환영회가 열립니다... (      ) 회원 여러분께서는 꼭 참석해 주시기 바랍니다.",
-      options: ["바쁘시거든", "바쁘시며", "바쁘시더라도", "바쁘셨더라면"],
-      answer: 2, // Index 2 -> 바쁘시더라도
-      explanation: "상황이 어렵더라도 행동을 요청할 때 쓰는 양보의 표현 '-더라도'가 적절합니다."
-    },
-    {
-      id: 10,
-      question: "아침에 급하게 나오는 바람에 깜박 잊고 창문을 (      ) 집을 나왔다.",
-      options: ["열어 놓다가", "열어 놓았다가", "열어 놓더라도", "열어 놓은 채로"],
-      answer: 3, // Index 3 -> 열어 놓은 채로
-      explanation: "어떤 상태가 지속됨을 나타내는 '-은 채로'가 적절합니다. (창문이 열려 있는 상태로)"
-    },
-    {
-      id: 11,
-      question: "(건의문) ...하지만 대출이 안 되기 때문에... 책을 (      ) 집에서도 읽을 수 있도록 해 주시면 좋겠습니다...",
-      options: ["빌려다가", "빌리거든", "빌리더라도", "빌리기는커녕"],
-      answer: 0, // Index 0 -> 빌려다가
-      explanation: "도서관의 책을 빌려서 장소를 이동(집)하여 읽기를 원하므로 '-어다가'가 쓰인 '빌려다가'가 맞습니다."
-    },
-    {
-      id: 12,
-      question: "노량진 수산 시장은 서울 동작구 노량진동에 위치한 시장이다. (      ) 다양한 수산물이 판매되는 곳인데...",
-      options: ["생선이라는", "생선이든지", "생선이야말로", "생선을 비롯한"],
-      answer: 3, // Index 3 -> 생선을 비롯한
-      explanation: "대표적인 것을 예로 들고 그 외의 것들을 포함할 때 '-(을)를 비롯한'을 사용합니다."
-    }
-  ];
+        <!-- Header -->
+        <header class="mb-6 border-b pb-4">
+            <h1 class="text-3xl font-bold text-gray-800">서울대 한국어 4A: 평가하기</h1>
+            <p id="score-display" class="text-lg text-gray-600 mt-1">
+                점수: <span id="current-score" class="font-semibold text-blue-600">0</span> / <span id="total-questions">12</span>
+            </p>
+        </header>
 
-  const handleStart = () => {
-    setScore(0);
-    setCurrentQuestionIndex(0);
-    setUserAnswers({});
-    setShowFeedback(false);
-    setCurrentScreen('quiz');
-  };
-
-  const handleAnswer = (optionIndex) => {
-    if (showFeedback) return;
-
-    const isCorrect = optionIndex === questions[currentQuestionIndex].answer;
-    setUserAnswers({
-      ...userAnswers,
-      [currentQuestionIndex]: optionIndex
-    });
-
-    if (isCorrect) {
-      setScore(score + 1);
-    }
-    
-    setShowFeedback(true);
-  };
-
-  const handleNext = () => {
-    setShowFeedback(false);
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      setCurrentScreen('result');
-    }
-  };
-
-  const StartScreen = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 p-4 text-center">
-      <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
-        <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <BookOpen className="w-10 h-10 text-blue-600" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">한국어 능력 평가</h1>
-        <p className="text-gray-600 mb-8">서울대학교 한국어 4A Workbook<br/>기반 모의고사</p>
-        
-        <div className="space-y-4 text-left bg-gray-50 p-4 rounded-lg mb-8 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <span className="bg-blue-200 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">문항</span>
-            <span>총 12문제</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="bg-green-200 text-green-700 px-2 py-0.5 rounded text-xs font-bold">내용</span>
-            <span>어휘, 문법, 읽기, 기능</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="bg-purple-200 text-purple-700 px-2 py-0.5 rounded text-xs font-bold">시간</span>
-            <span>제한 없음 (권장 10분)</span>
-          </div>
+        <!-- Quiz Area -->
+        <div id="quiz-area">
+            <!-- Question and Options will be injected here -->
         </div>
 
-        <button 
-          onClick={handleStart}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
-        >
-          퀴즈 시작하기
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+        <!-- Feedback Area -->
+        <div id="feedback-area" class="mt-6 p-4 rounded-lg hidden transition-all duration-300">
+            <div id="feedback-message" class="font-bold text-lg"></div>
+            <div id="rationale-text" class="mt-2 text-sm"></div>
+            <button id="next-button" class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                다음 문제
+            </button>
+        </div>
+
+        <!-- Results Area -->
+        <div id="results-area" class="text-center hidden">
+            <h2 class="text-3xl font-extrabold text-blue-600 mb-4">퀴즈 완료!</h2>
+            <p class="text-xl text-gray-700">최종 점수:</p>
+            <p id="final-score" class="text-6xl font-black text-blue-800 my-4">0/12</p>
+            <p class="text-lg text-gray-600">수고하셨습니다. 다시 풀어보시겠어요?</p>
+            <button id="restart-button" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 shadow-lg">
+                퀴즈 다시 시작
+            </button>
+        </div>
+
     </div>
-  );
+</div>
 
-  const QuizScreen = () => {
-    const currentQ = questions[currentQuestionIndex];
-    const isAnswered = userAnswers[currentQuestionIndex] !== undefined;
-    const isCorrect = isAnswered && userAnswers[currentQuestionIndex] === currentQ.answer;
+<script>
+    const questions = [
+        {
+            questionNumber: 1,
+            question: "이번에 새로 나온 텔레비전은 디자인이 ( ) 가격도 비싸지 않아 젊은 사람들에게 인기를 얻고 있다.",
+            options: [
+                { text: "흔하고", isCorrect: false, rationale: "'흔하다'는 평범하고 특별하지 않다는 뜻으로, 인기 요인과는 거리가 뭅니다." },
+                { text: "신나고", isCorrect: false, rationale: "'신나다'는 기분이나 분위기에 쓰는 말이며, 디자인을 묘사하는 데는 적절하지 않습니다." },
+                { text: "평범하며", isCorrect: false, rationale: "'평범하다'는 특별한 장점이 없어 인기를 얻는 이유로 보기 어렵습니다." },
+                { text: "독특하며", isCorrect: true, rationale: "'가격도 비싸지 않다'는 긍정적 내용과 함께 젊은 사람들에게 인기를 얻는 이유로 디자인의 개성('독특하다')이 적절합니다." }
+            ]
+        },
+        {
+            questionNumber: 2,
+            question: "도서관에서 큰 소리로 통화하는 사람 때문에( ). 전화 통화를 도서관 안에서 하는 것은 예의에 맞지 않는 행동이라고 본다.",
+            options: [
+                { text: "먼저 양해를 구했다", isCorrect: false, rationale: "'...때문에' 다음에는 원인/이유가 와야 하는데, 이는 상대방의 행동에 대한 반응이므로 적절하지 않습니다." },
+                { text: "공부에 방해가 된다", isCorrect: true, rationale: "큰 소리 통화가 '공부에 방해가 된다'는 것이 원인이 되어 뒷문장의 '예의에 맞지 않는 행동'으로 판단하는 것이 자연스럽습니다." },
+                { text: "서로 배려하는 것이 필요하다", isCorrect: false, rationale: "문장의 구조상 원인/이유가 필요하며, '배려하는 것이 필요하다'는 결론적인 내용이라 적절하지 않습니다." },
+                { text: "불편을 주지 않아야 한다", isCorrect: false, rationale: "이는 당위적 내용으로, 앞 문장의 원인을 설명하는 데는 부적합합니다." }
+            ]
+        },
+        {
+            questionNumber: 3,
+            question: "부산에 여행 갔다가 ( ) 대학교 때 친구를 만났다. 한국에서 고향 친구를 만날 거라고 생각해 본 적이 없었기 때문에 깜짝 놀랐다.",
+            options: [
+                { text: "급히", isCorrect: false, rationale: "'급히'는 서두르는 행동을 의미하며, 예상치 못한 만남과는 관련이 없습니다." },
+                { text: "솔직히", isCorrect: false, rationale: "'솔직히'는 자신의 마음을 숨기지 않고 말할 때 쓰는 부사입니다." },
+                { text: "우연히", isCorrect: true, rationale: "뒤의 '깜짝 놀랐다'는 반응은 '예상하지 못한 만남'을 뜻하는 '우연히'와 가장 자연스럽게 연결됩니다." },
+                { text: "은근히", isCorrect: false, rationale: "'은근히'는 겉으로 드러나지 않게 속으로 품는다는 의미로, 친구를 만나는 상황에는 맞지 않습니다." }
+            ]
+        },
+        {
+            questionNumber: 4,
+            question: "내 전자사전이 고장이 나는 바람에 친구에게 사전을 밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n내 전자사전이 고장이 나는 바람에 친구에게 사전을 <span class='font-bold text-red-600'>빌려다가</span> 숙제를 끝냈다.",
+            options: [
+                { text: "사전을 빌리다가", isCorrect: false, rationale: "'-다가'는 앞선 행동을 하던 중 중단하고 다른 행동을 할 때 주로 쓰이며, 완료 후 결과물을 가져오는 의미는 약합니다." },
+                { text: "사전을 빌려와서", isCorrect: true, rationale: "'-아/어다가'는 '앞 행동을 완료하고 그 결과물을 가지고 다음 행동을 한다'는 의미로, '-아/어 와서'와 가장 비슷한 의미로 사용됩니다." },
+                { text: "사전을 빌린 채로", isCorrect: false, rationale: "'-은 채로'는 앞선 행동의 상태를 유지한다는 의미로, 다음 행동의 수단이 되는 의미와는 다릅니다." },
+                { text: "사전을 빌렸더라면", isCorrect: false, rationale: "'-었더라면'은 과거 사실과 반대되는 가정을 나타내는 문법입니다." }
+            ]
+        },
+        {
+            questionNumber: 5,
+            question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n하루 종일 집 안에만 있어서 밖에 날씨가 <span class='font-bold text-red-600'>좋은지 나쁜지 모르겠다.</span>",
+            options: [
+                { text: "날씨가 좋을 듯하다", isCorrect: false, rationale: "'-ㄹ 듯하다'는 추측을 나타내는 표현이며, '모르겠다'는 확실한 판단 불가 상태를 나타냅니다." },
+                { text: "날씨를 알 수가 없다", isCorrect: true, rationale: "'좋은지 나쁜지 모르겠다'는 날씨의 상태를 판단할 수 없다는 의미로, '알 수가 없다'와 동일합니다." },
+                { text: "날씨가 좋지 않다고 본다", isCorrect: false, rationale: "이는 날씨가 안 좋을 것이라는 추측/의견이며, '모르겠다'는 뜻과는 다릅니다." },
+                { text: "날씨가 좋든지 나쁘든지 상관없다", isCorrect: false, rationale: "이는 날씨의 상태와 관계없이 다음 행동을 한다는 의미입니다." }
+            ]
+        },
+        {
+            questionNumber: 6,
+            question: "밑줄 친 부분과 의미가 비슷한 것을 고르십시오.\n\n그 친구의 도움이 <span class='font-bold text-red-600'>없었더라면</span> 무사히 대학을 졸업하지 못했을 것이다.",
+            options: [
+                { text: "없다가는", isCorrect: false, rationale: "'-다가는'은 앞 행동을 계속하면 뒤에 안 좋은 결과가 올 것을 예상할 때 씁니다." },
+                { text: "없었으면", isCorrect: true, rationale: "'-었더라면'은 과거 사실에 반대되는 가정을 나타내며, 가정의 의미를 가진 '-었으면'과 의미가 유사하게 사용됩니다." },
+                { text: "없었다더니", isCorrect: false, rationale: "'-다더니'는 남이 말한 내용을 전달할 때 씁니다." },
+                { text: "없으나 마나", isCorrect: false, rationale: "'-으나 마나'는 앞선 행동이 아무런 영향을 미치지 못할 때 쓰는 표현입니다." }
+            ]
+        },
+        {
+            questionNumber: 7,
+            question: "최근 50대 남자가 선풍기를 켜 놓은 채로 잠을 자다가 사망했다는 신문 기사가 ( ). 선풍기 때문에 사망할 수도 있다는 생각은 과학적으로 근거가 없다고 하는데 신문에 그런 기사가 계속해서 나오기 때문에 사람들이 그것을 사실로 믿게 되는 것 같다.",
+            options: [
+                { text: "논란이 되고 있다", isCorrect: true, rationale: "'과학적 근거 없음'과 '신문 기사 지속'이라는 상반된 상황이 존재하므로, 사람들 사이에서 의견 대립과 화제가 된다는 의미의 '논란이 되고 있다'가 적절합니다." },
+                { text: "현실성이 없다고 한다", isCorrect: false, rationale: "이는 과학적 근거가 없다는 내용과 중복되며, '신문 기사가 계속 나온다'는 상황과는 자연스럽게 연결되지 않습니다." },
+                { text: "문제가 안 된다고 한다", isCorrect: false, rationale: "내용상 사망 기사가 나온다는 것은 문제가 되고 있다는 의미이므로 문맥에 맞지 않습니다." },
+                { text: "앞뒤가 안 맞는다고 한다", isCorrect: false, rationale: "선풍기 사망설 자체가 논리적 모순을 포함할 수는 있지만, 기사가 계속 나온다는 현상을 묘사하는 데는 '논란'이 더 적절합니다." }
+            ]
+        },
+        {
+            questionNumber: 8,
+            question: "이제 막 대학교에 입학한 배우 이정민이 이 작품에 주인공으로 ( ).",
+            options: [
+                { text: "출연을 한다", isCorrect: true, rationale: "영화나 드라마에 배우가 등장하는 행위는 가장 일반적으로 '출연을 한다'고 표현합니다." },
+                { text: "주목을 받는다", isCorrect: false, rationale: "'주목을 받다'는 '관심의 대상이 되다'는 뜻으로, '주인공으로'라는 역할 명사와는 연결이 부자연스럽습니다." },
+                { text: "반응을 얻었다", isCorrect: false, rationale: "'반응을 얻다'는 작품의 결과에 대한 평가를 말하며, 주인공으로서의 역할을 설명하는 동사로는 적절하지 않습니다." },
+                { text: "인기를 끌었다", isCorrect: false, rationale: "이는 배우의 상태나 작품의 결과를 나타내는 것이며, '주인공으로'라는 문맥에 직접 연결되는 동사로는 '출연'이 가장 자연스럽습니다." }
+            ]
+        },
+        {
+            questionNumber: 9,
+            question: "( ) 회원 여러분께서는 꼭 참석해 주시기 바랍니다.",
+            options: [
+                { text: "바쁘시거든", isCorrect: false, rationale: "'-거든'은 조건이나 가정을 나타내며, 요청/권유를 강조하는 '꼭'과 함께 쓰기에 어색합니다." },
+                { text: "바쁘시더라도", isCorrect: true, rationale: "'꼭 참석해 주시기 바랍니다'라는 강한 요청/권유와 함께 쓰여, '바쁘다는 양보의 상황이 있더라도' 참석을 부탁한다는 의미로 가장 적절합니다." },
+                { text: "바쁘시며", isCorrect: false, rationale: "'-며'는 나열이나 동시 동작을 나타내므로 문맥상 부적절합니다." },
+                { text: "바쁘셨더라면", isCorrect: false, rationale: "'-었더라면'은 과거 사실에 반대되는 가정을 나타내는 문법입니다." }
+            ]
+        },
+        {
+            questionNumber: 10,
+            question: "아침에 급하게 나오는 바람에 깜박 잊고 창문을 ( ) 집을 나왔다. 저녁에 집에 돌아가 보니 낮에 내린 폭우로 방이 엉망이 되어 있었다. 창문 아래에 있는 침대가 빗물에 온통 젖어 버렸다.",
+            options: [
+                { text: "열어 놓다가", isCorrect: false, rationale: "'-다가'는 동작의 중단을 의미하며, 창문이 열린 상태가 유지된 상황에 적절하지 않습니다." },
+                { text: "열어 놓았다가", isCorrect: false, rationale: "'-았다가'는 앞선 동작이 끝난 후 다른 동작으로 전환될 때 쓰입니다." },
+                { text: "열어 놓더라도", isCorrect: false, rationale: "'-더라도'는 양보의 의미를 나타내며, 창문을 열어 놓은 '상태'가 유지되어 피해가 발생한 문맥에는 적절하지 않습니다." },
+                { text: "열어 놓은 채로", isCorrect: true, rationale: "폭우로 인해 방이 엉망이 된 결과는 '창문이 열린 상태가 그대로 유지된 것'이 원인이므로, 상태 유지를 나타내는 '-은 채로'가 가장 적절합니다." }
+            ]
+        },
+        {
+            questionNumber: 11,
+            question: "다음은 건의문입니다. ( )에 알맞은 것을 고르십시오.\n\n외국인에게 대출을 해 주세요.\n... 하지만 대출이 안 되기 때문에 도서관 안에서만 책을 읽어야 해서 무척 불편합니다. 책을 ( ) 집에서도 읽을 수 있도록 해 주시면 좋겠습니다.",
+            options: [
+                { text: "빌려다가", isCorrect: true, rationale: "'-아/어다가'는 '책을 빌리다'는 행위를 완료한 후 그 책(결과물)을 가지고 '집에서 읽다'라는 다음 행위를 한다는 의미로, 대출을 건의하는 문맥에 가장 적절합니다." },
+                { text: "빌리거든", isCorrect: false, rationale: "'-거든'은 조건이나 가정을 나타내는 표현입니다." },
+                { text: "빌리더라도", isCorrect: false, rationale: "'-더라도'는 양보의 의미를 나타내는 표현입니다." },
+                { text: "빌리기는커녕", isCorrect: false, rationale: "'-기는커녕'은 앞선 행위는 물론이고 그보다 쉬운 뒤의 행위도 못함을 나타내는 표현입니다." }
+            ]
+        },
+        {
+            questionNumber: 12,
+            question: "다음은 시장 소개입니다. ( )에 알맞은 것을 고르십시오.\n\n노량진 수산 시장은 서울 동작구 노량진동에 위치한 시장이다. ( ) 다양한 수산물이 판매되는 곳인데 바다에서 나는 것은 없는 게 없는 시장이라고 할 수 있다.",
+            options: [
+                { text: "생선이라는", isCorrect: false, rationale: "특정한 대상의 이름을 말할 때 쓰이며, '다양한 수산물'과의 연결이 부자연스럽습니다." },
+                { text: "생선이든지", isCorrect: false, rationale: "'-든지'는 나열된 여러 가지 중 어느 것이든 선택될 수 있음을 나타내는 표현입니다." },
+                { text: "생선이야말로", isCorrect: false, rationale: "'-이야말로'는 앞에 있는 대상을 특히 강조할 때 쓰이며, 뒤 문장의 '다양한 수산물'과 연결이 매끄럽지 않습니다." },
+                { text: "생선을 비롯한", isCorrect: true, rationale: "'생선을 비롯한'은 생선을 포함하여 그 외에 여러 가지 다른 수산물도 있다는 의미로, 뒤의 '다양한 수산물'을 설명하는 문맥에 가장 적절합니다." }
+            ]
+        }
+    ];
 
-    return (
-      <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center">
-        <div className="w-full max-w-2xl">
-          {/* Progress Bar */}
-          <div className="mb-6 bg-white rounded-full h-3 w-full overflow-hidden shadow-sm">
-            <div 
-              className="bg-blue-500 h-full transition-all duration-500 ease-out"
-              style={{ width: `${((currentQuestionIndex) / questions.length) * 100}%` }}
-            ></div>
-          </div>
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOptionIndex = null;
+    let quizActive = true;
 
-          {/* Question Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm font-bold text-blue-500 tracking-widest">QUESTION {currentQuestionIndex + 1} / {questions.length}</span>
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-md">빈칸 / 유의어 찾기</span>
-            </div>
-            
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-8 whitespace-pre-wrap">
-              {currentQ.question}
-            </h2>
+    const quizArea = document.getElementById('quiz-area');
+    const feedbackArea = document.getElementById('feedback-area');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const rationaleText = document.getElementById('rationale-text');
+    const nextButton = document.getElementById('next-button');
+    const resultsArea = document.getElementById('results-area');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const restartButton = document.getElementById('restart-button');
+    const currentScoreDisplay = document.getElementById('current-score');
+    document.getElementById('total-questions').textContent = questions.length;
 
-            <div className="space-y-3">
-              {currentQ.options.map((option, idx) => {
-                let btnClass = "w-full p-4 text-left rounded-xl border-2 font-medium flex justify-between items-center ";
-                
-                if (!isAnswered) {
-                  btnClass += "border-gray-200 hover:border-blue-400 hover:bg-blue-50 bg-white text-gray-700";
-                } else {
-                  if (idx === currentQ.answer) {
-                    btnClass += "border-green-500 bg-green-50 text-green-700 shadow-sm";
-                  } else if (idx === userAnswers[currentQuestionIndex]) {
-                    btnClass += "border-red-500 bg-red-50 text-red-700";
-                  } else {
-                    btnClass += "border-gray-100 bg-gray-50 text-gray-400";
-                  }
-                }
+    function displayQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            showResults();
+            return;
+        }
 
-                return (
-                  <button 
-                    key={idx} 
-                    onClick={() => !isAnswered && handleAnswer(idx)}
-                    disabled={isAnswered}
-                    className={btnClass}
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
-                        !isAnswered ? 'border-gray-300 text-gray-500' :
-                        idx === currentQ.answer ? 'border-green-500 bg-green-500 text-white' :
-                        idx === userAnswers[currentQuestionIndex] ? 'border-red-500 bg-red-500 text-white' :
-                        'border-gray-200 text-gray-300'
-                      }`}>
-                        {idx + 1}
-                      </span>
-                      {option}
-                    </span>
-                    {isAnswered && idx === currentQ.answer && <Check className="w-5 h-5 text-green-600" />}
-                    {isAnswered && idx === userAnswers[currentQuestionIndex] && idx !== currentQ.answer && <X className="w-5 h-5 text-red-600" />}
-                  </button>
-                );
-              })}
-            </div>
+        const qData = questions[currentQuestionIndex];
+        selectedOptionIndex = null;
+        feedbackArea.classList.add('hidden');
+        quizArea.innerHTML = '';
+        nextButton.disabled = true;
+        nextButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-            {/* Feedback Section */}
-            {showFeedback && (
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <div className={`p-4 rounded-lg mb-4 ${isCorrect ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    {isCorrect ? 
-                      <Check className="w-5 h-5 text-green-600" /> : 
-                      <X className="w-5 h-5 text-red-600" />
-                    }
-                    <span className={`font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                      {isCorrect ? '정답입니다!' : '오답입니다.'}
-                    </span>
-                  </div>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    <span className="font-semibold text-gray-900">해설:</span> {currentQ.explanation}
-                  </p>
+        const questionHtml = `
+            <div class="mb-6">
+                <p class="text-xl font-semibold text-gray-800 mb-3">
+                    Q${qData.questionNumber}.
+                    <span class="text-base font-normal text-blue-700 ml-2">(문항 ${qData.questionNumber}/${questions.length})</span>
+                </p>
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg text-lg leading-relaxed whitespace-pre-line">
+                    ${qData.question}
                 </div>
-                <button 
-                  onClick={handleNext}
-                  className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  {currentQuestionIndex < questions.length - 1 ? '다음 문제' : '결과 보기'}
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${qData.options.map((option, index) => `
+                    <button
+                        data-index="${index}"
+                        class="option-button w-full text-left p-4 border border-gray-300 rounded-lg bg-white hover:bg-blue-50 transition-colors duration-150 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        ${index + 1}. ${option.text}
+                    </button>
+                `).join('')}
+            </div>
+        `;
+        quizArea.innerHTML = questionHtml;
 
-  const ResultScreen = () => {
-    const percentage = Math.round((score / questions.length) * 100);
-    let message = "";
-    let colorClass = "";
-
-    if (percentage >= 90) {
-      message = "완벽해요! 뛰어난 한국어 실력입니다.";
-      colorClass = "text-blue-600";
-    } else if (percentage >= 70) {
-      message = "훌륭해요! 조금만 더 노력하면 만점이겠네요.";
-      colorClass = "text-green-600";
-    } else {
-      message = "수고하셨습니다! 오답 노트를 확인해보세요.";
-      colorClass = "text-orange-600";
+        document.querySelectorAll('.option-button').forEach(button => {
+            button.addEventListener('click', handleOptionClick);
+        });
     }
 
-    return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
-            <div className="bg-blue-600 p-8 text-center text-white">
-              <div className="bg-white/20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <Award className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-2">퀴즈 결과</h2>
-              <div className="text-6xl font-extrabold mb-2 tracking-tight">
-                {score}<span className="text-3xl text-blue-200 font-normal">/{questions.length}</span>
-              </div>
-              <p className="text-blue-100 font-medium">{message}</p>
-            </div>
-            
-            <div className="p-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-blue-500" />
-                문제 다시보기
-              </h3>
-              
-              <div className="space-y-4">
-                {questions.map((q, idx) => {
-                  const isUserCorrect = userAnswers[idx] === q.answer;
-                  return (
-                    <div key={q.id} className={`border rounded-xl p-5 ${isUserCorrect ? 'bg-white border-gray-200' : 'bg-red-50 border-red-200'}`}>
-                      <div className="flex justify-between items-start gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <span className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${isUserCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {idx + 1}
-                          </span>
-                          <span className={`font-bold text-sm ${isUserCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                            {isUserCorrect ? '정답' : '오답'}
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-gray-800 font-medium mb-3 pl-11 text-sm md:text-base leading-relaxed">
-                        {q.question}
-                      </p>
-                      <div className="pl-11 text-sm space-y-1">
-                        <div className="text-gray-500">
-                          내가 고른 답: <span className={`font-medium ${isUserCorrect ? 'text-green-600' : 'text-red-600 line-through'}`}>{q.options[userAnswers[idx]]}</span>
-                        </div>
-                        {!isUserCorrect && (
-                          <div className="text-blue-600 font-bold">
-                            정답: {q.options[q.answer]}
-                          </div>
-                        )}
-                        <div className="mt-3 bg-gray-50 p-3 rounded-lg text-gray-600 text-xs md:text-sm">
-                          <span className="font-bold text-gray-700">해설:</span> {q.explanation}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+    function handleOptionClick(event) {
+        if (!quizActive || selectedOptionIndex !== null) return;
 
-              <button 
-                onClick={handleStart}
-                className="mt-8 w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                <RefreshCw className="w-5 h-5" />
-                다시 풀기
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
+        const clickedButton = event.currentTarget;
+        const index = parseInt(clickedButton.getAttribute('data-index'));
+        selectedOptionIndex = index;
 
-  return (
-    <div className="font-sans">
-      {currentScreen === 'start' && <StartScreen />}
-      {currentScreen === 'quiz' && <QuizScreen />}
-      {currentScreen === 'result' && <ResultScreen />}
-    </div>
-  );
-};
+        // Visual feedback for selection
+        document.querySelectorAll('.option-button').forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-blue-300', 'bg-blue-100');
+        });
+        clickedButton.classList.add('ring-4', 'ring-blue-300', 'bg-blue-100');
 
-export default App;
+        checkAnswer(index, clickedButton);
+    }
+
+    function checkAnswer(selectedIndex, clickedButton) {
+        const qData = questions[currentQuestionIndex];
+        const selectedOption = qData.options[selectedIndex];
+        const correctOption = qData.options.find(opt => opt.isCorrect);
+
+        // Disable all options
+        document.querySelectorAll('.option-button').forEach(btn => {
+            btn.disabled = true;
+        });
+
+        // Update score and feedback message
+        if (selectedOption.isCorrect) {
+            score++;
+            feedbackArea.classList.add('bg-green-100', 'border-green-400');
+            feedbackArea.classList.remove('bg-red-100', 'border-red-400');
+            feedbackMessage.textContent = '정답입니다! 🎉';
+            clickedButton.classList.add('bg-green-200', 'ring-green-500', 'ring-4');
+        } else {
+            feedbackArea.classList.add('bg-red-100', 'border-red-400');
+            feedbackArea.classList.remove('bg-green-100', 'border-green-400');
+            feedbackMessage.textContent = '아쉽지만 오답입니다. 😥';
+            clickedButton.classList.add('bg-red-200', 'ring-red-500', 'ring-4');
+            // Highlight correct answer
+            document.querySelector(`.option-button[data-index="${qData.options.findIndex(opt => opt.isCorrect)}"]`).classList.add('bg-green-100', 'ring-green-500', 'ring-2');
+        }
+
+        // Display rationale
+        rationaleText.innerHTML = `
+            <p class="font-bold mt-3">해설:</p>
+            <p><span class="text-green-700 font-semibold">정답 (${qData.options.findIndex(opt => opt.isCorrect) + 1}번):</span> ${correctOption.rationale}</p>
+            ${!selectedOption.isCorrect ? `<p class="text-red-700 font-semibold mt-1">선택지 (${selectedIndex + 1}번):</p><p>${selectedOption.rationale}</p>` : ''}
+        `;
+
+        // Show feedback area
+        feedbackArea.classList.remove('hidden');
+        nextButton.disabled = false;
+        nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        currentScoreDisplay.textContent = score;
+    }
+
+    function goToNextQuestion() {
+        currentQuestionIndex++;
+        displayQuestion();
+    }
+
+    function showResults() {
+        quizArea.classList.add('hidden');
+        feedbackArea.classList.add('hidden');
+        resultsArea.classList.remove('hidden');
+        currentScoreDisplay.textContent = score;
+        finalScoreDisplay.textContent = `${score}/${questions.length}`;
+        quizActive = false;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizActive = true;
+        resultsArea.classList.add('hidden');
+        quizArea.classList.remove('hidden');
+        currentScoreDisplay.textContent = score;
+        displayQuestion();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    restartButton.addEventListener('click', restartQuiz);
+
+    // Initial setup
+    window.onload = function() {
+        displayQuestion();
+    };
+
+</script>
+
+</body>
+</html>
